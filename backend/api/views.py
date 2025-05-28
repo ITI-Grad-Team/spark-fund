@@ -51,7 +51,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated] #Only authenticated users can access this view
 
-    def get_object(self):
+    def get_object(self):   
         return self.request.user
     
     def delete(self, request, *args, **kwargs):
@@ -63,3 +63,4 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
             return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
         request.user.delete()
         return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
+    
