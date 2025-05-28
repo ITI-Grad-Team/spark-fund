@@ -26,6 +26,7 @@ urlpatterns = [
    path('profile/', views.UserProfileView.as_view(), name='user-profile'),
 #    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 #    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+   path('projects/', views.ProjectCreateView.as_view(), name='project-create'),
 
 ]
 
