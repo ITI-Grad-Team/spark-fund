@@ -21,13 +21,18 @@ from project import settings
 from . import views
 
 urlpatterns = [
-   path('customuser/', views.CustomUserAPIView.as_view()),
-   path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
-   path('profile/', views.UserProfileView.as_view(), name='user-profile'),
+    path('customuser/', views.CustomUserAPIView.as_view()),
+    path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
+    path('profile/', views.UserProfileView.as_view(), name='user-profile'),
 #    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
 #    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-   path('projects/', views.ProjectCreateView.as_view(), name='project-create'),
-
+    path('projects/', views.ProjectCreateView.as_view(), name='project-create'),
+    path('projects/', views.ProjectAPIView.as_view(), name='project-list'),
+    path('projects/<int:id>/', views.ProjectAPIView.as_view(), name='project-detail'),
+    path('projects/rate/<int:id>/', views.ProjectRateAPIView.as_view(), name='project-rate'),
+    path('projects/<int:project_id>/comment/', views.ProjectAddCommentAPIView.as_view(), name='project-add-comment'),
+    path('comments/<int:comment_id>/reply/', views.CommentAddReplyAPIView.as_view(), name='comment-add-reply'),
+    path('projects/<int:id>/donate/', views.ProjectDonateAPIView.as_view(), name='add-donation'),
 ]
 
 

@@ -1,7 +1,7 @@
 import re
 from rest_framework import serializers
 from api.models import CustomUser
-from .models import Project, Tag, Category, ProjectImage
+from .models import Project, Tag, Category, ProjectImage, Reply, Comment
 from django.contrib.auth import get_user_model
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -59,9 +59,26 @@ class ProjectImageSerializer(serializers.ModelSerializer):
 #
 #   Cleaner Views:
 #   - Views remain clean and focused on routing and permissions instead of data handling.
+
+class ReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Reply
+        fields = ['id', 'user', 'content', 'created_at']
+
+class CommentSerializer(serializers.ModelSerializer):
+    replies = ReplySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'project' ,'content', 'created_at', 'replies']
+
+
+
+
 class ProjectSerializer(serializers.ModelSerializer):
     project_creator = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
     images = ProjectImageSerializer(many=True, read_only=True)
+    comments = CommentSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True)
     category = CategorySerializer()
 
@@ -73,7 +90,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'start_date', 'end_date',
             'category', 'project_creator',
             'created_at', 'updated_at',
-            'images'
+            'images',  'comments' ,'average_rating'
         ]
 
     def create(self, validated_data):
@@ -98,3 +115,5 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         project.save()
         return project
+
+

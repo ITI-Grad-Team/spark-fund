@@ -13,13 +13,21 @@ class Project(models.Model):
     title = models.CharField(max_length=100)
     details = models.TextField()
     total_target = models.DecimalField(max_digits=10, decimal_places=2)
+    donation_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    sum_of_ratings = models.PositiveIntegerField(default=0)
+    rates_count = models.PositiveIntegerField(default=0)
     tags = models.ManyToManyField('Tag') #Django automatically creates a third table to store the relationships between the two models
     start_date = models.DateField()  #The planned start date of the campaign.
     end_date = models.DateField()
     category = models.ForeignKey('Category', on_delete=models.SET_NULL,null=True,blank=True)
     project_creator = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL,null=True) #get_user_model()returns the custom user model you are using for authentication in your project(Best Practice)
     created_at = models.DateTimeField(auto_now_add=True)#The actual creation date of the project in the system(for filteriation)
-    updated_at = models.DateTimeField(auto_now=True)
+    
+    def average_rating(self):
+        if self.rates_count == 0:
+            return 0
+        return round(self.sum_of_ratings / self.rates_count, 2) 
+    
     def __str__(self):
         return self.title
     
@@ -39,3 +47,23 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
+
+class Comment(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Comment by {self.user} on {self.project.title}"
+
+
+class Reply(models.Model):
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='replies')
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Reply by {self.user} on Comment {self.comment.id}"
+
