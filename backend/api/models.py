@@ -12,7 +12,6 @@ class CustomUser(AbstractUser):
 class Project(models.Model):
     title = models.CharField(max_length=100)
     details = models.TextField()
-    pictures = models.ImageField(upload_to='project_pictures/', null=True, blank=True)
     total_target = models.DecimalField(max_digits=10, decimal_places=2)
     tags = models.ManyToManyField('Tag') #Django automatically creates a third table to store the relationships between the two models
     start_date = models.DateField()  #The planned start date of the campaign.

@@ -2,8 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,generics, permissions
-from api.models import CustomUser
-from api.serializers import CustomUserSerializer
+from api.models import CustomUser, Project
+from api.serializers import CustomUserSerializer, ProjectSerializer
 
 class CustomUserAPIView(APIView):
     def get(self, request):
@@ -64,3 +64,11 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         request.user.delete()
         return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
     
+
+
+class ProjectCreateView(generics.CreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
