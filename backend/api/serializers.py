@@ -33,5 +33,4 @@ class ProjectImageSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 class ProjectSerializer(serializers.ModelSerializer):
-    
     pass
