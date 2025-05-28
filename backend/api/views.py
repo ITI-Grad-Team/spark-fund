@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,generics, permissions
 from api.models import CustomUser
 from api.serializers import CustomUserSerializer
 
@@ -45,3 +45,21 @@ class CustomUserAPIView(APIView):
         user = CustomUser.objects.get(id=id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated] #Only authenticated users can access this view
+
+    def get_object(self):
+        return self.request.user
+    
+    def delete(self, request, *args, **kwargs):
+        password = request.data.get('password')
+        if not password:
+            return Response({"error": "Password is required."},status=status.HTTP_404_NOT_FOUND)
+        if not request.user.check_password(password):
+            request.user.delete()
+            return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
+        request.user.delete()
+        return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
