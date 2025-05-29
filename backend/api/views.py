@@ -66,8 +66,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         if not password:
             return Response({"error": "Password is required."},status=status.HTTP_404_NOT_FOUND)
         if not request.user.check_password(password):
-            request.user.delete()
-            return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
+            return Response({"message": "Incorrect Password."}, status=status.HTTP_401_UNAUTHORIZED)
         request.user.delete()
         return Response({"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT)
     
