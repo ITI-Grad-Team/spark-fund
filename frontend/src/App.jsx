@@ -1,26 +1,25 @@
-<<<<<<< HEAD
-import './App.css'
+import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
-import Login from './pages/Login/Login'
-import Register from './pages/Register/Register'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home/Home";
+import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
+import CreateProject from "./pages/CreateProject/CreateProject";
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
 
 function App() {
-=======
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-
-function App() {
-  const [count, setCount] = useState(0);
->>>>>>> 3968702da34aa6093260b10f45cd9ebce21a7240
-
   return (
-    <>
-      <Login />
-      <Register />
-      
-    </>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/project/:id" element={<ProjectDetails />} />
+        <Route path="/create" element={<CreateProject />} />
+      </Routes>
+    </Router>
   );
 }
 
