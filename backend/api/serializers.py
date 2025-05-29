@@ -8,7 +8,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'first_name', 'last_name','username', 'email', 'password', 'phone', 'profile_picture','birth_date','facebook_profile','country']
-        read_only_fields = ['email','username']
+
 
 
     def validate_phone(self, value):
@@ -30,7 +30,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProjectImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectImage
-        fields = ['id', 'name']
+        fields = ['id', 'image']
 
 
 # --------------------------------------------
@@ -64,6 +64,7 @@ class ReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = Reply
         fields = ['id', 'user', 'content', 'created_at']
+        read_only_fields = ['id', 'user',  'created_at']
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = ReplySerializer(many=True, read_only=True)
@@ -71,13 +72,14 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'user', 'project' ,'content', 'created_at', 'replies']
+        read_only_fields = ['id', 'user', 'project' , 'created_at', 'replies']
 
 
 
 
 class ProjectSerializer(serializers.ModelSerializer):
     project_creator = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
-    images = ProjectImageSerializer(many=True, read_only=True)
+    images = ProjectImageSerializer(many=True)
     comments = CommentSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True)
     category = CategorySerializer()
@@ -89,7 +91,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'total_target', 'tags',
             'start_date', 'end_date',
             'category', 'project_creator',
-            'created_at', 'updated_at',
+            'created_at', 
             'images',  'comments' ,'average_rating'
         ]
 
