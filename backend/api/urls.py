@@ -22,13 +22,19 @@ from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-   path('customuser/', views.CustomUserAPIView.as_view()),
-   path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
-   path('register/', views.RegisterView.as_view(), name='register'),
-   path('profile/', views.UserProfileView.as_view(), name='user-profile'),
-   path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-   path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-   path('projects/', views.ProjectCreateView.as_view(), name='project-create'),
+    path('customuser/', views.CustomUserAPIView.as_view()),
+    path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
+    path('profile/', views.UserProfileView.as_view(), name='user-profile'),
+    path('projects/create/', views.ProjectCreateView.as_view(), name='project-create'),
+    path('projects/', views.ProjectAPIView.as_view(), name='project-list'),
+    path('projects/<int:id>/', views.ProjectAPIView.as_view(), name='project-detail'),
+    path('projects/rate/<int:id>/', views.ProjectRateAPIView.as_view(), name='project-rate'),
+    path('projects/<int:project_id>/comment/', views.ProjectAddCommentAPIView.as_view(), name='project-add-comment'),
+    path('comments/<int:comment_id>/reply/', views.CommentAddReplyAPIView.as_view(), name='comment-add-reply'),
+    path('projects/<int:id>/donate/', views.ProjectDonateAPIView.as_view(), name='add-donation'),
+    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
 ]
 
