@@ -3,9 +3,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,generics, permissions
 from api.models import CustomUser, Project
-from api.serializers import CustomUserSerializer, ProjectSerializer
+from api.serializers import CustomUserSerializer, ProjectSerializer, RegisterSerializer
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 class CustomUserAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         users = CustomUser.objects.all()
         serializer = CustomUserSerializer(users, many=True)
@@ -45,6 +47,11 @@ class CustomUserAPIView(APIView):
         user = CustomUser.objects.get(id=id)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [AllowAny]
+
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
