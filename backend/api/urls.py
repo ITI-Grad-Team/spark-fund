@@ -35,7 +35,5 @@ urlpatterns = [
     path('projects/<int:id>/donate/', views.ProjectDonateAPIView.as_view(), name='add-donation'),
 ]
 
-
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

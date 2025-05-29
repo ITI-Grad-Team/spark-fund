@@ -13,7 +13,7 @@ class Project(models.Model):
     title = models.CharField(max_length=100)
     details = models.TextField()
     total_target = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    donation_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    donation_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     sum_of_ratings = models.PositiveIntegerField(default=0)
     rates_count = models.PositiveIntegerField(default=0)
     tags = models.ManyToManyField('Tag') #Django automatically creates a third table to store the relationships between the two models

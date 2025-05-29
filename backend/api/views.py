@@ -86,7 +86,8 @@ class ProjectAPIView(APIView):
 class ProjectRateAPIView(APIView):
     def patch(self, request, id):
         project = get_object_or_404(Project, id=id)
-        rating = request['rating']
+        rating = request.data.get('rating')
+
 
         if not rating:
             return Response({"error": "Rating is required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -140,7 +141,7 @@ class CommentAddReplyAPIView(APIView):
 class ProjectDonateAPIView(APIView):
     def post(self, request, id):
         project = get_object_or_404(Project, id=id)
-        amount = request['amount']
+        amount = request.data.get('amount')
 
         if not amount:
             return Response({"error": "Donation amount is required."}, status=status.HTTP_400_BAD_REQUEST)

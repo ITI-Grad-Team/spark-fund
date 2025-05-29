@@ -83,6 +83,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True)
     category = CategorySerializer()
+    average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
@@ -94,6 +95,9 @@ class ProjectSerializer(serializers.ModelSerializer):
             'created_at', 
             'images',  'comments' ,'average_rating'
         ]
+
+    def get_average_rating(self, obj):
+        return obj.average_rating()
 
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
