@@ -1,18 +1,24 @@
+import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
 
 const Home = () => {
   return (
     <section className="container-fluid">
-      <section className="container">
+      <section className="container hero">
         <h1>Make an impact to the world.</h1>
 
         <p>We’re offer complete solution to launch your social movements.</p>
 
-        <div>
-          <button>Get Started</button>
+        <div className="btns">
+          <button className="started-btn">Get Started</button>
 
-          <button>Learn More</button>
+          <button className="learn-btn">Learn More</button>
         </div>
+
+        <img className="hero-image" src="/Frame.svg" alt="Hero image" />
+        <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
+
+        <CampaignWideCard />
       </section>
     </section>
   );
