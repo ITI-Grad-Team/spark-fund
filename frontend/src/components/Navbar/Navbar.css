@@ -58,6 +58,7 @@
 
       img {
         filter: brightness(0) invert(1);
+        background-color: transparent;
         margin-right: 10px;
       }
     }
