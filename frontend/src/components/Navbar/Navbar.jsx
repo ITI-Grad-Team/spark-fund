@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 const Navbar = () => (
-  <nav className="navbar navbar-expand-lg navbar-light bg-light">
-    <div className="container-fluid">
+  <nav className="container-fluid navbar">
+    <div className="container navbar-bg">
       <div className="navbar-col-1">
         <Link className="navbar-brand" to="/">
           <img src="/navbar-logo.png" alt="Logo" />
@@ -16,22 +16,30 @@ const Navbar = () => (
         </div>
       </div>
 
-      <div>
-        <div>
+      <div className="navbar-col-2">
+        <Link className="search-btn" to="/">
           <img src="/search.svg" alt="search icon" /> Search
+        </Link>
+        <Link to="/">Home</Link>
+        <Link to="/">Campaigns</Link>
+        <Link to="/">About</Link>
+        <Link to="/">Contact</Link>
+        <Link to="/">Blog</Link>
+        <div>
+          <Link to="/create/">
+            <button className="create-btn">
+              <img src="/edit.svg" alt="edit icon" /> Start a campaign
+            </button>
+          </Link>
         </div>
-        <Link className="navbar-brand" to="/">
-          Home
-        </Link>
-        <Link className="navbar-brand" to="/create/">
-          Post
-        </Link>
-        <Link className="navbar-brand" to="/login">
-          Login
-        </Link>
-        <Link className="navbar-brand" to="/register">
-          Register
-        </Link>
+        <div className="sign-btns">
+          <Link className="signup-btn" to="/register">
+            Sign up
+          </Link>
+          <Link className="signin-btn" to="/login">
+            Sign in
+          </Link>
+        </div>
       </div>
     </div>
   </nav>
