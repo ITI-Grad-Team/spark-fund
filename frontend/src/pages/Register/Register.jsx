@@ -15,6 +15,8 @@ const Register = () => {
     type: "",
   });
 
+  const [errors, setErrors] = useState({});
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -32,7 +34,7 @@ const Register = () => {
 
     setIsSubmitting(true);
     try {
-      const res = await axiosInstance.post("/register", {
+      const res = await axiosInstance.post("/register/", {
         username: formData.username,
         email: formData.email,
         password: formData.password,
@@ -40,15 +42,22 @@ const Register = () => {
       });
 
       setAlert({ message: "Account created successfully!", type: "success" });
-      setFormData({ username: "", email: "", password: "", confirmPassword: "" });
+      setFormData({
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      });
 
       setTimeout(() => setAlert({ message: "", type: "" }), 5000);
     } catch (error) {
-      setAlert({
-        message: error.response?.data?.message || "Something went wrong. Try again.",
-        type: "danger",
-      });
-      setTimeout(() => setAlert({ message: "", type: "" }), 5000);
+      if (error.response && error.response.data) {
+        setErrors(error.response.data);
+      } else {
+        setErrors({ general: "Something went wrong. Please try again." });
+      }
+
+      setTimeout(() => setErrors({}), 5000);
     } finally {
       setIsSubmitting(false);
     }
@@ -63,7 +72,10 @@ const Register = () => {
               <div className="card-body p-5">
                 <h2 className="text-center mb-4">Create an account</h2>
                 {alert.message && (
-                  <div className={`alert alert-${alert.type} text-center`} role="alert">
+                  <div
+                    className={`alert alert-${alert.type} text-center`}
+                    role="alert"
+                  >
                     {alert.message}
                   </div>
                 )}
@@ -73,48 +85,76 @@ const Register = () => {
                       type="text"
                       id="username"
                       name="username"
-                      className="form-control"
+                      className={`form-control ${
+                        errors.username ? "is-invalid" : ""
+                      }`}
                       placeholder="username"
                       value={formData.username}
                       onChange={handleChange}
                     />
                     <label htmlFor="username">Username</label>
+                    {errors.username && (
+                      <div className="invalid-feedback">
+                        {errors.username[0]}
+                      </div>
+                    )}
                   </div>
                   <div className="form-floating mb-3">
                     <input
                       type="email"
                       id="email"
                       name="email"
-                      className="form-control"
+                      className={`form-control ${
+                        errors.email ? "is-invalid" : ""
+                      }`}
                       placeholder="Email"
                       value={formData.email}
                       onChange={handleChange}
                     />
                     <label htmlFor="email">Email</label>
+                    {errors.email && (
+                      <div className="invalid-feedback">
+                        {errors.email[0]}
+                      </div>
+                    )}
                   </div>
                   <div className="form-floating mb-3">
                     <input
                       type="password"
                       id="password"
                       name="password"
-                      className="form-control"
+                      className={`form-control ${
+                        errors.password ? "is-invalid" : ""
+                      }`}
                       placeholder="Password"
                       value={formData.password}
                       onChange={handleChange}
                     />
                     <label htmlFor="password">Password</label>
+                    {errors.password && (
+                      <div className="invalid-feedback">
+                        {errors.password[0]}
+                      </div>
+                    )}
                   </div>
                   <div className="form-floating mb-4">
                     <input
                       type="password"
                       id="confirmPassword"
                       name="confirmPassword"
-                      className="form-control"
+                      className={`form-control ${
+                        errors.confirm_password ? "is-invalid" : ""
+                      }`}
                       placeholder="Confirm Password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
                     />
                     <label htmlFor="confirmPassword">Confirm Password</label>
+                    {errors.confirm_password && (
+                      <div className="invalid-feedback">
+                        {errors.confirm_password[0]}
+                      </div>
+                    )}
                   </div>
                   <div className="form-check d-flex justify-content-center mb-3">
                     <input
@@ -122,7 +162,10 @@ const Register = () => {
                       type="checkbox"
                       id="form2Example3cg"
                     />
-                    <label className="form-check-label" htmlFor="form2Example3cg">
+                    <label
+                      className="form-check-label"
+                      htmlFor="form2Example3cg"
+                    >
                       I agree to all statements in{" "}
                       <a href="#!" className="text-body">
                         <u className="text-secondary">Terms of service</u>
