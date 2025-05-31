@@ -1,10 +1,19 @@
 @font-face {
-  font-family: 'Sen';
-  src: url('./assets/fonts/Sen-Regular.ttf') format('truetype');
+  font-family: "Sen";
+  src: url("./assets/fonts/Sen-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
-*{
-    font-family: 'Sen', sans-serif;
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Sen", sans-serif;
+}
+
+ul {
+  list-style: none;
 }
