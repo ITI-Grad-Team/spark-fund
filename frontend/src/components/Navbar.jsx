@@ -6,7 +6,7 @@ const Navbar = () => (
       <Link className="navbar-brand" to="/">
         Home
       </Link>
-      <Link className="navbar-brand" to="/create/">
+      <Link className="navbar-brand" to="/create-project">
         Post
       </Link>
       <Link className="navbar-brand" to="/login">

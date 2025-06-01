@@ -1,8 +1,10 @@
 import re
+import json
 from rest_framework import serializers
 from api.models import CustomUser
 from .models import Project, Tag, Category, ProjectImage, Reply, Comment
 from django.contrib.auth import get_user_model
+from rest_framework.fields import ListField, DictField
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -100,10 +102,10 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     project_creator = serializers.PrimaryKeyRelatedField(queryset=get_user_model().objects.all(), required=False)
-    images = ProjectImageSerializer(many=True)
+    images = serializers.ListField(child=serializers.ImageField(), required=False, write_only=True)
     comments = CommentSerializer(many=True, read_only=True)
-    tags = TagSerializer(many=True)
-    category = CategorySerializer()
+    tags = ListField(child=DictField(), write_only=True)
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
     average_rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -119,28 +121,35 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     def get_average_rating(self, obj):
         return obj.average_rating()
-
+    def to_internal_value(self, data):
+            # Convert tags JSON string to Python objects before validation
+            if isinstance(data.get('tags'), str):
+                try:
+                    data['tags'] = json.loads(data['tags'])
+                except json.JSONDecodeError:
+                    raise serializers.ValidationError({'tags': 'Invalid format'})
+            return super().to_internal_value(data)
+    
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
         category_data = validated_data.pop('category')
 
         # Create the Project instance
-        project = Project.objects.create(**validated_data, project_creator=self.context['request'].user)
+        project = Project.objects.create(
+            **validated_data,
+            category=category_data,
+            project_creator=self.context['request'].user
+        )
 
         # Handle tag creation or reuse
         for tag_data in tags_data:
-            tag, tag_created = Tag.objects.get_or_create(name=tag_data['name'])
+            tag, created = Tag.objects.get_or_create(name=tag_data['name'])
             project.tags.add(tag)
-            if tag_created:
-                print(f"New tag created: {tag.name}")  
 
-        # Handle category creation or reuse
-        category, category_created = Category.objects.get_or_create(name=category_data['name'])
-        project.category = category
-        if category_created:
-            print(f"New category created: {category.name}")  
+        # Handle images
+        images_data = self.context['request'].FILES.getlist('images')
+        for image in images_data:
+            ProjectImage.objects.create(project=project, image=image)
 
-        project.save()
         return project
-
 

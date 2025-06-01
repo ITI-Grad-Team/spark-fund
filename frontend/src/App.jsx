@@ -16,7 +16,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/project/:id" element={<ProjectDetails />} />
-        <Route path="/create" element={<CreateProject />} />
+        {/* <Route path="/create" element={<CreateProject />} /> */}
+        <Route path="/create-project" element={<CreateProject />} />
+
       </Routes>
     </Router>
   );

@@ -2,8 +2,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,generics, permissions
-from api.models import CustomUser, Project,Comment
-from api.serializers import CustomUserSerializer, ProjectSerializer,CommentSerializer,ReplySerializer, RegisterSerializer
+from rest_framework.generics import ListAPIView
+from api.models import Category, CustomUser, Project,Comment
+from api.serializers import CategorySerializer, CustomUserSerializer, ProjectSerializer,CommentSerializer,ReplySerializer, RegisterSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 class CustomUserAPIView(APIView):
@@ -56,7 +57,7 @@ class RegisterView(generics.CreateAPIView):
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CustomUserSerializer
-    permission_classes = [permissions.IsAuthenticated] #Only authenticated users can access this view
+    permission_classes = [AllowAny] #Only authenticated users can access this view
 
     def get_object(self):   
         return self.request.user
@@ -75,7 +76,13 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
 class ProjectCreateView(generics.CreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print("Serializer errors:", serializer.errors)
+        return super().post(request, *args, **kwargs)
+
 
 
 class ProjectAPIView(APIView):
@@ -89,6 +96,11 @@ class ProjectAPIView(APIView):
         return Response(serializer.data)
 
 
+class CategoryListView(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+    
 class ProjectRateAPIView(APIView):
     def patch(self, request, id):
         project = get_object_or_404(Project, id=id)
