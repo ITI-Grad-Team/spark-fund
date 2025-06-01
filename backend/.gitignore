@@ -16,7 +16,6 @@ local_settings.py
 db.sqlite3
 media/
 staticfiles/
-api/__pycache__/
 __pycache__/
 *.py[cod]
 *$py.class
