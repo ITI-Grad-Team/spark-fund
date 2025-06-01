@@ -122,13 +122,15 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_average_rating(self, obj):
         return obj.average_rating()
     def to_internal_value(self, data):
-            # Convert tags JSON string to Python objects before validation
-            if isinstance(data.get('tags'), str):
-                try:
-                    data['tags'] = json.loads(data['tags'])
-                except json.JSONDecodeError:
-                    raise serializers.ValidationError({'tags': 'Invalid format'})
-            return super().to_internal_value(data)
+        # Convert tags from JSON string to Python objects (list of dictionaries)
+        if isinstance(data.get('tags'), str):
+            try:
+                data['tags'] = json.loads(data['tags'])
+            except json.JSONDecodeError:
+                raise serializers.ValidationError({'tags': 'Invalid format'})
+        # Proceed with the standard internal value conversion
+        return super().to_internal_value(data)
+
     
     def create(self, validated_data):
         tags_data = validated_data.pop('tags', [])
