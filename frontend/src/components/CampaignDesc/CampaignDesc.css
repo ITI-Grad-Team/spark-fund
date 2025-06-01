@@ -1,0 +1,6 @@
+.desc_section {
+  padding-top: 30rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5rem;
+}

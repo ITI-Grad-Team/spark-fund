@@ -9,7 +9,11 @@ const CampaignDesc = () => {
         paragraph="Campoal has a variety of features that make it the best place to start a petition."
       />
 
-      <div></div>
+      <div>
+        <div></div>
+
+        <img src="/Frame.png" alt="" />
+      </div>
     </section>
   );
 };
