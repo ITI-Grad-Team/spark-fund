@@ -1,6 +1,7 @@
 import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
+import { projects } from "../../lib/projects";
 
 const Home = () => {
   return (
@@ -20,7 +21,11 @@ const Home = () => {
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
         <div className="home-carousel">
-          <CampaignWideCard />
+          <div className="campaign-cards">
+            {projects.map((project) => (
+              <CampaignWideCard project={project} key={project.id} />
+            ))}
+          </div>
 
           <div className="carousel-btns">
             <button className="prev">Prev</button>
