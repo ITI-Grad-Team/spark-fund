@@ -1,9 +1,25 @@
 import "./Login.css";
 import axiosInstance from "../../api/config";
 import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+
+function parseJwt(token) {
+  const base64Url = token.split('.')[1];
+  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  const jsonPayload = decodeURIComponent(
+    atob(base64)
+      .split('')
+      .map((c) => {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      })
+      .join('')
+  );
+
+  return JSON.parse(jsonPayload);
+}
 
 const Login = () => {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [alert, setAlert] = useState({ message: "", type: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -87,15 +103,47 @@ const Login = () => {
                       {isSubmitting ? "Logging in..." : "Login"}
                     </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-outline-primary w-100 mb-2"
-                      style={{ backgroundColor: "#3b5998", color: "white" }}
-                      onClick={() => {}}
-                    >
-                      <i className="bi bi-facebook me-2"></i> Login with
-                      Facebook
-                    </button>
+                    <div className="justify-content-center mb-3 w-100">
+                      <GoogleLogin
+                        onSuccess={async (credentialResponse) => {
+                          const { credential } = credentialResponse;
+                          if (credential) {
+                           const decoded = parseJwt(credential);
+
+                            try {
+                              const res = await axiosInstance.post("/google-login/", {
+                                email: decoded.email,
+                                name: decoded.name,
+                              });
+
+                              localStorage.setItem("access_token", res.data.access);
+                              localStorage.setItem("refresh_token", res.data.refresh);
+
+                              setAlert({
+                                message: "Logged in successfully",
+                                type: "success",
+                              });
+                              setTimeout(() => setAlert({ message: "", type: "" }), 5000);
+
+                              window.location.href = "/";
+                            } catch (error) {
+                              console.error("Google login error", error);
+                              setAlert({
+                                message: "Google login failed.",
+                                type: "danger",
+                              });
+                              setTimeout(() => setAlert({ message: "", type: "" }), 5000);
+                            }
+                          }
+                        }}
+                        onError={() => {
+                          setAlert({
+                            message: "Google login error",
+                            type: "danger",
+                          });
+                        }}
+                      />
+                    </div>
 
                     <p className="text-center mt-3 mb-0">
                       Don’t have an account?{" "}
