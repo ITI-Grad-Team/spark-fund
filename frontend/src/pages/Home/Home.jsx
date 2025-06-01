@@ -1,3 +1,4 @@
+import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
 
@@ -18,8 +19,17 @@ const Home = () => {
         <img className="hero-image" src="/Frame.svg" alt="Hero image" />
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
-        <CampaignWideCard />
+        <div className="home-carousel">
+          <CampaignWideCard />
+
+          <div className="carousel-btns">
+            <button className="prev">Prev</button>
+            <button>Next</button>
+          </div>
+        </div>
       </section>
+
+      <CampaignDesc />
     </section>
   );
 };

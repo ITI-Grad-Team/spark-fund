@@ -57,4 +57,32 @@
   .hero-shape {
     width: 100vw;
   }
+
+  .home-carousel {
+    position: absolute;
+    bottom: -40%;
+    z-index: 10;
+    overflow: hidden;
+
+    .carousel-btns {
+      display: flex;
+      align-items: center;
+      justify-content: right;
+      gap: 1rem;
+      margin-top: 1rem;
+
+      button {
+        padding-inline: 1rem;
+        padding-block: 0.2rem;
+        background-color: #6059c9;
+        color: #fffcf7;
+        border: none;
+        border-radius: 10px;
+      }
+
+      .prev {
+        background-color: #ffc20e;
+      }
+    }
+  }
 }
