@@ -11,7 +11,7 @@ const CampaignDesc = () => {
       />
 
       <div className="desc-body">
-        <div>
+        <div className="campaign-features">
           <CampaignFeature
             image="/chart-area 1.svg"
             alt="chart area icon"

@@ -1,12 +1,12 @@
 .campaign-feature {
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: left;
   gap: 2rem;
 
   .feature-icon {
     background-color: #6059c9;
-    padding: 1.2rem;
+    padding: 1rem;
     border: none;
     border-radius: 50%;
     width: 72px;
@@ -32,6 +32,8 @@
     p {
       font-size: 18px;
       color: #5f5f75;
+      line-height: 1.3rem;
+      width: 24rem;
     }
   }
 }
