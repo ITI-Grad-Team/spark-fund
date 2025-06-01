@@ -1,6 +1,7 @@
 import "./CampaignWideCard.css";
 
-const CampaignWideCard = () => {
+const CampaignWideCard = ({ project }) => {
+  const { header, title, description } = project;
   return (
     <section className="wide-card">
       <section className="col-1">
@@ -10,21 +11,13 @@ const CampaignWideCard = () => {
       <section className="col-2">
         <div>
           <h3>
-            <img src="/paper-plane 2.png" alt="paper plan image" /> Petition to
-            Katy Dickson
+            <img src="/paper-plane 2.png" alt="paper plan image" /> {header}
           </h3>
         </div>
 
-        <h2>
-          Help American Girl understand why limb difference dolls are so
-          important
-        </h2>
+        <h2>{title}</h2>
 
-        <p>
-          My daughter, Jordan, started asking me why her dolls don't look just
-          like her when she was four years old. We had just purchased her first
-          Bitty Baby from Chicago's American Girl Store.
-        </p>
+        <p>{description}</p>
 
         <div>
           <h3>
