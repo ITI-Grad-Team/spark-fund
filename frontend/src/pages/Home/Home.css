@@ -87,6 +87,43 @@
   }
 }
 
+.campaigns {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding-top: 10rem;
+  max-width: 1300px;
+  margin-inline: auto;
+
+  .campaigns-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .all-campaigns-btn {
+    background-color: #f2eae1;
+    padding-inline: 1.5rem;
+    padding-block: 0.5rem;
+    border: none;
+    border-radius: 10px;
+    color: #6059c9;
+    font-size: 16px;
+    font-weight: 700;
+
+    img {
+      background-color: transparent;
+      margin-left: 10px;
+    }
+  }
+}
+
 .campaign-cards {
   display: flex;
 }

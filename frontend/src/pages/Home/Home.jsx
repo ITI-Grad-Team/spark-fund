@@ -2,6 +2,9 @@ import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
 import { projects } from "../../lib/projects";
+import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
+import SectionHeader from "../../components/SectionHeader/SectionHeader";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
@@ -35,6 +38,23 @@ const Home = () => {
       </section>
 
       <CampaignDesc />
+
+      <div className="campaigns">
+        <SectionHeader
+          header="Your voice matters"
+          paragraph="These petitions need your help to achieve victory."
+        />
+
+        <div className="campaigns-grid">
+          {projects.map((project) => (
+            <CampaignSmallCard key={project.id} project={project} />
+          ))}
+        </div>
+
+        <Link to="/" className="all-campaigns-btn">
+          All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
+        </Link>
+      </div>
     </section>
   );
 };
