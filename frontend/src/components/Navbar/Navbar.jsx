@@ -28,7 +28,7 @@ const Navbar = () => (
         <div>
           <Link to="/create/">
             <button className="create-btn">
-              <img src="/edit.svg" alt="edit icon" /> Start a campaign
+              <img src="/edit 1.svg" alt="edit icon" /> Start a campaign
             </button>
           </Link>
         </div>

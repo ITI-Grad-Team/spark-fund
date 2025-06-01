@@ -1,0 +1,122 @@
+.wide-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: absolute;
+  bottom: -40%;
+  z-index: 10;
+  border-radius: 20px;
+  overflow: hidden;
+
+  .col-1 {
+    flex: 1;
+
+    img {
+      width: 100%;
+    }
+  }
+
+  .col-2 {
+    flex: 1;
+    padding: 1.5rem;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+
+    h3 {
+      font-size: 18px;
+      color: #5f5f75;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-block: 1rem;
+    }
+
+    p {
+      font-size: 16px;
+      color: #5f5f75;
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 50px;
+      border: none;
+      background-color: #f2eae1;
+    }
+
+    progress::-webkit-progress-bar {
+      background-color: #f2eae1;
+      border-radius: 50px;
+    }
+
+    progress::-webkit-progress-value {
+      background-color: #6059c9;
+      border-radius: 50px;
+    }
+
+    progress::-moz-progress-bar {
+      background: #6059c9;
+      border-radius: 50px;
+    }
+
+    .campaign-details {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .btns {
+        display: flex;
+        align-items: center;
+        justify-content: left;
+        gap: 1rem;
+        margin-top: 1rem;
+
+        .users-btn {
+          padding-inline: 0.8rem;
+          padding-block: 0.2rem;
+          background-color: #6059c9;
+          color: #fffcf7;
+          border: none;
+          border-radius: 8px;
+
+          img {
+            background-color: transparent;
+          }
+        }
+
+        .tags-btn {
+          padding-inline: 0.8rem;
+          padding-block: 0.2rem;
+          background-color: #f2eae1;
+          color: #5f5f75;
+          border: none;
+          border-radius: 8px;
+
+          img {
+            background-color: transparent;
+          }
+        }
+
+        .comments-btn {
+          padding-inline: 0.8rem;
+          padding-block: 0.2rem;
+          background-color: #f2eae1;
+          color: #5f5f75;
+          border: none;
+          border-radius: 8px;
+
+          img {
+            background-color: transparent;
+          }
+        }
+      }
+
+      .owner {
+        margin-top: 1rem;
+      }
+    }
+  }
+}
