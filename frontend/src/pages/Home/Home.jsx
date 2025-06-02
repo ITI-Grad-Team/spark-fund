@@ -9,6 +9,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
+import Footer from "../../components/Footer/Footer";
 
 const Home = () => {
   return (
@@ -19,7 +20,9 @@ const Home = () => {
         <p>We’re offer complete solution to launch your social movements.</p>
 
         <div className="btns">
-          <Link to="/login/" className="started-btn">Get Started</Link>
+          <Link to="/login/" className="started-btn">
+            Get Started
+          </Link>
 
           <button className="learn-btn">Learn More</button>
         </div>
@@ -142,6 +145,27 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <section className="cta container">
+        <section className="cta-content">
+          <h2>Start one today!</h2>
+
+          <p>
+            People everywhere are empowered to start campaigns, mobilize
+            supporters, and work with Decision Makers to drive solutions.
+          </p>
+
+          <Link to="/create/">
+            <img src="/feather-alt 1.svg" alt="feather icon" /> Start a Campaign
+          </Link>
+        </section>
+
+        <div className="cta-image">
+          <img src="/Frame1.png" alt="call to action image" />
+        </div>
+      </section>
+
+      <Footer />
     </section>
   );
 };
