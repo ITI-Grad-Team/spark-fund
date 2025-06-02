@@ -14,6 +14,8 @@ from api.serializers import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from .models import ProjectReport
+from .serializers import ProjectReportSerializer
 
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -219,3 +221,20 @@ class ProjectDonateAPIView(APIView):
             },
             status=status.HTTP_200_OK,
         )
+
+class ProjectReportView(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self, request, project_id):
+        project = get_object_or_404(Project, id=project_id)
+        data = request.data.copy()
+        data['project'] = project.id
+        serializer = ProjectReportSerializer(data=data)
+        
+        if serializer.is_valid():
+            if ProjectReport.objects.filter(project=project, reporter=request.user).exists():
+                return Response({"detail": "You have already reported this project."}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save(reporter=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

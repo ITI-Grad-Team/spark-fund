@@ -36,7 +36,9 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('google-login/', views.GoogleAuthView.as_view(), name='google_register')
+    path('google-login/', views.GoogleAuthView.as_view(), name='google_register'),
+    path('projects/<int:project_id>/report/', views.ProjectReportView.as_view(), name='project-report'),
+
 ]
 
 if settings.DEBUG:
