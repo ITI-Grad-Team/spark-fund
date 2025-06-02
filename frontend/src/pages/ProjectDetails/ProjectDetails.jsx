@@ -1,11 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
+import axiosInstance from "../../api/config";
 
 // Comment component
-const Comment = ({ comment }) => {
+const Comment = ({ comment, refreshProject }) => {
+  const [replyContent, setReplyContent] = useState("");
+  const [showReplyForm, setShowReplyForm] = useState(false);
+
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    if (!replyContent.trim()) return;
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/comments/${comment.id}/reply/`,
+        { content: replyContent }
+      );
+      setReplyContent("");
+      setShowReplyForm(false);
+      refreshProject(); // to reload comments and replies from server
+    } catch (err) {
+      alert("Error adding reply");
+      console.error(err);
+    }
+  };
+
   return (
-    <div>
+    <div style={{ marginBottom: "15px" }}>
       <p>
         <Link to={`/user/${comment.user.id}`}>
           <strong>{comment.user.username}</strong>
@@ -15,12 +37,32 @@ const Comment = ({ comment }) => {
       <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
 
       {comment.replies && comment.replies.length > 0 && (
-        <div style={{ marginLeft: "20px" }}>
-          <h3>Replies</h3>
+        <div style={{ marginLeft: "20px", marginTop: "10px" }}>
+          <h4>Replies</h4>
           {comment.replies.map((reply) => (
             <Reply key={reply.id} reply={reply} />
           ))}
         </div>
+      )}
+
+      <button
+        onClick={() => setShowReplyForm((prev) => !prev)}
+        style={{ marginTop: "10px" }}
+      >
+        {showReplyForm ? "Cancel" : "Reply"}
+      </button>
+
+      {showReplyForm && (
+        <form onSubmit={handleReplySubmit} style={{ marginTop: "10px" }}>
+          <textarea
+            rows={2}
+            value={replyContent}
+            onChange={(e) => setReplyContent(e.target.value)}
+            placeholder="Write your reply..."
+            style={{ width: "100%", marginBottom: "5px" }}
+          />
+          <button type="submit">Post Reply</button>
+        </form>
       )}
     </div>
   );
@@ -48,8 +90,9 @@ export default function ProjectDetails() {
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [newComment, setNewComment] = useState("");
 
-  useEffect(() => {
+  const fetchProject = () => {
     fetch(`http://localhost:8000/api/projects/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch project");
@@ -63,7 +106,29 @@ export default function ProjectDetails() {
         setError(err.message);
         setLoading(false);
       });
+  };
+
+  useEffect(() => {
+    fetchProject();
   }, [id]);
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/comment/`,
+        { content: newComment }
+      );
+
+      setNewComment("");
+      fetchProject();
+    } catch (err) {
+      alert("Error adding comment");
+      console.error(err);
+    }
+  };
 
   if (loading) return <p>Loading project...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -119,8 +184,25 @@ export default function ProjectDetails() {
         <h3>Comments</h3>
         {project.comments.length === 0 && <p>No comments yet</p>}
         {project.comments.map((comment) => (
-          <Comment key={comment.id} comment={comment} />
+          <Comment
+            key={comment.id}
+            comment={comment}
+            refreshProject={fetchProject}
+          />
         ))}
+      </div>
+
+      <div>
+        <h4>Add a Comment</h4>
+        <form onSubmit={handleAddComment}>
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Write your comment..."
+            rows={3}
+          />
+          <button type="submit">Post Comment</button>
+        </form>
       </div>
     </div>
   );
