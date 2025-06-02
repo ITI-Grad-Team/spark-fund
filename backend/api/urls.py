@@ -41,7 +41,9 @@ urlpatterns = [
 
     path('customuser/', views.UserListView.as_view(), name='user-list'),
     path('customuser/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
-
+    path('projects/<int:project_id>/report/', views.ProjectReportView.as_view(), name='project-report'),
+    path('customuser/', views.UserListView.as_view(), name='user-list'),
+    path('customuser/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
 ]
 
 if settings.DEBUG:
