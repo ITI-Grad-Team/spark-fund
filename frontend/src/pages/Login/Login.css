@@ -4,3 +4,9 @@ body{
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
+.login{
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+}

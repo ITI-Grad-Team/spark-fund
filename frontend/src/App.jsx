@@ -6,6 +6,7 @@ import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
 import CreateProject from "./pages/CreateProject/CreateProject";
 import Login from "./pages/Login/Login";
 import Register from "./pages/Register/Register";
+import UserProfile from "./pages/UserProfile/UserProfile";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/project/:id" element={<ProjectDetails />} />
         <Route path="/create" element={<CreateProject />} />
+        <Route path="/user/:id" element={<UserProfile />} />
       </Routes>
     </Router>
   );
