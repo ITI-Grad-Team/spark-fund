@@ -107,6 +107,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+
 class ProjectCreateView(generics.CreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -238,3 +239,15 @@ class ProjectReportView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = 'id'
+    permission_classes = [permissions.IsAuthenticated]
+

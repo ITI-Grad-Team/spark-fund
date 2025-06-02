@@ -22,8 +22,6 @@ from . import views
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    path('customuser/', views.CustomUserAPIView.as_view()),
-    path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
     path('projects/create/', views.ProjectCreateView.as_view(), name='project-create'),
     path('categories/', views.CategoryListView.as_view(), name='category-list'),
@@ -38,7 +36,8 @@ urlpatterns = [
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('google-login/', views.GoogleAuthView.as_view(), name='google_register'),
     path('projects/<int:project_id>/report/', views.ProjectReportView.as_view(), name='project-report'),
-
+    path('customuser/', views.UserListView.as_view(), name='user-list'),
+    path('customuser/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
 ]
 
 if settings.DEBUG:

@@ -32,6 +32,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return value
 
 
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     confirm_password = serializers.CharField(write_only=True)
 
@@ -58,6 +60,11 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ["id", "name"]
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = ['id', 'username'] 
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -72,6 +79,7 @@ class ProjectImageSerializer(serializers.ModelSerializer):
 
 
 class ReplySerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     class Meta:
         model = Reply
         fields = ["id", "user", "content", "created_at"]
@@ -80,84 +88,62 @@ class ReplySerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     replies = ReplySerializer(many=True, read_only=True)
+    user = UserSerializer(read_only=True) 
 
     class Meta:
         model = Comment
         fields = ["id", "user", "project", "content", "created_at", "replies"]
         read_only_fields = ["id", "user", "project", "created_at", "replies"]
 
-
 class ProjectSerializer(serializers.ModelSerializer):
-    project_creator = serializers.PrimaryKeyRelatedField(
-        queryset=get_user_model().objects.all(), required=False
-    )
-    images = serializers.ListField(
-        child=serializers.ImageField(), required=False, write_only=True
-    )
+    project_creator = UserSerializer(read_only=True)
+    images = ProjectImageSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
-    tags = serializers.JSONField(write_only=True)
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())
+
+    tags_detail = TagSerializer(source='tags', many=True, read_only=True) 
+    category_detail = CategorySerializer(source='category', read_only=True) 
+
+    tags = serializers.CharField(write_only=True)
+    category = serializers.CharField(write_only=True)
+
     average_rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Project
         fields = [
-            "id",
-            "title",
-            "details",
-            "total_target",
-            "tags",
-            "start_date",
-            "end_date",
-            "category",
-            "project_creator",
-            "created_at",
-            "images",
-            "comments",
-            "average_rating",
+            'id', 'title', 'details',
+            'total_target', 'tags', 'tags_detail',
+            'start_date', 'end_date',
+            'category', 'category_detail',
+            'project_creator',
+            'created_at',
+            'images', 'comments', 'average_rating'
         ]
 
     def get_average_rating(self, obj):
         return obj.average_rating()
 
-    def validate_tags(self, value):
-        if not isinstance(value, list):
-            raise serializers.ValidationError(
-                {"tags": 'Tags must be a list of objects with "name" field'}
-            )
-        tags = []
-        for tag in value:
-            if not isinstance(tag, dict) or "name" not in tag:
-                raise serializers.ValidationError(
-                    {"tags": 'Each tag must be an object with a "name" field'}
-                )
-            tag_name = str(tag["name"]).strip()
-            if not tag_name:
-                raise serializers.ValidationError({"tags": "Tag names cannot be empty"})
-            tags.append(tag_name)
-        if not tags:
-            raise serializers.ValidationError(
-                {"tags": "At least one valid tag is required"}
-            )
-        return tags
-
     def create(self, validated_data):
-        tags_data = validated_data.pop("tags", [])
-        category_data = validated_data.pop("category")
-        images_data = validated_data.pop("images", [])
+        tags_str = validated_data.pop('tags', '')
+        category_name = validated_data.pop('category')
 
-        project = Project.objects.create(
-            **validated_data,
-            category=category_data,
-            project_creator=self.context["request"].user
-        )
+        user = self.context['request'].user
+        project = Project.objects.create(**validated_data, project_creator=user)
 
-        for tag_name in tags_data:
+        category, created = Category.objects.get_or_create(name=category_name)
+        project.category = category
+        project.save()
+
+        tags_list = [t.strip() for t in tags_str.split(",") if t.strip()]
+        for tag_name in tags_list:
             tag, created = Tag.objects.get_or_create(name=tag_name)
             project.tags.add(tag)
 
-        for image in images_data:
-            ProjectImage.objects.create(project=project, image=image)
+        request = self.context.get('request')
+        if request and request.FILES:
+            images_files = request.FILES.getlist('images')
+            for image_file in images_files:
+                ProjectImage.objects.create(project=project, image=image_file)
 
         return project
 
