@@ -5,6 +5,7 @@ import { projects } from "../../lib/projects";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
 import { Link } from "react-router-dom";
+import Footer from "../../components/Footer/Footer";
 
 const Home = () => {
   return (
@@ -155,6 +156,8 @@ const Home = () => {
           <img src="/Frame1.png" alt="call to action image" />
         </div>
       </section>
+
+      <Footer />
     </section>
   );
 };

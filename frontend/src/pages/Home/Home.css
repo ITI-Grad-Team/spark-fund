@@ -93,7 +93,6 @@
   align-items: center;
   justify-content: center;
   gap: 3rem;
-  max-width: 1300px;
   margin-inline: auto;
 
   .campaigns-grid {
