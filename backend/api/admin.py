@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Project, ProjectImage, Tag, Category, Comment, Reply
-from .models import ProjectReport
+from .models import CustomUser, Project, ProjectImage, Tag, Category, Comment, Reply,ProjectReport,CommentReport  
+
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
@@ -75,3 +75,8 @@ class ReplyAdmin(admin.ModelAdmin):
 class ProjectReportAdmin(admin.ModelAdmin):
     list_display = ('project', 'reporter', 'created_at')
     search_fields = ('project__title', 'reporter__username', 'reason')
+
+@admin.register(CommentReport)
+class CommentReportAdmin(admin.ModelAdmin):
+    list_display = ('comment', 'reporter', 'created_at')
+    search_fields = ('reason', 'comment__content', 'reporter__username')
