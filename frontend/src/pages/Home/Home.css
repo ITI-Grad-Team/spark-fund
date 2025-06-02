@@ -34,6 +34,7 @@
       border: none;
       font-weight: 600;
       z-index: 10;
+      text-decoration: none;
     }
 
     .learn-btn {
@@ -60,30 +61,22 @@
 
   .home-carousel {
     position: absolute;
-    bottom: -40%;
+    bottom: -350px;
     z-index: 10;
-    overflow: hidden;
 
-    .carousel-btns {
-      display: flex;
-      align-items: center;
-      justify-content: right;
-      gap: 1rem;
-      margin-top: 1rem;
+  .swiper {
+    width: 90vw;
+  }
 
-      button {
-        padding-inline: 1rem;
-        padding-block: 0.2rem;
-        background-color: #6059c9;
-        color: #fffcf7;
-        border: none;
-        border-radius: 10px;
-      }
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
 
-      .prev {
-        background-color: #ffc20e;
-      }
-    }
+.swiper-button-prev,
+.swiper-button-next {
+  color: #000;
+}
   }
 }
 
@@ -93,7 +86,6 @@
   align-items: center;
   justify-content: center;
   gap: 3rem;
-  max-width: 1300px;
   margin-inline: auto;
 
   .campaigns-grid {
@@ -285,6 +277,66 @@
     p {
       font-size: 18px;
       color: #5f5f75;
+    }
+  }
+}
+
+.cta {
+  padding-top: 10rem;
+  display: flex;
+  align-items: center;
+  position: relative;
+
+  .cta-content {
+    background-color: #f5efe0;
+    width: 100%;
+    padding-block: 3rem;
+    padding-left: 2rem;
+    border-radius: 20px;
+
+    h2 {
+      background-color: transparent;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 0.001rem;
+      color: #2b2b39;
+    }
+
+    p {
+      background-color: transparent;
+      font-size: 18px;
+      color: #5f5f75;
+      width: 470px;
+      margin-top: 1rem;
+      margin-bottom: 3.5rem;
+    }
+
+    a {
+      background-color: #6059c9;
+      padding-inline: 1rem;
+      padding-block: 0.7rem;
+      text-decoration: none;
+      color: #fffcf7;
+      font-size: 18px;
+      font-weight: 700;
+      border-radius: 10px;
+      display: block;
+      width: fit-content;
+
+      img {
+        background-color: transparent;
+        margin-right: 5px;
+      }
+    }
+  }
+  .cta-image {
+    position: absolute;
+    bottom: 0;
+    right: 8rem;
+    background-color: transparent;
+
+    img {
+      background-color: transparent;
     }
   }
 }
