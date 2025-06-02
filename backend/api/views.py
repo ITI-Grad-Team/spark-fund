@@ -3,7 +3,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.generics import ListAPIView
-from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport
+from api.models import (
+    Category,
+    CustomUser,
+    Project,
+    Comment,
+    ProjectReport,
+    CommentReport,
+)
 from api.serializers import (
     CategorySerializer,
     CustomUserSerializer,
@@ -16,7 +23,6 @@ from api.serializers import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-
 
 
 class CustomUserAPIView(APIView):
@@ -67,23 +73,29 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+
 class GoogleAuthView(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        name = request.data.get('name')
+        email = request.data.get("email")
+        name = request.data.get("name")
 
-        user, created = CustomUser.objects.get_or_create(email=email, defaults={
-            'username': email.split('@')[0],
-            'first_name': name.split()[0],
-        })
+        user, created = CustomUser.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email.split("@")[0],
+                "first_name": name.split()[0],
+            },
+        )
 
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'msg': 'User created' if created else 'User verified'
-        })
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "msg": "User created" if created else "User verified",
+            }
+        )
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
@@ -107,7 +119,6 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return Response(
             {"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT
         )
-
 
 
 class ProjectCreateView(generics.CreateAPIView):
@@ -225,32 +236,41 @@ class ProjectDonateAPIView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class ProjectReportView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=project_id)
         data = request.data.copy()
-        data['project'] = project.id
+        data["project"] = project.id
         serializer = ProjectReportSerializer(data=data)
-        
+
         if serializer.is_valid():
-            if ProjectReport.objects.filter(project=project, reporter=request.user).exists():
-                return Response({"detail": "You have already reported this project."}, status=status.HTTP_400_BAD_REQUEST)
+            if ProjectReport.objects.filter(
+                project=project, reporter=request.user
+            ).exists():
+                return Response(
+                    {"detail": "You have already reported this project."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class UserDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
     permission_classes = [permissions.IsAuthenticated]
 
 
@@ -260,14 +280,40 @@ class CommentReportView(APIView):
     def post(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         data = request.data.copy()
-        data['comment'] = comment.id
+        data["comment"] = comment.id
         serializer = CommentReportSerializer(data=data)
 
         if serializer.is_valid():
-            if CommentReport.objects.filter(comment=comment, reporter=request.user).exists():
-                return Response({"detail": "You have already reported this comment."}, status=status.HTTP_400_BAD_REQUEST)
+            if CommentReport.objects.filter(
+                comment=comment, reporter=request.user
+            ).exists():
+                return Response(
+                    {"detail": "You have already reported this comment."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(
+                {"message": "Successfully logged out."},
+                status=status.HTTP_205_RESET_CONTENT,
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
