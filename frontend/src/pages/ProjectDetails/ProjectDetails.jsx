@@ -1,14 +1,56 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const ProjectDetails = () => {
+// Comment component
+const Comment = ({ comment }) => {
+  return (
+    <div>
+      <p>
+        <Link to={`/user/${comment.user.id}`}>
+          <strong>{comment.user.username}</strong>
+        </Link>
+        : {comment.content}
+      </p>
+      <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
+
+      {comment.replies && comment.replies.length > 0 && (
+        <div style={{ marginLeft: "20px" }}>
+          <h3>Replies</h3>
+          {comment.replies.map((reply) => (
+            <Reply key={reply.id} reply={reply} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Reply component
+
+const Reply = ({ reply }) => {
+  return (
+    <div>
+      <p>
+        <Link to={`/user/${reply.user.id}`}>
+          <strong>{reply.user.username}</strong>
+        </Link>
+        : {reply.content}
+      </p>
+      <small>Replied on: {new Date(reply.created_at).toLocaleString()}</small>
+    </div>
+  );
+};
+
+// Main ProjectDetails Component
+export default function ProjectDetails() {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/projects/${id}/`)
+    fetch(`http://localhost:8000/api/projects/${id}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch project");
         return res.json();
@@ -18,87 +60,68 @@ const ProjectDetails = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
-        setError("Could not fetch project");
+        setError(err.message);
         setLoading(false);
       });
   }, [id]);
 
-  if (loading) return <div className="text-center mt-5">Loading...</div>;
-  if (error) return <div className="alert alert-danger mt-5">{error}</div>;
-  if (!project) return null;
+  if (loading) return <p>Loading project...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!project) return <p>No project found</p>;
 
   return (
-    <div className="container mt-5">
+    <div style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
+      <p>
+        <b>Creator</b>
+        <Link to={`/user/${project.project_creator.id}`}>
+          {project.project_creator.username}
+        </Link>
+      </p>
       <h2>{project.title}</h2>
       <p>{project.details}</p>
+
       <p>
-        <strong>Target:</strong> {project.total_target} EGP
-      </p>
-      <p>
-        <strong>Donated:</strong> {project.donation_amount} EGP
-      </p>
-      <p>
-        <strong>Average Rating:</strong> {project.average_rating}
-      </p>
-      <p>
-        <strong>Start:</strong> {project.start_date} | <strong>End:</strong>{" "}
-        {project.end_date}
+        <b>Total Target:</b> {project.total_target}
       </p>
 
       <p>
-        <strong>Category:</strong> {project.category?.name}
+        <b>Category:</b> {project.category_detail.name}
       </p>
 
-      <div className="mb-3">
-        <strong>Tags:</strong>
-        <ul className="list-inline">
-          {project.tags.map((tag) => (
-            <li key={tag.id} className="list-inline-item badge bg-primary me-1">
-              {tag.name}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <p>
+        <b>Tags:</b> {project.tags_detail.map((tag) => tag.name).join(", ")}
+      </p>
+
+      <p>
+        <b>Start Date:</b> {project.start_date}
+      </p>
+      <p>
+        <b>End Date:</b> {project.end_date}
+      </p>
+
+      <p>
+        <b>Average Rating:</b> {project.average_rating}
+      </p>
 
       <div>
-        <strong>Images:</strong>
-        <div className="row">
-          {project.images.map((img) => (
-            <div key={img.id} className="col-md-3">
-              <img
-                src={`http://localhost:8000${img.image}`}
-                className="img-fluid rounded"
-                alt="Project"
-              />
-            </div>
-          ))}
-        </div>
+        <h3>Images</h3>
+        {project.images.map((img) => (
+          <img
+            key={img.id}
+            src={img.image}
+            alt={`Project img ${img.id}`}
+            style={{ width: "100px", marginRight: "10px" }}
+          />
+        ))}
       </div>
 
-      <hr />
-
-      <div>
-        <h5>Comments</h5>
+      <div style={{ marginTop: "30px" }}>
+        <h3>Comments</h3>
+        {project.comments.length === 0 && <p>No comments yet</p>}
         {project.comments.map((comment) => (
-          <div key={comment.id} className="mb-3">
-            <strong>{comment.user}</strong>
-            <p>{comment.content}</p>
-            <small className="text-muted">
-              {new Date(comment.created_at).toLocaleString()}
-            </small>
-
-            {comment.replies.map((reply) => (
-              <div key={reply.id} className="ms-3 mt-2">
-                <strong>{reply.user}</strong>
-                <p>{reply.content}</p>
-              </div>
-            ))}
-          </div>
+          <Comment key={comment.id} comment={comment} />
         ))}
       </div>
     </div>
   );
-};
-
-export default ProjectDetails;
+}

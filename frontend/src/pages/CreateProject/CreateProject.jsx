@@ -65,7 +65,9 @@ const CreateProject = () => {
     data.append("start_date", formData.start_date);
     data.append("end_date", formData.end_date);
     data.append("category", formData.category);
-    const tagsData = JSON.stringify(tags.split(",").map((tag) => ({ name: tag.trim() })));
+    const tagsData = JSON.stringify(
+      tags.split(",").map((tag) => ({ name: tag.trim() }))
+    );
     data.append("tags", tagsData);
     images.forEach((file) => {
       data.append("images", file);
@@ -114,7 +116,9 @@ const CreateProject = () => {
     <form onSubmit={handleSubmit} encType="multipart/form-data">
       <h2>Create New Project</h2>
       {message && (
-        <p style={{ color: message.includes("successfully") ? "green" : "red" }}>
+        <p
+          style={{ color: message.includes("successfully") ? "green" : "red" }}
+        >
           {message}
         </p>
       )}
