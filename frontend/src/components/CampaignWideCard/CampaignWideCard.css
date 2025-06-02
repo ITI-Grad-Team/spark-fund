@@ -5,24 +5,26 @@
   margin: 0 auto;
   border-radius: 20px;
   overflow: hidden;
-
+  background-color: transparent;
 
   .col-1 {
     flex: 1;
+    background-color: transparent;
 
     img {
       width: 100%;
-       height: auto;
-  display: block;
-  object-fit: cover;
+      display: block;
+      object-fit: cover;
     }
   }
 
   .col-2 {
     flex: 1;
-    padding: 1.5rem;
+    padding-block: 1.4rem;
+    padding-left: 2rem;
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
+    background-color: #fffcf7;
 
     h3 {
       font-size: 18px;
