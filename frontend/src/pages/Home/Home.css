@@ -64,18 +64,35 @@
     bottom: -350px;
     z-index: 10;
 
+
   .swiper {
-    width: 90vw;
+    width: 95vw;
   }
+
 
 .swiper-slide {
   display: flex;
   justify-content: center;
+  background: transparent;
 }
+
+.swiper-wrapper{
+  background: transparent;
+  border-radius: 20px;
+}
+
+
 
 .swiper-button-prev,
 .swiper-button-next {
   color: #000;
+  background: transparent;
+}
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  color: #000;
+  background: transparent;
+  font-size: 2rem
 }
   }
 }
