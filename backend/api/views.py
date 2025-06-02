@@ -13,7 +13,7 @@ from api.serializers import (
     RegisterSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
-
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -63,10 +63,28 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+class GoogleAuthView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        name = request.data.get('name')
+
+        user, created = CustomUser.objects.get_or_create(email=email, defaults={
+            'username': email.split('@')[0],
+            'first_name': name.split()[0],
+        })
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'msg': 'User created' if created else 'User verified'
+        })
+
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CustomUserSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         return self.request.user
