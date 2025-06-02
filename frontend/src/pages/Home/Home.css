@@ -1,3 +1,7 @@
+.home {
+  background-color: #fffcf7;
+}
+
 .hero {
   display: flex;
   flex-direction: column;
@@ -63,20 +67,24 @@
     position: absolute;
     bottom: -350px;
     z-index: 10;
+    background-color: transparent;
 
-  .swiper {
-    width: 90vw;
-  }
+    .swiper {
+      width: 90vw;
+      background-color: transparent;
+    }
 
-.swiper-slide {
-  display: flex;
-  justify-content: center;
-}
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+      background-color: transparent;
+    }
 
-.swiper-button-prev,
-.swiper-button-next {
-  color: #000;
-}
+    .swiper-button-prev,
+    .swiper-button-next {
+      color: #000;
+      background-color: transparent;
+    }
   }
 }
 
