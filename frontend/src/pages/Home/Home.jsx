@@ -136,6 +136,25 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      <section className="cta container">
+        <section className="cta-content">
+          <h2>Start one today!</h2>
+
+          <p>
+            People everywhere are empowered to start campaigns, mobilize
+            supporters, and work with Decision Makers to drive solutions.
+          </p>
+
+          <Link to="/create/">
+            <img src="/feather-alt 1.svg" alt="feather icon" /> Start a Campaign
+          </Link>
+        </section>
+
+        <div className="cta-image">
+          <img src="/Frame1.png" alt="call to action image" />
+        </div>
+      </section>
     </section>
   );
 };
