@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import axiosInstance from "../../api/config";
 
 function UserProfile() {
-  const { id } = useParams(); 
+  const { id } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,6 +20,7 @@ function UserProfile() {
       .then((res) => {
         setUser(res.data);
         setLoading(false);
+        console.log(res.data);
       })
       .catch((err) => {
         setError(err.response?.data || "Error fetching user");
@@ -36,15 +37,19 @@ function UserProfile() {
       {user && (
         <>
           <p>
-            <b>Name:</b> {user.first_name} {user.last_name}
-          </p>
-          <p>
             <b>Username:</b> {user.username}
           </p>
           <p>
             <b>Email:</b> {user.email}
           </p>
-         
+          <p>
+            <b>Phone:</b> {user.phone}
+          </p>
+          <p>
+            <b>Profile Picture:</b>
+            <br />
+            <img src={`${user.profile_picture}`} alt="Profile" width="150" />
+          </p>
         </>
       )}
     </div>
