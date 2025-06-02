@@ -2,10 +2,10 @@ import re
 import json
 from rest_framework import serializers
 from api.models import CustomUser
-from .models import Project, Tag, Category, ProjectImage, Reply, Comment
+from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport
 from django.contrib.auth import get_user_model
 from rest_framework.fields import ListField
-from .models import ProjectReport
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -151,4 +151,10 @@ class ProjectReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectReport
         fields = ['id', 'project', 'reason', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+class CommentReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CommentReport
+        fields = ['id', 'comment', 'reason', 'created_at']
         read_only_fields = ['id', 'created_at']
