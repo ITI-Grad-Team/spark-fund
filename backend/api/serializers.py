@@ -39,12 +39,17 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["username", "email", "password", "confirm_password"]
+        fields = ["username", "email", "password", "confirm_password", "profile_picture", "phone"]
 
     def validate(self, attrs):
         if attrs["password"] != attrs["confirm_password"]:
             raise serializers.ValidationError({"password": "Passwords do not match."})
         return attrs
+    
+    def validate_phone(self, value):
+        if value and not re.match(r"^01[0-2,5]{1}[0-9]{8}$", value):
+            raise serializers.ValidationError("Must be a valid Egyptian Phone Number")
+        return value
 
     def create(self, validated_data):
         validated_data.pop("confirm_password")

@@ -55,7 +55,7 @@ const Login = () => {
 
   return (
     <>
-      <section className="min-vh-100 d-flex justify-content-center align-items-center">
+      <section className="d-flex justify-content-center align-items-center login">
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-6 col-lg-4 col-xl-4">
@@ -103,7 +103,7 @@ const Login = () => {
                       {isSubmitting ? "Logging in..." : "Login"}
                     </button>
 
-                    <div className="justify-content-center mb-3 w-100">
+                    <div className="google-login justify-content-center mb-3 w-100">
                       <GoogleLogin
                         onSuccess={async (credentialResponse) => {
                           const { credential } = credentialResponse;
