@@ -26,6 +26,7 @@ urlpatterns = [
     path('customuser/<int:id>/', views.CustomUserAPIView.as_view()),
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
     path('projects/create/', views.ProjectCreateView.as_view(), name='project-create'),
+    path('categories/', views.CategoryListView.as_view(), name='category-list'),
     path('projects/', views.ProjectAPIView.as_view(), name='project-list'),
     path('projects/<int:id>/', views.ProjectAPIView.as_view(), name='project-detail'),
     path('projects/rate/<int:id>/', views.ProjectRateAPIView.as_view(), name='project-rate'),
