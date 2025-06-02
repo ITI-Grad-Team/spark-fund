@@ -35,6 +35,7 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('google-login/', views.GoogleAuthView.as_view(), name='google_register'),
+    path('projects/<int:project_id>/report/', views.ProjectReportView.as_view(), name='project-report'),
     path('customuser/', views.UserListView.as_view(), name='user-list'),
     path('customuser/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
 ]

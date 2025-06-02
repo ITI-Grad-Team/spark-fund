@@ -5,7 +5,7 @@ from api.models import CustomUser
 from .models import Project, Tag, Category, ProjectImage, Reply, Comment
 from django.contrib.auth import get_user_model
 from rest_framework.fields import ListField
-
+from .models import ProjectReport
 
 class CustomUserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=8)
@@ -146,3 +146,9 @@ class ProjectSerializer(serializers.ModelSerializer):
                 ProjectImage.objects.create(project=project, image=image_file)
 
         return project
+
+class ProjectReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectReport
+        fields = ['id', 'project', 'reason', 'created_at']
+        read_only_fields = ['id', 'created_at']
