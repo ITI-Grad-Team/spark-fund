@@ -34,6 +34,7 @@
       border: none;
       font-weight: 600;
       z-index: 10;
+      text-decoration: none;
     }
 
     .learn-btn {
@@ -60,30 +61,22 @@
 
   .home-carousel {
     position: absolute;
-    bottom: -40%;
+    bottom: -350px;
     z-index: 10;
-    overflow: hidden;
 
-    .carousel-btns {
-      display: flex;
-      align-items: center;
-      justify-content: right;
-      gap: 1rem;
-      margin-top: 1rem;
+  .swiper {
+    width: 90vw;
+  }
 
-      button {
-        padding-inline: 1rem;
-        padding-block: 0.2rem;
-        background-color: #6059c9;
-        color: #fffcf7;
-        border: none;
-        border-radius: 10px;
-      }
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+}
 
-      .prev {
-        background-color: #ffc20e;
-      }
-    }
+.swiper-button-prev,
+.swiper-button-next {
+  color: #000;
+}
   }
 }
 

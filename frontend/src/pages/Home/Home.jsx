@@ -5,6 +5,10 @@ import { projects } from "../../lib/projects";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
 import { Link } from "react-router-dom";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 
 const Home = () => {
   return (
@@ -15,7 +19,7 @@ const Home = () => {
         <p>We’re offer complete solution to launch your social movements.</p>
 
         <div className="btns">
-          <button className="started-btn">Get Started</button>
+          <Link to="/login/" className="started-btn">Get Started</Link>
 
           <button className="learn-btn">Learn More</button>
         </div>
@@ -24,16 +28,18 @@ const Home = () => {
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
         <div className="home-carousel">
-          <div className="campaign-cards">
+          <Swiper
+            modules={[Navigation]}
+            navigation
+            spaceBetween={20}
+            slidesPerView={1}
+          >
             {projects.map((project) => (
-              <CampaignWideCard project={project} key={project.id} />
+              <SwiperSlide key={project.id}>
+                <CampaignWideCard project={project} />
+              </SwiperSlide>
             ))}
-          </div>
-
-          <div className="carousel-btns">
-            <button className="prev">Prev</button>
-            <button>Next</button>
-          </div>
+          </Swiper>
         </div>
       </section>
 
