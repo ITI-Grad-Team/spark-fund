@@ -173,7 +173,7 @@ export default function ProjectDetails() {
         {project.images.map((img) => (
           <img
             key={img.id}
-            src={img.image}
+            src={`http://localhost:8000/${img.image}`}
             alt={`Project img ${img.id}`}
             style={{ width: "100px", marginRight: "10px" }}
           />
