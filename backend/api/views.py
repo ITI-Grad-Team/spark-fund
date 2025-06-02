@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.generics import ListAPIView
-from api.models import Category, CustomUser, Project, Comment
+from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport
 from api.serializers import (
     CategorySerializer,
     CustomUserSerializer,
@@ -11,11 +11,13 @@ from api.serializers import (
     CommentSerializer,
     ReplySerializer,
     RegisterSerializer,
+    CommentReportSerializer,
+    ProjectReportSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import ProjectReport
-from .serializers import ProjectReportSerializer
+
+
 
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -105,6 +107,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return Response(
             {"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT
         )
+
 
 
 class ProjectCreateView(generics.CreateAPIView):
@@ -233,6 +236,37 @@ class ProjectReportView(APIView):
         if serializer.is_valid():
             if ProjectReport.objects.filter(project=project, reporter=request.user).exists():
                 return Response({"detail": "You have already reported this project."}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save(reporter=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserListView(generics.ListAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    lookup_field = 'id'
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class CommentReportView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, comment_id):
+        comment = get_object_or_404(Comment, id=comment_id)
+        data = request.data.copy()
+        data['comment'] = comment.id
+        serializer = CommentReportSerializer(data=data)
+
+        if serializer.is_valid():
+            if CommentReport.objects.filter(comment=comment, reporter=request.user).exists():
+                return Response({"detail": "You have already reported this comment."}, status=status.HTTP_400_BAD_REQUEST)
 
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
