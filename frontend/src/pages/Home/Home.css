@@ -67,24 +67,37 @@
     position: absolute;
     bottom: -350px;
     z-index: 10;
+
+  .swiper {
+    width: 95vw;
     background-color: transparent;
+  }
 
-    .swiper {
-      width: 90vw;
-      background-color: transparent;
-    }
 
-    .swiper-slide {
-      display: flex;
-      justify-content: center;
-      background-color: transparent;
-    }
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  background: transparent;
+}
 
-    .swiper-button-prev,
-    .swiper-button-next {
-      color: #000;
-      background-color: transparent;
-    }
+.swiper-wrapper{
+  background: transparent;
+  border-radius: 20px;
+}
+
+
+
+.swiper-button-prev,
+.swiper-button-next {
+  color: #000;
+  background: transparent;
+}
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  color: #000;
+  background: transparent;
+  font-size: 2rem
+}
   }
 }
 
