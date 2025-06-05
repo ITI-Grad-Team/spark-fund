@@ -1,18 +1,15 @@
-body{
-    background-image: url('../../assets/images/register-bg.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+.register {
+  background-color: #fffcf7;
 }
 
-.btn{
-    background-color: #6059C9 !important;
-    color: white !important;
+.btn {
+  background-color: #6059c9 !important;
+  color: #fffcf7 !important;
 }
 
-#login{
-    color: #6059C9 !important;
-    text-decoration: none !important;
+#login {
+  color: #6059c9 !important;
+  text-decoration: none !important;
 }
 
 .form-group {
@@ -39,7 +36,7 @@ body{
   pointer-events: none;
 }
 
-label{
+label {
   background-color: transparent;
 }
 
@@ -48,7 +45,7 @@ label{
   top: -10px;
   left: 0;
   font-size: 12px;
-  color: #5264AE;
+  color: #5264ae;
 }
 
 .form-control {
@@ -60,16 +57,13 @@ label{
   padding: 0.75rem 1rem;
 }
 
-
 .form-control:focus {
-  border-color: #0d6efd; 
+  border-color: #0d6efd;
   box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
   outline: none;
 }
-
 
 .form-check-label {
   font-size: 0.95rem;
   color: #555;
 }
-

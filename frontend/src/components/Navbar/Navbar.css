@@ -1,5 +1,8 @@
-.navbar {
+.navbar-background {
   background-color: #fff;
+}
+
+.navbar {
   .navbar-col-1 {
     display: flex;
     justify-content: center;

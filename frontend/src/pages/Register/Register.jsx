@@ -77,7 +77,7 @@ const Register = () => {
   };
 
   return (
-    <section className="min-vh-100 d-flex justify-content-center gradient-custom-3 mt-4">
+    <section className="min-vh-100 d-flex justify-content-center gradient-custom-3 mt-4 register">
       <div className="container">
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-8 col-xl-7">
@@ -97,15 +97,14 @@ const Register = () => {
                 {/* ----------------------form------------------------------------- */}
 
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
-
-                {/* ----------------------profile image--------------------------- */}
+                  {/* ----------------------profile image--------------------------- */}
                   <div className="profile-preview-wrapper text-center mb-3">
                     <label htmlFor="profileImage" style={{ cursor: "pointer" }}>
                       <img
                         src={
                           formData.profileImage
                             ? URL.createObjectURL(formData.profileImage)
-                            : "/profile-blank.png" 
+                            : "/profile-blank.png"
                         }
                         alt="Profile Preview"
                         className="profile-preview rounded-circle"
@@ -131,10 +130,9 @@ const Register = () => {
                       </div>
                     )}
                   </div>
-      {/* ----------------------End of profile image--------------------------- */}
+                  {/* ----------------------End of profile image--------------------------- */}
 
-
-      {/* ----------------------form fields--------------------------- */}
+                  {/* ----------------------form fields--------------------------- */}
                   <div className="row">
                     <div className="col-md-6 mb-3">
                       <div className="form-floating">
@@ -245,7 +243,7 @@ const Register = () => {
                       </div>
                     </div>
                   </div>
-      {/* ----------------------End of form fields--------------------------- */}
+                  {/* ----------------------End of form fields--------------------------- */}
 
                   <div className="form-check d-flex justify-content-center mb-3">
                     <input
