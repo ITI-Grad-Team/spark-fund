@@ -65,7 +65,7 @@ const Login = () => {
               <img src="/Frame2.png" alt="login page image" />
             </div>
 
-            <div className="card-body p-4 column-2">
+            <div className="card-body column-2">
               <h4 className="text-center mb-2">Welcome</h4>
               <p className="text-center text-secondary mb-4">
                 Please login to your account
