@@ -1,12 +1,31 @@
-body{
-    background-image: url('../../assets/images/register-bg.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+.login {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fffcf7;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.login{
-    align-items: center;
-    justify-content: center;
-    height: 80vh;
+.my-login-card-style {
+  display: flex !important;
+  flex-direction: row;
+  z-index: 10;
+
+  .column-1 {
+    flex: 1;
+    background-color: #f5efe0;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+    img {
+      width: 100%;
+      padding: 4rem;
+    }
+  }
+
+  .column-2 {
+    flex: 1;
+  }
 }
