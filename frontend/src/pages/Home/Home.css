@@ -65,39 +65,38 @@
 
   .home-carousel {
     position: absolute;
-    bottom: -350px;
+    bottom: -38%;
     z-index: 10;
 
-  .swiper {
-    width: 95vw;
-    background-color: transparent;
-  }
+    .swiper {
+      width: 85vw;
+    }
 
+    .swiper-slide {
+      display: flex;
+      justify-content: center;
+    }
 
-.swiper-slide {
-  display: flex;
-  justify-content: center;
-  background: transparent;
-}
+    .swiper-wrapper {
+      border-radius: 20px;
+    }
 
-.swiper-wrapper{
-  background: transparent;
-  border-radius: 20px;
-}
-
-
-
-.swiper-button-prev,
-.swiper-button-next {
-  color: #000;
-  background: transparent;
-}
-.swiper-button-prev::after,
-.swiper-button-next::after {
-  color: #000;
-  background: transparent;
-  font-size: 2rem
-}
+    .swiper-button-prev,
+    .swiper-button-next {
+      position: absolute;
+      color: #fffcf7;
+      background: #6059c9;
+      padding-block: 1.5rem;
+      padding-inline: 1.2rem;
+      border-radius: 10px;
+    }
+    .swiper-button-prev::after,
+    .swiper-button-next::after {
+      position: absolute;
+      color: #fffcf7;
+      background: transparent;
+      font-size: 2rem;
+    }
   }
 }
 

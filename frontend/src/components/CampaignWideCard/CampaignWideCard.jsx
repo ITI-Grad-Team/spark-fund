@@ -3,7 +3,7 @@ import "./CampaignWideCard.css";
 const CampaignWideCard = ({ project }) => {
   const { header, title, description } = project;
   return (
-    <section className="wide-card">
+    <section className="wide-card container">
       <section className="col-1">
         <img src="/Rectangle.png" alt="Project photo" />
       </section>
