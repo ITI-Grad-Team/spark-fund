@@ -85,13 +85,18 @@ const Reply = ({ reply }) => {
 };
 
 // Main ProjectDetails Component
+
 export default function ProjectDetails() {
   const { id } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newComment, setNewComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [userRating, setUserRating] = useState(null);
+  const [userRatingLoaded, setUserRatingLoaded] = useState(false);
 
+  // Fetch project details
   const fetchProject = () => {
     fetch(`http://localhost:8000/api/projects/${id}`)
       .then((res) => {
@@ -108,10 +113,26 @@ export default function ProjectDetails() {
       });
   };
 
+  // Fetch user rating
+  const fetchUserRating = () => {
+    axiosInstance
+      .get(`http://localhost:8000/api/projects/${id}/my-rating/`)
+      .then((res) => {
+        setUserRating(res.data.rating);
+        setUserRatingLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Error fetching user rating", err);
+        setUserRatingLoaded(true); // Ensure flag is set even on failure
+      });
+  };
+
   useEffect(() => {
     fetchProject();
+    fetchUserRating();
   }, [id]);
 
+  // Handle adding a new comment
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -121,15 +142,42 @@ export default function ProjectDetails() {
         `http://localhost:8000/api/projects/${id}/comment/`,
         { content: newComment }
       );
-
       setNewComment("");
-      fetchProject();
+      fetchProject(); // Refresh comments
     } catch (err) {
       alert("Error adding comment");
       console.error(err);
     }
   };
 
+  // Handle rating submission
+  const handleRate = async () => {
+    if (rating < 1 || rating > 5) {
+      alert("Please select a rating from 1 to 5");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/rate/`,
+        { rating }
+      );
+      setRating(0); // reset dropdown
+      setUserRating(null);
+      setUserRatingLoaded(false);
+
+      // delay refetch to let backend update user rating
+      setTimeout(() => {
+        fetchUserRating();
+        fetchProject();
+      }, 500);
+    } catch (err) {
+      alert("Error submitting rating");
+      console.error(err);
+    }
+  };
+
+  // Loading or error UI
   if (loading) return <p>Loading project...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!project) return <p>No project found</p>;
@@ -137,33 +185,62 @@ export default function ProjectDetails() {
   return (
     <div style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
       <p>
-        <b>Creator</b>
+        <b>Creator: </b>
         <Link to={`/user/${project.project_creator.id}`}>
           {project.project_creator.username}
         </Link>
       </p>
+
       <h2>{project.title}</h2>
       <p>{project.details}</p>
+
+      <div style={{ marginTop: "20px" }}>
+        {localStorage.getItem("access_token") ? (
+          !userRatingLoaded ? (
+            <>
+              <p>Loading rating...</p>
+            </>
+          ) : userRating !== null && userRating !== undefined ? (
+            <p>You rated this project: {userRating} ⭐</p>
+          ) : (
+            <>
+              <select
+                value={rating}
+                onChange={(e) => setRating(parseInt(e.target.value))}
+              >
+                <option value={0}>Select rating</option>
+                <option value={1}>⭐</option>
+                <option value={2}>⭐⭐</option>
+                <option value={3}>⭐⭐⭐</option>
+                <option value={4}>⭐⭐⭐⭐</option>
+                <option value={5}>⭐⭐⭐⭐⭐</option>
+              </select>
+              <button onClick={handleRate} style={{ marginLeft: "10px" }}>
+                Submit Rating
+              </button>
+            </>
+          )
+        ) : null}
+      </div>
 
       <p>
         <b>Total Target:</b> {project.total_target}
       </p>
-
       <p>
         <b>Category:</b> {project.category_detail.name}
       </p>
-
       <p>
-        <b>Tags:</b> {project.tags_detail.map((tag) => tag.name).join(", ")}
+        <b>Tags:</b>{" "}
+        {JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
+          .map((tag) => tag.name)
+          .join(" - ")}
       </p>
-
       <p>
         <b>Start Date:</b> {project.start_date}
       </p>
       <p>
         <b>End Date:</b> {project.end_date}
       </p>
-
       <p>
         <b>Average Rating:</b> {project.average_rating}
       </p>
@@ -200,6 +277,7 @@ export default function ProjectDetails() {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write your comment..."
             rows={3}
+            style={{ width: "100%", marginBottom: "10px" }}
           />
           <button type="submit">Post Comment</button>
         </form>
