@@ -1,18 +1,41 @@
-body{
-    background-image: url('../../assets/images/register-bg.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+.my-signup-card-style {
+  display: flex !important;
+  flex-direction: row;
+  z-index: 10;
+
+  .column-1 {
+    flex: 1;
+    background-color: #f5efe0;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    position: relative;
+
+    img {
+      width: 100%;
+      padding: 4rem;
+    }
+  }
+
+  .column-2 {
+    flex: 1;
+  }
 }
 
-.btn{
-    background-color: #6059C9 !important;
-    color: white !important;
+.register {
+  background-color: #fffcf7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-#login{
-    color: #6059C9 !important;
-    text-decoration: none !important;
+.btn {
+  background-color: #6059c9 !important;
+  color: #fffcf7 !important;
+}
+
+#login {
+  color: #6059c9 !important;
+  text-decoration: none !important;
 }
 
 .form-group {
@@ -39,7 +62,7 @@ body{
   pointer-events: none;
 }
 
-label{
+label {
   background-color: transparent;
 }
 
@@ -48,7 +71,7 @@ label{
   top: -10px;
   left: 0;
   font-size: 12px;
-  color: #5264AE;
+  color: #5264ae;
 }
 
 .form-control {
@@ -60,16 +83,13 @@ label{
   padding: 0.75rem 1rem;
 }
 
-
 .form-control:focus {
-  border-color: #0d6efd; 
+  border-color: #0d6efd;
   box-shadow: 0 0 8px rgba(13, 110, 253, 0.3);
   outline: none;
 }
-
 
 .form-check-label {
   font-size: 0.95rem;
   color: #555;
 }
-

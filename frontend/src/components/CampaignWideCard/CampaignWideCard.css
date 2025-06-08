@@ -1,27 +1,27 @@
+.container {
+  padding-inline: 0;
+}
+
 .wide-card {
   display: flex;
   align-items: center;
-  width: 90%;
-  margin: 0 auto;
+  width: 100%;
   border-radius: 20px;
-  overflow: hidden;
-  background-color: transparent;
+  background-color: #fffcf7;
 
   .col-1 {
     flex: 1;
-    background-color: transparent;
+    width: 100%;
 
     img {
       width: 100%;
-      display: block;
-      object-fit: cover;
     }
   }
 
   .col-2 {
     flex: 1;
     padding-block: 1.4rem;
-    padding-left: 2rem;
+    padding-inline: 2rem;
     border-bottom-right-radius: 10px;
     border-top-right-radius: 10px;
     background-color: #fffcf7;
