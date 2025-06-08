@@ -27,7 +27,6 @@ urlpatterns = [
     path('categories/', views.CategoryListView.as_view(), name='category-list'),
     path('projects/', views.ProjectAPIView.as_view(), name='project-list'),
     path('projects/<int:id>/', views.ProjectAPIView.as_view(), name='project-detail'),
-    path('projects/rate/<int:id>/', views.ProjectRateAPIView.as_view(), name='project-rate'),
     path('projects/<int:project_id>/comment/', views.ProjectAddCommentAPIView.as_view(), name='project-add-comment'),
     path('comments/<int:comment_id>/reply/', views.CommentAddReplyAPIView.as_view(), name='comment-add-reply'),
     path('projects/<int:id>/donate/', views.ProjectDonateAPIView.as_view(), name='add-donation'),
@@ -44,6 +43,11 @@ urlpatterns = [
     path('projects/<int:project_id>/report/', views.ProjectReportView.as_view(), name='project-report'),
     path('customuser/', views.UserListView.as_view(), name='user-list'),
     path('customuser/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
+
+    path("projects/<int:pk>/rate/", views.ProjectRatingView.as_view(), name="rate_project"),
+    path('projects/<int:project_id>/my-rating/',  views.UserProjectRatingView.as_view(), name='user_project_rating'),
+
+
 ]
 
 if settings.DEBUG:

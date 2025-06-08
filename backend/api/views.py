@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.generics import ListAPIView
-from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport
+from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport,ProjectRating
 from api.serializers import (
     CategorySerializer,
     CustomUserSerializer,
@@ -271,3 +271,58 @@ class CommentReportView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ProjectRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            project = Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        rating = request.data.get("rating")
+
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response({"error": "Rating must be an integer between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user already rated
+        if ProjectRating.objects.filter(user=user, project=project).exists():
+            return Response({"error": "You have already rated this project"}, status=status.HTTP_400_BAD_REQUEST)
+        # Save new rating
+        ProjectRating.objects.create(user=user, project=project, rating=rating)
+
+        # Update aggregate fields on Project model
+        project.sum_of_ratings += rating
+        project.rates_count += 1
+        project.save()
+
+        return Response(
+            {
+                "message": "Rating submitted successfully",
+                "average_rating": project.average_rating,
+                "rates_count": project.rates_count,
+            },
+            status=status.HTTP_200_OK,
+        )
+    
+class UserProjectRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            rating = ProjectRating.objects.get(user=request.user, project=project)
+            return Response({'rating': rating.rating}, status=status.HTTP_200_OK)
+        except ProjectRating.DoesNotExist:
+            return Response({'rating': None}, status=status.HTTP_200_OK)

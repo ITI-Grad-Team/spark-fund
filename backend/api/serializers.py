@@ -2,7 +2,7 @@ import re
 import json
 from rest_framework import serializers
 from api.models import CustomUser
-from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport
+from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport,ProjectRating
 from django.contrib.auth import get_user_model
 from rest_framework.fields import ListField
 
@@ -126,7 +126,8 @@ class ProjectSerializer(serializers.ModelSerializer):
         ]
 
     def get_average_rating(self, obj):
-        return obj.average_rating()
+        return obj.average_rating
+
 
     def create(self, validated_data):
         tags_str = validated_data.pop('tags', '')
@@ -163,3 +164,8 @@ class CommentReportSerializer(serializers.ModelSerializer):
         model = CommentReport
         fields = ['id', 'comment', 'reason', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+class ProjectRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectRating
+        fields = ['rating']
