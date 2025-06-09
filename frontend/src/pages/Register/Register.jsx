@@ -1,6 +1,7 @@
 import "./Register.css";
 import axiosInstance from "../../api/config";
 import { useState } from "react";
+import { Link } from "react-router";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -269,9 +270,7 @@ const Register = () => {
 
               <p className="text-center text-muted mt-2 mb-0">
                 Already have an account?{" "}
-                <a href="/login">
-                  <u id="login">Login here</u>
-                </a>
+                <Link to="/login">Login Here</Link>
               </p>
             </form>
           </div>

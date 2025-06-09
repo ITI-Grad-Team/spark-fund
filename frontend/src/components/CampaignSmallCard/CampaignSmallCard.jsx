@@ -1,49 +1,59 @@
 import "./CampaignSmallCard.css";
+import { useNavigate } from "react-router-dom";
 
 const CampaignSmallCard = ({ project }) => {
-  const {
-    projectImage,
-    header,
-    title,
-    description,
-    followers,
-    comments,
-    ownerImage,
-    progress,
-    target,
-  } = project;
+
+    const navigate = useNavigate(); 
+    const handleClick = () => {
+       navigate(`/project/${project.id}`);
+    };
   return (
-    <section className="small-card">
-      <img className="project-img" src={projectImage} alt={title} />
+    <>
+    
 
-      <div className="small-card-content">
-        <div className="header">
-          <h3>
-            <img src="/paper-plane 2.png" alt="paper plan image" /> {header}
-          </h3>
-        </div>
+    <section className="small-card"  onClick={() => {handleClick()}} style={{cursor: "pointer"}}>
+      <img className="project-img" src="/Rectangle.png" alt={project.title} />
 
-        <h2 className="title">{title}</h2>
+        <div className="content">
+          <div className="small-card-content">
+            <div className="header">
+              <h3>
+                <img src="/paper-plane 2.png" alt="paper plane" />{" "}
+                {project.project_creator.username}
+              </h3>
+            </div>
 
-        <p className="description">{description}</p>
+            <h2 className="title">{project.title}</h2>
 
-        <div className="info">
-          <div className="btns">
-            <button className="users-btn">
-              <img src="/user 1.png" alt="User icon" /> {followers}k supporter
-            </button>
+            <p className="description">{project.details}</p>
 
-            <button className="comments-btn">
-              <img src="/comments 1.png" alt="Comments Icon" /> {comments}
-            </button>
+            <div className="info">
+              <div className="btns">
+                <button className="users-btn">
+                  <img src="/user 1.png" alt="User icon" />{" "}
+                  {Math.floor(Math.random() * 10)}k supporter
+                </button>
+
+                <button className="comments-btn">
+                  <img src="/comments 1.png" alt="Comments Icon" />{" "}
+                  {project.comments?.length || 0}
+                </button>
+              </div>
+
+              <img
+                src={project.project_creator.profile_picture}
+                alt="campaign owner"
+              />
+            </div>
           </div>
 
-          <img src={ownerImage} alt="campaign owner image" />
+          <progress
+            value={Math.floor(Math.random() * Number(project.total_target))}
+            max={project.total_target}
+          ></progress>
         </div>
-      </div>
-
-      <progress value={progress} max={target}></progress>
-    </section>
+      </section>
+    </>
   );
 };
 

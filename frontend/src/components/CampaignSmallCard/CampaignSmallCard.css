@@ -1,13 +1,25 @@
 .small-card {
   width: 100%;
-  border-radius: 20px;
+  border-radius: 10px;
+  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+
+  .content {
+    background-color: #fff;
+    line-height: 0;
+  }
 
   .small-card-content {
     padding: 1rem;
+    line-height: normal;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .project-img {
     width: 100%;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
   }
 
   .header {
@@ -43,29 +55,21 @@
       gap: 1rem;
 
       .users-btn {
-        padding-inline: 0.8rem;
-        padding-block: 0.2rem;
+        padding-inline: 1rem;
+        padding-block: 0.4rem;
         background-color: #6059c9;
         color: #fffcf7;
         border: none;
         border-radius: 8px;
-
-        img {
-          background-color: transparent;
-        }
       }
 
       .comments-btn {
-        padding-inline: 0.8rem;
-        padding-block: 0.2rem;
+        padding-inline: 1rem;
+        padding-block: 0.4rem;
         background-color: #f2eae1;
         color: #5f5f75;
         border: none;
         border-radius: 8px;
-
-        img {
-          background-color: transparent;
-        }
       }
     }
   }

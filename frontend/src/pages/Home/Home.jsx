@@ -1,7 +1,6 @@
 import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
-import { projects } from "../../lib/projects";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
 import { Link } from "react-router-dom";
@@ -10,19 +9,72 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import Footer from "../../components/Footer/Footer";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/config";
+import { ClipLoader, RingLoader } from "react-spinners";
 
 const Home = () => {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const lastFive = [...projects]
+    .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+    .slice(0, 5);
+
+  const topFiveByDonation = [...projects]
+    .sort(
+      (a, b) => parseFloat(b.donation_amount) - parseFloat(a.donation_amount)
+    )
+    .slice(0, 5);
+
+  
+
+    
+  useEffect(() => {
+  const cachedProjects = localStorage.getItem('projects');
+  if (cachedProjects) {
+    setProjects(JSON.parse(cachedProjects));
+    setLoading(false);
+  } else {
+    setLoading(true);
+    axiosInstance.get("/projects")
+      .then((res) => {
+        setProjects(res.data);
+        localStorage.setItem('projects', JSON.stringify(res.data));
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }
+}, []);
+
+useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
+  }, []);
+
+
+
+
   return (
     <section className="container-fluid home">
       <section className="container hero">
         <h1>Make an impact to the world.</h1>
 
-        <p>We’re offer complete solution to launch your social movements.</p>
+        <p>We offer complete solution to launch your social movements.</p>
 
         <div className="btns">
-          <Link to="/login/" className="started-btn">
+          {!isAuthenticated ? (
+            <Link to="/login/" className="started-btn">
+              Get Started
+            </Link>
+          ) :(
+            <Link to="/create/" className="started-btn">
             Get Started
           </Link>
+          )
+          
+          }
 
           <button className="learn-btn">Learn More</button>
         </div>
@@ -30,20 +82,30 @@ const Home = () => {
         <img className="hero-image" src="/Frame.svg" alt="Hero image" />
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
-        <div className="home-carousel">
-          <Swiper
-            modules={[Navigation]}
-            navigation
-            spaceBetween={20}
-            slidesPerView={1}
-          >
-            {projects.map((project) => (
-              <SwiperSlide key={project.id}>
-                <CampaignWideCard project={project} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+        {loading ? (
+          <RingLoader
+            color="#3b82f6"
+            size={80}
+            speedMultiplier={1.2}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        ) : (
+          <div className="home-carousel">
+            <Swiper
+              modules={[Navigation]}
+              navigation
+              spaceBetween={20}
+              slidesPerView={1}
+            >
+              {topFiveByDonation.map((project) => (
+                <SwiperSlide key={project.id}>
+                  <CampaignWideCard project={project} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        )}
       </section>
 
       <CampaignDesc />
@@ -54,13 +116,25 @@ const Home = () => {
           paragraph="These petitions need your help to achieve victory."
         />
 
-        <div className="campaigns-grid">
-          {projects.map((project) => (
-            <CampaignSmallCard key={project.id} project={project} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="loader-wrapper">
+            <RingLoader
+              color="#3b82f6"
+              size={80}
+              speedMultiplier={1.2}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </div>
+        ) : (
+          <div className="campaigns-grid">
+            {lastFive.map((project) => (
+              <CampaignSmallCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
 
-        <Link to="/" className="all-campaigns-btn">
+        <Link to="/projects" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
       </div>
@@ -98,7 +172,7 @@ const Home = () => {
             community.
           </p>
 
-          <Link to="/">
+          <Link to="/projects">
             Donate to Campaign{" "}
             <img src="/angle-right 2.svg" alt="right arrow icon" />
           </Link>

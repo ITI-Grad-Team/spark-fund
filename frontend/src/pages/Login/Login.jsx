@@ -2,6 +2,7 @@ import "./Login.css";
 import axiosInstance from "../../api/config";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
+import { Link } from "react-router";
 
 function parseJwt(token) {
   const base64Url = token.split(".")[1];
@@ -218,9 +219,7 @@ const Login = () => {
 
                 <p className="text-center mt-3 mb-0">
                   Don’t have an account?{" "}
-                  <a href="/register">
-                    <u>Register here</u>
-                  </a>
+                  <Link to="/register">Sign Up</Link>
                 </p>
               </form>
             </div>
