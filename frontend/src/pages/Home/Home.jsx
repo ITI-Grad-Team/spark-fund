@@ -108,7 +108,7 @@ const Home = () => {
           </div>
         )}
 
-        <Link to="/" className="all-campaigns-btn">
+        <Link to="/projects" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
       </div>
