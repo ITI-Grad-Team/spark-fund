@@ -23,7 +23,11 @@ class Project(models.Model):
     category = models.ForeignKey('Category', on_delete=models.SET_NULL,null=True,blank=True)
     project_creator = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL,null=True) #get_user_model()returns the custom user model you are using for authentication in your project(Best Practice)
     created_at = models.DateTimeField(auto_now_add=True)#The actual creation date of the project in the system(for filteriation)
+    is_cancelled = models.BooleanField(default=False)
+
     
+
+    @property
     def average_rating(self):
         if self.rates_count == 0:
             return 0
@@ -44,7 +48,7 @@ class Tag(models.Model):
         return self.name
 
 class Category(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return self.name
     
@@ -91,3 +95,24 @@ class CommentReport(models.Model):
 
     def __str__(self):
         return f"Report on Comment {self.comment.id} by {self.reporter.username}"
+    
+
+class ProjectRating(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    rating = models.PositiveSmallIntegerField()
+
+    class Meta:
+        unique_together = ('user', 'project')  # Prevent duplicate rating per user/project
+
+    def __str__(self):
+        return f"{self.user.username} rated {self.project.title}: {self.rating}"
+
+class Donation(models.Model):
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='donations')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'project')

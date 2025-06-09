@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.generics import ListAPIView
-from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport
+from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport,ProjectRating,Donation
 from api.serializers import (
     CategorySerializer,
     CustomUserSerializer,
@@ -193,38 +193,6 @@ class CommentAddReplyAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ProjectDonateAPIView(APIView):
-    def post(self, request, id):
-        project = get_object_or_404(Project, id=id)
-        amount = request.data.get("amount")
-
-        if not amount:
-            return Response(
-                {"error": "Donation amount is required."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        try:
-            amount = float(amount)
-            if amount <= 0:
-                raise ValueError
-        except ValueError:
-            return Response(
-                {"error": "Amount must be a positive number."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        project.donation_amount += amount
-        project.save()
-
-        return Response(
-            {
-                "message": "Donation added successfully.",
-                "new_total": project.donation_amount,
-            },
-            status=status.HTTP_200_OK,
-        )
-
 class ProjectReportView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request, project_id):
@@ -271,3 +239,127 @@ class CommentReportView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class ProjectRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            project = Project.objects.get(pk=pk)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        user = request.user
+        rating = request.data.get("rating")
+
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response({"error": "Rating must be an integer between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check if user already rated
+        if ProjectRating.objects.filter(user=user, project=project).exists():
+            return Response({"error": "You have already rated this project"}, status=status.HTTP_400_BAD_REQUEST)
+        # Save new rating
+        ProjectRating.objects.create(user=user, project=project, rating=rating)
+
+        # Update aggregate fields on Project model
+        project.sum_of_ratings += rating
+        project.rates_count += 1
+        project.save()
+
+        return Response(
+            {
+                "message": "Rating submitted successfully",
+                "average_rating": project.average_rating,
+                "rates_count": project.rates_count,
+            },
+            status=status.HTTP_200_OK,
+        )
+    
+class UserProjectRatingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            rating = ProjectRating.objects.get(user=request.user, project=project)
+            return Response({'rating': rating.rating}, status=status.HTTP_200_OK)
+        except ProjectRating.DoesNotExist:
+            return Response({'rating': None}, status=status.HTTP_200_OK)
+        
+class CancelProjectAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+
+        if project.project_creator != request.user:
+            return Response({"detail": "You are not the creator of this project."}, status=status.HTTP_403_FORBIDDEN)
+
+        if project.total_target > 0:
+            donation_percentage = (project.donation_amount / project.total_target) * 100
+            if donation_percentage >= 25:
+                return Response({"detail": "Cannot cancel project with donations >= 25% of the target."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        project.is_cancelled = True
+        project.save()
+        return Response({"detail": "Project cancelled successfully."}, status=status.HTTP_200_OK)
+    
+from decimal import Decimal
+class DonateToProject(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=404)
+
+        amount = request.data.get("amount")
+        if not amount:
+            return Response({"error": "Donation amount is required"}, status=400)
+
+        try:
+            amount = Decimal(amount)
+        except Exception:
+            return Response({"error": "Invalid donation amount"}, status=400)
+
+        if amount <= 0:
+            return Response({"error": "Amount must be positive"}, status=400)
+
+        donation, created = Donation.objects.get_or_create(
+            user=request.user,
+            project=project,
+            defaults={'amount': amount}
+        )
+        if not created:
+            donation.amount = donation.amount + amount
+            donation.save()
+
+        project.donation_amount = amount + project.donation_amount
+        project.save()
+
+        return Response({"message": "Donation successful"}, status=201)
+
+
+class UserDonationAmount(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, project_id):
+        user = request.user  
+
+        donation = Donation.objects.filter(user=user, project_id=project_id).first()
+
+        if donation is None:
+            return Response({"donation_amount": Decimal('0')}, status=200)
+
+        return Response({"donation_amount": donation.amount}, status=200)

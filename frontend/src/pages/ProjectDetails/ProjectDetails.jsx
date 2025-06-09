@@ -3,6 +3,18 @@ import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../api/config"; 
 
+function getLoggedInUserId() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.user_id || payload.id || null;
+  } catch {
+    return null;
+  }
+}
+
 // Comment component
 const Comment = ({ comment, refreshProject }) => {
   const [replyContent, setReplyContent] = useState("");
@@ -158,13 +170,78 @@ const Reply = ({ reply }) => {
 };
 
 // Main ProjectDetails Component
+
 export default function ProjectDetails() {
   const { id: projectId } = useParams(); 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [newComment, setNewComment] = useState("");
+  const [rating, setRating] = useState(0);
+  const [userRating, setUserRating] = useState(null);
+  const [userRatingLoaded, setUserRatingLoaded] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+  const [donationAmount, setDonationAmount] = useState("");
+  const [userDonation, setUserDonation] = useState(0);
 
+  const fetchUserDonation = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `http://localhost:8000/api/projects/${id}/donation-amount/`
+      );
+      setUserDonation(response.data.donation_amount);
+    } catch (error) {
+      console.error("Error fetching user donation:", error);
+    }
+  };
+
+  const confirmCancel = async () => {
+    setCanceling(true);
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/cancel/`
+      );
+      setShowCancelModal(false);
+      fetchProject();
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Failed to cancel project.");
+    } finally {
+      setCanceling(false);
+    }
+  };
+
+  useEffect(() => {
+    setCurrentUserId(getLoggedInUserId());
+  }, []);
+
+  const handleDonate = async () => {
+    const amount = parseFloat(donationAmount);
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid donation amount.");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/donate/`,
+        {
+          amount,
+        }
+      );
+
+      setDonationAmount("");
+      fetchProject(); // to update donation total
+      fetchUserDonation();
+    } catch (err) {
+      console.error("Donation error:", err);
+      alert("Error while donating. Make sure you're logged in.");
+    }
+  };
+
+  // Fetch project details
   const [showProjectReportForm, setShowProjectReportForm] = useState(false);
   const [projectReportReason, setProjectReportReason] = useState("");
 
@@ -202,10 +279,27 @@ export default function ProjectDetails() {
       });
   }, [projectId]); 
 
+  // Fetch user rating
+  const fetchUserRating = () => {
+    axiosInstance
+      .get(`http://localhost:8000/api/projects/${id}/my-rating/`)
+      .then((res) => {
+        setUserRating(res.data.rating);
+        setUserRatingLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Error fetching user rating", err);
+        setUserRatingLoaded(true); // Ensure flag is set even on failure
+      });
+  };
+
   useEffect(() => {
     fetchProject();
-  }, [fetchProject]); 
+    fetchUserRating();
+    fetchUserDonation();
+  }, [id,fetchProject]); 
 
+  // Handle adding a new comment
   const handleAddComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || !projectId) {
@@ -218,9 +312,35 @@ export default function ProjectDetails() {
         { content: newComment }
       );
       setNewComment("");
-      fetchProject();
+      fetchProject(); // Refresh comments
     } catch (err) {
-      console.error("Error adding comment:", err.response?.data || err.message);
+       console.error("Error adding comment:", err.response?.data || err.message);
+    }
+  };
+
+  // Handle rating submission
+  const handleRate = async () => {
+    if (rating < 1 || rating > 5) {
+      alert("Please select a rating from 1 to 5");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/rate/`,
+        { rating }
+      );
+      setRating(0); // reset dropdown
+      setUserRating(null);
+      setUserRatingLoaded(false);
+
+      // delay refetch to let backend update user rating
+      setTimeout(() => {
+        fetchUserRating();
+        fetchProject();
+      }, 500);
+    } catch (err) {
+      console.error("Error submitting rating: token expired:", err.response?.data || err.message);
     }
   };
 
@@ -247,6 +367,7 @@ export default function ProjectDetails() {
     }
   };
 
+  // Loading or error UI
   if (loading) return <p style={{ textAlign: "center", padding: "20px", fontSize: "1.2em" }}>Loading project...</p>;
   if (error) return <p style={{ textAlign: "center", padding: "20px", color: "red", fontWeight: "bold" }}>Error: {error}</p>;
   if (!project) return <p style={{ textAlign: "center", padding: "20px" }}>No project found or project data is invalid.</p>;
@@ -258,83 +379,312 @@ export default function ProjectDetails() {
   const comments = Array.isArray(project.comments) ? project.comments : [];
 
   return (
-    <div style={{ maxWidth: "700px", margin: "20px auto", padding: "20px", fontFamily: "Arial, sans-serif", border: "1px solid #ddd", borderRadius: "8px", boxShadow: "0 2px 10px rgba(0,0,0,0.05)", backgroundColor: "#fff" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #eee", paddingBottom: "15px", marginBottom: "20px" }}>
-        <h2 style={{ margin: 0, color: "#333" }}>{project.title || "Untitled Project"}</h2>
-        <button
-            onClick={() => setShowProjectReportForm(prev => !prev)}
-            style={{
-                padding: "8px 12px",
-                backgroundColor: showProjectReportForm ? "#e0e0e0" : "#ffebee", 
-                color: "#c62828", 
-                border: "1px solid #f44336", 
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontSize: "0.9em"
-            }}
-        >
-            {showProjectReportForm ? "Cancel Report" : "Report Project"}
-        </button>
-      </div>
+   <div
+  style={{
+    maxWidth: "700px",
+    margin: "20px auto",
+    padding: "20px",
+    fontFamily: "Arial, sans-serif",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
+    backgroundColor: "#fff",
+  }}
+>
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      borderBottom: "1px solid #eee",
+      paddingBottom: "15px",
+      marginBottom: "20px",
+    }}
+  >
+    <h2 style={{ margin: 0, color: "#333" }}>
+      {project.title || "Untitled Project"}
+    </h2>
 
-      {showProjectReportForm && (
-        <form
-            onSubmit={handleProjectReportSubmit}
-            style={{ margin: "0 0 20px 0", padding: "15px", background: "#fff5f5", border: "1px solid #fcc", borderRadius: "5px" }}
-        >
-            <h4 style={{marginTop: 0, marginBottom: "10px", color: "#c62828"}}>Report This Project</h4>
-            <textarea
-                rows={3}
-                value={projectReportReason}
-                onChange={(e) => setProjectReportReason(e.target.value)}
-                placeholder="Reason for reporting this project..."
-                style={{ width: "calc(100% - 22px)", marginBottom: "10px", padding: "10px", border: "1px solid #fcc", borderRadius: "3px" }}
-                required
-            />
-            <div style={{display: "flex", gap: "10px"}}>
-                <button type="submit" style={{ padding: "8px 15px", background: "#d9534f", color: "white", border: "none", borderRadius: "3px", cursor: "pointer" }}>
-                    Submit Report
-                </button>
-                <button type="button" onClick={() => setShowProjectReportForm(false)} style={{ padding: "8px 15px", border: "1px solid #ccc", borderRadius: "3px", cursor: "pointer", backgroundColor: "#f0f0f0" }}>
-                    Cancel
-                </button>
-            </div>
-        </form>
+    <div style={{ display: "flex", gap: "10px" }}>
+      {currentUserId === project.project_creator.id && !project.is_cancelled && (
+        !canceling ? (
+          <button
+            onClick={() => setShowCancelModal(true)}
+            style={{
+              backgroundColor: "#ffe0e0",
+              color: "#c62828",
+              border: "1px solid #f44336",
+              borderRadius: "4px",
+              padding: "6px 10px",
+              cursor: "pointer",
+            }}
+          >
+            Cancel Project
+          </button>
+        ) : (
+          <button
+            disabled
+            style={{
+              backgroundColor: "#eee",
+              color: "#999",
+              border: "1px solid #ccc",
+              borderRadius: "4px",
+              padding: "6px 10px",
+              cursor: "not-allowed",
+            }}
+          >
+            Canceling...
+          </button>
+        )
       )}
 
-      {projectCreator ? (
-         <p><b>Creator: </b><Link to={`/user/${projectCreator.id}`}>{projectCreator.username || "Unknown"}</Link></p>
-      ) : <p><b>Creator: </b>Unknown</p>}
+      <button
+        onClick={() => setShowProjectReportForm((prev) => !prev)}
+        style={{
+          padding: "6px 10px",
+          backgroundColor: showProjectReportForm ? "#e0e0e0" : "#ffebee",
+          color: "#c62828",
+          border: "1px solid #f44336",
+          borderRadius: "4px",
+          cursor: "pointer",
+          fontWeight: "bold",
+          fontSize: "0.9em",
+        }}
+      >
+        {showProjectReportForm ? "Cancel Report" : "Report Project"}
+      </button>
+    </div>
+  </div>
 
-      <p><b>Details:</b> {project.details || "No details available."}</p>
-      <p><b>Total Target:</b> {project.total_target?.toLocaleString() || "N/A"}</p>
-      {categoryDetail ? <p><b>Category:</b> {categoryDetail.name || "N/A"}</p> : <p><b>Category:</b> N/A</p>}
-      <p><b>Tags:</b> {tagsDetail.length > 0 ? tagsDetail.map((tag) => tag.name).join(", ") : "No tags"}</p>
-      <p><b>Start Date:</b> {project.start_date ? new Date(project.start_date).toLocaleDateString() : "N/A"}</p>
-      <p><b>End Date:</b> {project.end_date ? new Date(project.end_date).toLocaleDateString() : "N/A"}</p>
-      <p><b>Average Rating:</b> {project.average_rating !== null && project.average_rating !== undefined ? parseFloat(project.average_rating).toFixed(1) : "Not rated"}</p>
+  {showProjectReportForm && (
+    <form
+      onSubmit={handleProjectReportSubmit}
+      style={{
+        marginBottom: "20px",
+        padding: "15px",
+        background: "#fff5f5",
+        border: "1px solid #fcc",
+        borderRadius: "5px",
+      }}
+    >
+      <h4 style={{ marginTop: 0, marginBottom: "10px", color: "#c62828" }}>
+        Report This Project
+      </h4>
+      <textarea
+        rows={3}
+        value={projectReportReason}
+        onChange={(e) => setProjectReportReason(e.target.value)}
+        placeholder="Reason for reporting this project..."
+        style={{
+          width: "100%",
+          marginBottom: "10px",
+          padding: "10px",
+          border: "1px solid #fcc",
+          borderRadius: "3px",
+        }}
+        required
+      />
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button
+          type="submit"
+          style={{
+            padding: "8px 15px",
+            background: "#d9534f",
+            color: "white",
+            border: "none",
+            borderRadius: "3px",
+            cursor: "pointer",
+          }}
+        >
+          Submit Report
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowProjectReportForm(false)}
+          style={{
+            padding: "8px 15px",
+            border: "1px solid #ccc",
+            borderRadius: "3px",
+            backgroundColor: "#f0f0f0",
+            cursor: "pointer",
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  )}
 
-      {images.length > 0 && (
-        <div style={{ marginTop: "20px" }}>
-          <h3 style={{marginBottom: "10px", color: "#444"}}>Images</h3>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-            {images.map((img) => (
-              <img
-                key={img.id}
-                src={img.image.startsWith('http') ? img.image : `http://localhost:8000${img.image.startsWith('/') ? '' : '/'}${img.image}`}
-                alt={`Project img ${img.id}`}
-                style={{ width: "100px", height: "100px", objectFit: "cover", border: "1px solid #eee", borderRadius: "4px" }}
-                onError={(e) => {
-                    e.target.onerror = null; 
-                    e.target.style.display='none'; 
-                    console.warn(`Failed to load image: ${e.target.src}`);
-                }}
-              />
+  <p>
+    <b>Creator:</b>{" "}
+    <Link to={`/user/${project.project_creator.id}`}>
+      {project.project_creator.username || "Unknown"}
+    </Link>
+  </p>
+
+  <p><b>Details:</b> {project.details}</p>
+  <p><b>Total Target:</b> {project.total_target}</p>
+  <p><b>Donated:</b> {project.donation_amount}</p>
+  <p><b>Your Donation:</b> {userDonation}</p>
+  <p><b>Category:</b> {project.category_detail.name}</p>
+  <p>
+    <b>Tags:</b>{" "}
+    {project.tags_detail.length > 0
+      ? project.tags_detail.map((tag) => tag.name).join(" - ")
+      : "No tags"}
+  </p>
+  <p><b>Start Date:</b> {project.start_date}</p>
+  <p><b>End Date:</b> {project.end_date}</p>
+  <p><b>Average Rating:</b> {project.average_rating}</p>
+
+  {project.is_cancelled && (
+    <p style={{ color: "red", fontWeight: "bold" }}>PROJECT CANCELLED</p>
+  )}
+
+  {/* Rating */}
+  {localStorage.getItem("access_token") && (
+    <div style={{ marginTop: "20px" }}>
+      <h3>Rating</h3>
+      {!userRatingLoaded ? (
+        <p>Loading rating...</p>
+      ) : userRating !== null ? (
+        <p>You rated this project: {userRating} ⭐</p>
+      ) : (
+        <>
+          <select
+            value={rating}
+            onChange={(e) => setRating(parseInt(e.target.value))}
+          >
+            <option value={0}>Select rating</option>
+            {[1, 2, 3, 4, 5].map((val) => (
+              <option key={val} value={val}>
+                {"⭐".repeat(val)}
+              </option>
             ))}
+          </select>
+          <button onClick={handleRate} style={{ marginLeft: "10px" }}>
+            Submit Rating
+          </button>
+        </>
+      )}
+    </div>
+  )}
+
+  {/* Donation */}
+  {localStorage.getItem("access_token") && (
+    <div style={{ marginTop: "20px" }}>
+      <h3>Donate to this project</h3>
+      <input
+        type="number"
+        min="1"
+        step="0.01"
+        value={donationAmount}
+        onChange={(e) => setDonationAmount(e.target.value)}
+        placeholder="Enter donation amount"
+      />
+      <button onClick={handleDonate} style={{ marginLeft: "10px" }}>
+        Donate
+      </button>
+    </div>
+  )}
+
+  {/* Images */}
+  {project.images.length > 0 && (
+    <div style={{ marginTop: "20px" }}>
+      <h3 style={{ marginBottom: "10px", color: "#444" }}>Images</h3>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+        {project.images.map((img) => (
+          <img
+            key={img.id}
+            src={`http://localhost:8000/${img.image}`}
+            alt={`Project img ${img.id}`}
+            style={{
+              width: "100px",
+              height: "100px",
+              objectFit: "cover",
+              border: "1px solid #eee",
+              borderRadius: "4px",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Cancel Modal */}
+  {showCancelModal && (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.5)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 999,
+      }}
+    >
+      {project.donation_amount / project.total_target < 0.25 ? (
+        <div
+          style={{
+            background: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            width: "300px",
+          }}
+        >
+          <p>Are you sure you want to cancel this project?</p>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              gap: "10px",
+            }}
+          >
+            <button
+              onClick={() => setShowCancelModal(false)}
+              disabled={canceling}
+            >
+              No
+            </button>
+            <button
+              onClick={confirmCancel}
+              disabled={canceling}
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                opacity: canceling ? 0.6 : 1,
+              }}
+            >
+              {canceling ? "Canceling..." : "Yes, Cancel"}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            background: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            width: "300px",
+          }}
+        >
+          <p>Project cannot be canceled. Donation amount exceeds 25%.</p>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              onClick={() => setShowCancelModal(false)}
+              disabled={canceling}
+            >
+              OK
+            </button>
           </div>
         </div>
       )}
+    </div>
+  )}
 
       <div style={{ marginTop: "30px" }}>
         <h3 style={{ borderTop: "1px solid #eee", paddingTop: "20px", marginTop: "20px", color: "#444" }}>Comments</h3>

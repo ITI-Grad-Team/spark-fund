@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 
 const Navbar = () => (
-  <nav className="container-fluid navbar">
-    <div className="container">
+  <nav className="container-fluid navbar-background">
+    <div className="container navbar">
       <div className="navbar-col-1">
         <Link className="navbar-brand" to="/">
           <img src="/navbar-logo.png" alt="Logo" />

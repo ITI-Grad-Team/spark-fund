@@ -1,12 +1,37 @@
-body{
-    background-image: url('../../assets/images/register-bg.jpg');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+.login {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fffcf7;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.login{
+.my-login-card-style {
+  display: flex !important;
+  flex-direction: row;
+  z-index: 10;
+
+  .column-1 {
+    display: flex;
+    flex: 1;
+    background-color: #f5efe0;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
     align-items: center;
     justify-content: center;
-    height: 80vh;
+
+    img {
+      width: 100%;
+      padding: 4rem;
+      display: flex;
+    }
+  }
+
+  .column-2 {
+    flex: 1;
+    padding-block: 5rem;
+    padding-inline: 2rem;
+  }
 }
