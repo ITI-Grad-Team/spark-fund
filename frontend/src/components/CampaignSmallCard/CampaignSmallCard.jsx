@@ -7,7 +7,6 @@ const CampaignSmallCard = ({ project }) => {
     const handleClick = () => {
        navigate(`/project/${project.id}`);
     };
-  
   return (
     <>
     
@@ -15,34 +14,45 @@ const CampaignSmallCard = ({ project }) => {
     <section className="small-card"  onClick={() => {handleClick()}} style={{cursor: "pointer"}}>
       <img className="project-img" src="/Rectangle.png" alt={project.title} />
 
-      <div className="small-card-content">
-        <div className="header">
-          <h3>
-            <img src="/paper-plane 2.png" alt="paper plane" /> {project.project_creator.username}
-          </h3>
-        </div>
+        <div className="content">
+          <div className="small-card-content">
+            <div className="header">
+              <h3>
+                <img src="/paper-plane 2.png" alt="paper plane" />{" "}
+                {project.project_creator.username}
+              </h3>
+            </div>
 
-        <h2 className="title">{project.title}</h2>
+            <h2 className="title">{project.title}</h2>
 
-        <p className="description">{project.details}</p>
+            <p className="description">{project.details}</p>
 
-        <div className="info">
-          <div className="btns">
-            <button className="users-btn">
-              <img src="/user 1.png" alt="User icon" /> {Math.floor(Math.random() * 10)}k supporter
-            </button>
+            <div className="info">
+              <div className="btns">
+                <button className="users-btn">
+                  <img src="/user 1.png" alt="User icon" />{" "}
+                  {Math.floor(Math.random() * 10)}k supporter
+                </button>
 
-            <button className="comments-btn">
-              <img src="/comments 1.png" alt="Comments Icon" /> {project.comments?.length || 0}
-            </button>
+                <button className="comments-btn">
+                  <img src="/comments 1.png" alt="Comments Icon" />{" "}
+                  {project.comments?.length || 0}
+                </button>
+              </div>
+
+              <img
+                src={project.project_creator.profile_picture}
+                alt="campaign owner"
+              />
+            </div>
           </div>
 
-          <img src={project.project_creator.profile_picture} alt="campaign owner" />
+          <progress
+            value={Math.floor(Math.random() * Number(project.total_target))}
+            max={project.total_target}
+          ></progress>
         </div>
-      </div>
-
-      <progress value={Math.floor(Math.random() * Number(project.total_target))} max={project.total_target}></progress>
-    </section>
+      </section>
     </>
   );
 };
