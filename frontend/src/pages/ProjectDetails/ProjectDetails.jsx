@@ -189,7 +189,7 @@ export default function ProjectDetails() {
   const fetchUserDonation = async () => {
     try {
       const response = await axiosInstance.get(
-        `http://localhost:8000/api/projects/${id}/donation-amount/`
+        `http://localhost:8000/api/projects/${projectId}/donation-amount/`
       );
       setUserDonation(response.data.donation_amount);
     } catch (error) {
@@ -201,7 +201,7 @@ export default function ProjectDetails() {
     setCanceling(true);
     try {
       await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/cancel/`
+        `http://localhost:8000/api/projects/${projectId}/cancel/`
       );
       setShowCancelModal(false);
       fetchProject();
@@ -226,7 +226,7 @@ export default function ProjectDetails() {
 
     try {
       await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/donate/`,
+        `http://localhost:8000/api/projects/${projectId}/donate/`,
         {
           amount,
         }
@@ -282,7 +282,7 @@ export default function ProjectDetails() {
   // Fetch user rating
   const fetchUserRating = () => {
     axiosInstance
-      .get(`http://localhost:8000/api/projects/${id}/my-rating/`)
+      .get(`http://localhost:8000/api/projects/${projectId}/my-rating/`)
       .then((res) => {
         setUserRating(res.data.rating);
         setUserRatingLoaded(true);
@@ -297,7 +297,7 @@ export default function ProjectDetails() {
     fetchProject();
     fetchUserRating();
     fetchUserDonation();
-  }, [id,fetchProject]); 
+  }, [projectId,fetchProject]); 
 
   // Handle adding a new comment
   const handleAddComment = async (e) => {
@@ -327,7 +327,7 @@ export default function ProjectDetails() {
 
     try {
       await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/rate/`,
+        `http://localhost:8000/api/projects/${projectId}/rate/`,
         { rating }
       );
       setRating(0); // reset dropdown
