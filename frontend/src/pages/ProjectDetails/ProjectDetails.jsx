@@ -110,6 +110,19 @@ export default function ProjectDetails() {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [canceling, setCanceling] = useState(false);
+  const [donationAmount, setDonationAmount] = useState("");
+  const [userDonation, setUserDonation] = useState(0);
+
+  const fetchUserDonation = async () => {
+    try {
+      const response = await axiosInstance.get(
+        `http://localhost:8000/api/projects/${id}/donation-amount/`
+      );
+      setUserDonation(response.data.donation_amount);
+    } catch (error) {
+      console.error("Error fetching user donation:", error);
+    }
+  };
 
   const confirmCancel = async () => {
     setCanceling(true);
@@ -130,6 +143,30 @@ export default function ProjectDetails() {
   useEffect(() => {
     setCurrentUserId(getLoggedInUserId());
   }, []);
+
+  const handleDonate = async () => {
+    const amount = parseFloat(donationAmount);
+    if (!amount || amount <= 0) {
+      alert("Please enter a valid donation amount.");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/donate/`,
+        {
+          amount,
+        }
+      );
+
+      setDonationAmount("");
+      fetchProject(); // to update donation total
+      fetchUserDonation();
+    } catch (err) {
+      console.error("Donation error:", err);
+      alert("Error while donating. Make sure you're logged in.");
+    }
+  };
 
   // Fetch project details
   const fetchProject = () => {
@@ -165,6 +202,7 @@ export default function ProjectDetails() {
   useEffect(() => {
     fetchProject();
     fetchUserRating();
+    fetchUserDonation();
   }, [id]);
 
   // Handle adding a new comment
@@ -225,7 +263,6 @@ export default function ProjectDetails() {
           {project.project_creator.username}
         </Link>
       </p>
-
       <h2>{project.title}</h2>
       <p>{project.details}</p>
       {currentUserId === project.project_creator.id &&
@@ -324,9 +361,7 @@ export default function ProjectDetails() {
             )}
           </>
         )}
-
       {project.is_cancelled && <p>PROJECT CANCELLED</p>}
-
       <div style={{ marginTop: "20px" }}>
         {localStorage.getItem("access_token") ? (
           !userRatingLoaded ? (
@@ -355,14 +390,32 @@ export default function ProjectDetails() {
           )
         ) : null}
       </div>
-
       <p>
         <b>Total Target:</b> {project.total_target}
       </p>
-
       <p>
         <b>Donated:</b> {project.donation_amount}
       </p>
+      <p>
+        <b>Your Donation:</b> {userDonation}
+      </p>
+
+      {localStorage.getItem("access_token") ? (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Donate to this project</h3>
+          <input
+            type="number"
+            min="1"
+            step="0.01"
+            value={donationAmount}
+            onChange={(e) => setDonationAmount(e.target.value)}
+            placeholder="Enter donation amount"
+          />
+          <button onClick={handleDonate} style={{ marginLeft: "10px" }}>
+            Donate
+          </button>
+        </div>
+      ) : null}
       <p>
         <b>Category:</b> {project.category_detail.name}
       </p>
@@ -381,7 +434,6 @@ export default function ProjectDetails() {
       <p>
         <b>Average Rating:</b> {project.average_rating}
       </p>
-
       <div>
         <h3>Images</h3>
         {project.images.map((img) => (
@@ -393,7 +445,6 @@ export default function ProjectDetails() {
           />
         ))}
       </div>
-
       <div style={{ marginTop: "30px" }}>
         <h3>Comments</h3>
         {project.comments.length === 0 && <p>No comments yet</p>}
@@ -405,7 +456,6 @@ export default function ProjectDetails() {
           />
         ))}
       </div>
-
       <div>
         <h4>Add a Comment</h4>
         <form onSubmit={handleAddComment}>

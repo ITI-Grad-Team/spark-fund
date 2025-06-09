@@ -2,7 +2,7 @@ import re
 import json
 from rest_framework import serializers
 from api.models import CustomUser
-from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport,ProjectRating
+from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport,ProjectRating,Donation
 from django.contrib.auth import get_user_model
 from rest_framework.fields import ListField
 
@@ -169,3 +169,9 @@ class ProjectRatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectRating
         fields = ['rating']
+
+class DonationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Donation
+        fields = ['id', 'user', 'project', 'amount', 'created_at']
+        read_only_fields = ['user', 'created_at']
