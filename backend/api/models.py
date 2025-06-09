@@ -78,8 +78,6 @@ class ProjectReport(models.Model):
     reason = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        unique_together = ('project', 'reporter')
 
     def __str__(self):
         return f"Report on {self.project.title} by {self.reporter.username}"
@@ -89,9 +87,6 @@ class CommentReport(models.Model):
     reporter = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     reason = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('comment', 'reporter')  
 
     def __str__(self):
         return f"Report on Comment {self.comment.id} by {self.reporter.username}"

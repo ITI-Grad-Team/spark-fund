@@ -386,12 +386,14 @@ const ProjectDetails = () => {
     <div className="project-details">
       <div className="project-header">
         <h2>{title || "Untitled Project"}</h2>
-        <button
-          onClick={() => setShowProjectReportForm((prev) => !prev)}
-          className={`report-button ${showProjectReportForm ? "active" : ""}`}
-        >
-          {showProjectReportForm ? "Cancel Report" : "Report Project"}
-        </button>
+        {localStorage.getItem("access_token") && (
+          <button
+            onClick={() => setShowProjectReportForm((prev) => !prev)}
+            className={`report-button ${showProjectReportForm ? "active" : ""}`}
+          >
+            {showProjectReportForm ? "Cancel Report" : "Report Project"}
+          </button>
+        )}
       </div>
 
       {showProjectReportForm && (
@@ -449,7 +451,9 @@ const ProjectDetails = () => {
       <p>
         <b>Tags:</b>{" "}
         {tags_detail.length > 0
-          ? tags_detail.map((tag) => tag.name).join(" - ")
+          ? JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
+              .map((tag) => tag.name)
+              .join(" - ")
           : "No tags"}
       </p>
       <p>
@@ -558,34 +562,36 @@ const ProjectDetails = () => {
         </div>
       )}
 
-      <div className="comments-section">
-        <h3>Comments</h3>
-        {comments.length === 0 ? (
-          <p>No comments yet. Be the first to comment!</p>
-        ) : (
-          comments.map((comment) => (
-            <Comment
-              key={comment.id}
-              comment={comment}
-              refreshProject={fetchProject}
-            />
-          ))
-        )}
+      {localStorage.getItem("access_token") && (
+        <div className="comments-section">
+          <h3>Comments</h3>
+          {comments.length === 0 ? (
+            <p>No comments yet. Be the first to comment!</p>
+          ) : (
+            comments.map((comment) => (
+              <Comment
+                key={comment.id}
+                comment={comment}
+                refreshProject={fetchProject}
+              />
+            ))
+          )}
 
-        <form onSubmit={handleAddComment} className="add-comment-form">
-          <h4>Add a Comment</h4>
-          <textarea
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Write your comment..."
-            rows={3}
-            required
-          />
-          <button type="submit" className="submit-button">
-            Post Comment
-          </button>
-        </form>
-      </div>
+          <form onSubmit={handleAddComment} className="add-comment-form">
+            <h4>Add a Comment</h4>
+            <textarea
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write your comment..."
+              rows={3}
+              required
+            />
+            <button type="submit" className="submit-button">
+              Post Comment
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };

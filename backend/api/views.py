@@ -254,14 +254,6 @@ class ProjectReportView(APIView):
         serializer = ProjectReportSerializer(data=data)
 
         if serializer.is_valid():
-            if ProjectReport.objects.filter(
-                project=project, reporter=request.user
-            ).exists():
-                return Response(
-                    {"detail": "You have already reported this project."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -291,14 +283,6 @@ class CommentReportView(APIView):
         serializer = CommentReportSerializer(data=data)
 
         if serializer.is_valid():
-            if CommentReport.objects.filter(
-                comment=comment, reporter=request.user
-            ).exists():
-                return Response(
-                    {"detail": "You have already reported this comment."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
