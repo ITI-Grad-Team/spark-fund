@@ -2,9 +2,11 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 import axiosInstance from "../../api/config";
 import { useState, useEffect } from "react";
+import { BarLoader, CircleLoader, ClipLoader, ClockLoader, DotLoader, RotateLoader } from "react-spinners";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -12,6 +14,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = async () => {
+    setIsClicked(true);
     const refreshToken = localStorage.getItem("refresh_token");
     try {
       await axiosInstance.post("/logout/", { refresh_token: refreshToken });
@@ -62,7 +65,7 @@ const Navbar = () => {
           <div className="sign-btns">
             {isAuthenticated ? (
               <button className="logout-btn" onClick={handleLogout}>
-                Sign out
+                {isClicked ? (<ClipLoader color="white" size={20} />) : "Sign out"}
               </button>
             ) : (
               <>

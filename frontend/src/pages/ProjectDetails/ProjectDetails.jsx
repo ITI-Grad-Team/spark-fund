@@ -449,9 +449,7 @@ const ProjectDetails = () => {
       <p>
         <b>Tags:</b>{" "}
         {tags_detail.length > 0
-          ? JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
-              .map((tag) => tag.name)
-              .join(" - ")
+          ? tags_detail.map((tag) => tag.name).join(" - ")
           : "No tags"}
       </p>
       <p>

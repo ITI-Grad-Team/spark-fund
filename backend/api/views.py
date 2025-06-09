@@ -138,12 +138,17 @@ class ProjectCreateView(generics.CreateAPIView):
 class ProjectAPIView(APIView):
     def get(self, request, id=None):
         if id:
-            project = get_object_or_404(Project, id=id)
+            project = get_object_or_404(
+                Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies"),
+                id=id,
+            )
             serializer = ProjectSerializer(project)
             return Response(serializer.data)
-        projects = Project.objects.all()
+
+        projects = Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies")
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
+
 
 
 class CategoryListView(ListAPIView):

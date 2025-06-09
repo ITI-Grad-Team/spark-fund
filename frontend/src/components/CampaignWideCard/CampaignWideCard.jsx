@@ -1,9 +1,15 @@
+import { useNavigate } from "react-router";
 import "./CampaignWideCard.css";
 
 const CampaignWideCard = ({ project }) => {
 
+  const navigate = useNavigate(); 
+    const handleClick = () => {
+       navigate(`/project/${project.id}`);
+    };
+
   return (
-    <section className="wide-card container">
+    <section className="wide-card container" onClick={handleClick} style={{cursor: "pointer"}}>
       <section className="col-1">
         <img src="/Rectangle.png" alt="Project photo" />
       </section>

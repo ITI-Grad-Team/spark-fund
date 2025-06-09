@@ -15,7 +15,8 @@ import { ClipLoader, RingLoader } from "react-spinners";
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const lastFive = [...projects]
     .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
@@ -27,16 +28,33 @@ const Home = () => {
     )
     .slice(0, 5);
 
+  
+
+    
   useEffect(() => {
-    axiosInstance
-      .get("/projects/")
+  const cachedProjects = localStorage.getItem('projects');
+  if (cachedProjects) {
+    setProjects(JSON.parse(cachedProjects));
+    setLoading(false);
+  } else {
+    setLoading(true);
+    axiosInstance.get("/projects")
       .then((res) => {
-        console.log("API response:", res);
         setProjects(res.data);
+        localStorage.setItem('projects', JSON.stringify(res.data));
       })
-      .catch((err) => console.error(err))
+      .catch(console.error)
       .finally(() => setLoading(false));
+  }
+}, []);
+
+useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    setIsAuthenticated(!!token);
   }, []);
+
+
+
 
   return (
     <section className="container-fluid home">
@@ -46,9 +64,17 @@ const Home = () => {
         <p>We offer complete solution to launch your social movements.</p>
 
         <div className="btns">
-          <Link to="/login/" className="started-btn">
+          {!isAuthenticated ? (
+            <Link to="/login/" className="started-btn">
+              Get Started
+            </Link>
+          ) :(
+            <Link to="/create/" className="started-btn">
             Get Started
           </Link>
+          )
+          
+          }
 
           <button className="learn-btn">Learn More</button>
         </div>
@@ -108,7 +134,7 @@ const Home = () => {
           </div>
         )}
 
-        <Link to="/" className="all-campaigns-btn">
+        <Link to="/projects" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
       </div>
@@ -146,7 +172,7 @@ const Home = () => {
             community.
           </p>
 
-          <Link to="/">
+          <Link to="/projects">
             Donate to Campaign{" "}
             <img src="/angle-right 2.svg" alt="right arrow icon" />
           </Link>

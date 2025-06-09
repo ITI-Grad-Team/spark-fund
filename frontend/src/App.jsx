@@ -1,27 +1,31 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
-import Home from "./pages/Home/Home";
-import ProjectDetails from "./pages/ProjectDetails/ProjectDetails";
-import CreateProject from "./pages/CreateProject/CreateProject";
-import Login from "./pages/Login/Login";
-import Register from "./pages/Register/Register";
-import UserProfile from "./pages/UserProfile/UserProfile";
-import Projects from "./pages/Projects/Projects";
+import React, { Suspense, lazy } from "react";
+
+const Home = lazy(() => import("./pages/Home/Home"));
+const ProjectDetails = lazy(() => import("./pages/ProjectDetails/ProjectDetails"));
+const CreateProject = lazy(() => import("./pages/CreateProject/CreateProject"));
+const Login = lazy(() => import("./pages/Login/Login"));
+const Register = lazy(() => import("./pages/Register/Register"));
+const UserProfile = lazy(() => import("./pages/UserProfile/UserProfile"));
+const Projects = lazy(() => import("./pages/Projects/Projects"));
 
 function App() {
   return (
     <Router>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/project/:id" element={<ProjectDetails />} />
-        <Route path="/create" element={<CreateProject />} />
-        <Route path="/user/:id" element={<UserProfile />} />
-        <Route path="/projects" element={<Projects />} />
-      </Routes>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/project/:id" element={<ProjectDetails />} />
+          <Route path="/create" element={<CreateProject />} />
+          <Route path="/user/:id" element={<UserProfile />} />
+          <Route path="/projects" element={<Projects />} />
+        </Routes>
+      </Suspense>
     </Router>
   );
 }

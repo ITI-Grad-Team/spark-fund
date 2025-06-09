@@ -1,12 +1,18 @@
 import "./CampaignSmallCard.css";
+import { useNavigate } from "react-router-dom";
 
 const CampaignSmallCard = ({ project }) => {
+
+    const navigate = useNavigate(); 
+    const handleClick = () => {
+       navigate(`/project/${project.id}`);
+    };
   
   return (
     <>
     
 
-    <section className="small-card">
+    <section className="small-card"  onClick={() => {handleClick()}} style={{cursor: "pointer"}}>
       <img className="project-img" src="/Rectangle.png" alt={project.title} />
 
       <div className="small-card-content">
