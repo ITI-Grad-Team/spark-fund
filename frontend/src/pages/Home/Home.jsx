@@ -1,7 +1,6 @@
 import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
-// import { projects } from "../../lib/projects";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
 import { Link } from "react-router-dom";
@@ -12,25 +11,39 @@ import { Navigation } from "swiper/modules";
 import Footer from "../../components/Footer/Footer";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/config";
+import { ClipLoader, RingLoader } from "react-spinners";
 
 const Home = () => {
-  const [project, setProjects] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const lastFive = [...projects]
+    .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+    .slice(0, 5);
+
+  const topFiveByDonation = [...projects]
+    .sort(
+      (a, b) => parseFloat(b.donation_amount) - parseFloat(a.donation_amount)
+    )
+    .slice(0, 5);
 
   useEffect(() => {
     axiosInstance
-    .get("/projects")
-    .then((res) => {setProjects(res.data.projects);})
-    .catch((err) => console.error(err))
-    .finally(() => setLoading(false));
-  },[]);
+      .get("/projects/")
+      .then((res) => {
+        console.log("API response:", res);
+        setProjects(res.data);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <section className="container-fluid home">
       <section className="container hero">
         <h1>Make an impact to the world.</h1>
 
-        <p>We’re offer complete solution to launch your social movements.</p>
+        <p>We offer complete solution to launch your social movements.</p>
 
         <div className="btns">
           <Link to="/login/" className="started-btn">
@@ -43,20 +56,30 @@ const Home = () => {
         <img className="hero-image" src="/Frame.svg" alt="Hero image" />
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
-        <div className="home-carousel">
-          <Swiper
-            modules={[Navigation]}
-            navigation
-            spaceBetween={20}
-            slidesPerView={1}
-          >
-            {project.map((project) => (
-              <SwiperSlide key={project.id}>
-                <CampaignWideCard project={project} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        </div>
+        {loading ? (
+          <RingLoader
+            color="#3b82f6"
+            size={80}
+            speedMultiplier={1.2}
+            aria-label="Loading Spinner"
+            data-testid="loader"
+          />
+        ) : (
+          <div className="home-carousel">
+            <Swiper
+              modules={[Navigation]}
+              navigation
+              spaceBetween={20}
+              slidesPerView={1}
+            >
+              {topFiveByDonation.map((project) => (
+                <SwiperSlide key={project.id}>
+                  <CampaignWideCard project={project} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          </div>
+        )}
       </section>
 
       <CampaignDesc />
@@ -67,11 +90,23 @@ const Home = () => {
           paragraph="These petitions need your help to achieve victory."
         />
 
-        <div className="campaigns-grid" key={project.id} >
-          {project.map((project) => (
-            <CampaignSmallCard project={project} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="loader-wrapper">
+            <RingLoader
+              color="#3b82f6"
+              size={80}
+              speedMultiplier={1.2}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+          </div>
+        ) : (
+          <div className="campaigns-grid">
+            {lastFive.map((project) => (
+              <CampaignSmallCard key={project.id} project={project} />
+            ))}
+          </div>
+        )}
 
         <Link to="/" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
