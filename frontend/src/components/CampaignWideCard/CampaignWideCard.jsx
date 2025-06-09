@@ -1,7 +1,7 @@
 import "./CampaignWideCard.css";
 
 const CampaignWideCard = ({ project }) => {
-  const { header, title, description } = project;
+
   return (
     <section className="wide-card container">
       <section className="col-1">
@@ -11,13 +11,13 @@ const CampaignWideCard = ({ project }) => {
       <section className="col-2">
         <div>
           <h3>
-            <img src="/paper-plane 2.png" alt="paper plan image" /> {header}
+            <img src="/paper-plane 2.png" alt="paper plan image" /> {project.project_creator.username}
           </h3>
         </div>
 
-        <h2>{title}</h2>
+        <h2>{project.title}</h2>
 
-        <p>{description}</p>
+        <p>{project.details}</p>
 
         <div>
           <h3>
@@ -31,13 +31,13 @@ const CampaignWideCard = ({ project }) => {
         <div className="campaign-details">
           <div className="btns">
             <button className="users-btn">
-              <img src="/user 1.png" alt="User icon" /> 32.3k supporter
+              <img src="/user 1.png" alt="User icon" /> {project.donation_amount}
             </button>
             <button className="tags-btn">
-              <img src="/tag 1.png" alt="Tag Icon" /> Children Rights
+              <img src="/tag 1.png" alt="Tag Icon" /> {project.tags_detail.name}
             </button>
             <button className="comments-btn">
-              <img src="/comments 1.png" alt="Comments Icon" /> 12 comments
+              <img src="/comments 1.png" alt="Comments Icon" /> {project.comments?.length || 0} comments
             </button>
           </div>
 

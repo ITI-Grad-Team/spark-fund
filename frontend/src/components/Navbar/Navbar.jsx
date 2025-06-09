@@ -48,7 +48,7 @@ const Navbar = () => {
             <img src="/search.svg" alt="search icon" /> Search
           </Link>
           <Link to="/">Home</Link>
-          <Link to="/">Campaigns</Link>
+          <Link to="/projects">Campaigns</Link>
           <Link to="/">About</Link>
           <Link to="/">Contact</Link>
           <Link to="/">Blog</Link>
