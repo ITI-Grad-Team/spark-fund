@@ -395,7 +395,6 @@ const ProjectDetails = () => {
           </button>
         )}
       </div>
-
       {showProjectReportForm && (
         <form onSubmit={handleProjectReportSubmit} className="report-form">
           <h4>Report This Project</h4>
@@ -420,7 +419,6 @@ const ProjectDetails = () => {
           </div>
         </form>
       )}
-
       {project_creator && (
         <p>
           <b>Creator: </b>
@@ -429,7 +427,6 @@ const ProjectDetails = () => {
           </Link>
         </p>
       )}
-
       <p>
         <b>Details:</b> {details || "No details available."}
       </p>
@@ -439,10 +436,11 @@ const ProjectDetails = () => {
       <p>
         <b>Donated:</b> {donation_amount?.toLocaleString() || "N/A"}
       </p>
-      <p>
-        <b>Your Donation:</b> {userDonation?.toLocaleString() || "N/A"}
-      </p>
-
+      {localStorage.getItem("access_token") && (
+        <p>
+          <b>Your Donation:</b> {userDonation?.toLocaleString() || "N/A"}
+        </p>
+      )}
       {category_detail && (
         <p>
           <b>Category:</b> {category_detail.name || "N/A"}
@@ -470,11 +468,9 @@ const ProjectDetails = () => {
           ? parseFloat(average_rating).toFixed(1)
           : "Not rated"}
       </p>
-
       {is_cancelled && (
         <div className="cancelled-banner">PROJECT CANCELLED</div>
       )}
-
       {currentUserId === project_creator?.id && !is_cancelled && (
         <>
           <button
@@ -494,7 +490,6 @@ const ProjectDetails = () => {
           />
         </>
       )}
-
       <div className="rating-section">
         {localStorage.getItem("access_token") ? (
           !userRatingLoaded ? (
@@ -521,23 +516,25 @@ const ProjectDetails = () => {
           )
         ) : null}
       </div>
-
-      {localStorage.getItem("access_token") && !project.is_cancelled && (
-        <div className="donation-section">
-          <h3>Donate to this project</h3>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            value={donationAmount}
-            onChange={(e) => setDonationAmount(e.target.value)}
-            placeholder="Enter donation amount"
-          />
-          <button onClick={handleDonate} className="donate-button">
-            Donate
-          </button>
-        </div>
-      )}
+      {localStorage.getItem("access_token") &&
+        !project.is_cancelled &&
+        !(new Date(end_date) < Date.now()) && (
+          <div className="donation-section">
+            <h3>Donate to this project</h3>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={donationAmount}
+              onChange={(e) => setDonationAmount(e.target.value)}
+              placeholder="Enter donation amount"
+            />
+            <button onClick={handleDonate} className="donate-button">
+              Donate
+            </button>
+          </div>
+        )}
+      {new Date(end_date) < Date.now() && <p>PROJECT CLOSED</p>}
 
       {images.length > 0 && (
         <div className="project-images">
@@ -561,7 +558,6 @@ const ProjectDetails = () => {
           </div>
         </div>
       )}
-
       {localStorage.getItem("access_token") && (
         <div className="comments-section">
           <h3>Comments</h3>
