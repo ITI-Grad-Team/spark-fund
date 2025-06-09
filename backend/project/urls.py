@@ -17,15 +17,15 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from project import settings
 from django.conf.urls.static import static
+from project import settings
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    path('auth/', include('dj_rest_auth.urls')),
-    path('auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('auth/social/', include('allauth.socialaccount.urls')),
+    path("admin/", admin.site.urls),
+    path("api/", include("api.urls")),
+    path("auth/", include("dj_rest_auth.urls")),
+    path("auth/registration/", include("dj_rest_auth.registration.urls")),
+    path("auth/social/", include("allauth.socialaccount.urls")),
 ]
 
 if settings.DEBUG:

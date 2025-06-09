@@ -22,6 +22,8 @@ const Login = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [alert, setAlert] = useState({ message: "", type: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -43,13 +45,41 @@ const Login = () => {
 
       window.location.href = "/";
     } catch (error) {
-      setAlert({
-        message: error.response?.data?.detail || "Login failed",
-        type: "danger",
-      });
+      if (error.response?.data?.detail === "No active account found with the given credentials") {
+        setAlert({
+          message: "Your account is not activated. Please check your email or resend the activation link.",
+          type: "danger",
+        });
+        setShowResend(true);
+      } else {
+        setAlert({
+          message: error.response?.data?.detail || "Login failed",
+          type: "danger",
+        });
+      }
       setTimeout(() => setAlert({ message: "", type: "" }), 5000);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleResendActivation = async () => {
+    if (!resendEmail) {
+      setAlert({ message: "Please enter your email address.", type: "danger" });
+      setTimeout(() => setAlert({ message: "", type: "" }), 5000);
+      return;
+    }
+
+    try {
+      await axiosInstance.post("/resend-activation/", { email: resendEmail });
+      setAlert({ message: "Activation email resent successfully.", type: "success" });
+      setTimeout(() => setAlert({ message: "", type: "" }), 5000);
+    } catch (error) {
+      setAlert({
+        message: error.response?.data?.error || "Failed to resend activation email.",
+        type: "danger",
+      });
+      setTimeout(() => setAlert({ message: "", type: "" }), 5000);
     }
   };
 
@@ -108,6 +138,30 @@ const Login = () => {
                   {isSubmitting ? "Logging in..." : "Login"}
                 </button>
 
+                {showResend && (
+                  <div className="mb-3">
+                    <div className="form-floating mb-2">
+                      <input
+                        type="email"
+                        id="resendEmail"
+                        name="resendEmail"
+                        className="form-control"
+                        placeholder="Email"
+                        value={resendEmail}
+                        onChange={(e) => setResendEmail(e.target.value)}
+                      />
+                      <label htmlFor="resendEmail">Email</label>
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary w-100"
+                      onClick={handleResendActivation}
+                    >
+                      Resend Activation Email
+                    </button>
+                  </div>
+                )}
+
                 <div className="google-login justify-content-center mb-3 w-100">
                   <GoogleLogin
                     onSuccess={async (credentialResponse) => {
@@ -164,7 +218,7 @@ const Login = () => {
 
                 <p className="text-center mt-3 mb-0">
                   Don’t have an account?{" "}
-                  <a href="#!">
+                  <a href="/register">
                     <u>Register here</u>
                   </a>
                 </p>

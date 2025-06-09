@@ -25,6 +25,12 @@ from api.serializers import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.conf import settings
+from django.urls import reverse
 
 
 class CustomUserAPIView(APIView):
@@ -75,6 +81,88 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+    def perform_create(self, serializer):
+        user = serializer.save()
+        # Generate token and UID for email activation
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        activation_link = self.request.build_absolute_uri(
+            reverse("activate", kwargs={"uidb64": uid, "token": token})
+        )
+        # Send activation email
+        subject = "Activate Your Spark-Fund Account"
+        message = f"Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nThank you!"
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+
+
+class ActivateAccountView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            user.is_active = True
+            user.save()
+            # Generate JWT tokens for auto-login after activation
+            refresh = RefreshToken.for_user(user)
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "message": "Account activated successfully.",
+                },
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"error": "Activation link is invalid or has expired."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class ResendActivationEmailView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        try:
+            user = CustomUser.objects.get(email=email, is_active=False)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "No inactive user found with this email."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        activation_link = request.build_absolute_uri(
+            reverse("activate", kwargs={"uidb64": uid, "token": token})
+        )
+        subject = "Resend: Activate Your Spark-Fund Account"
+        message = f"Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nThank you!"
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return Response(
+            {"message": "Activation email resent successfully."},
+            status=status.HTTP_200_OK,
+        )
+
 
 class GoogleAuthView(APIView):
     def post(self, request):
@@ -86,6 +174,7 @@ class GoogleAuthView(APIView):
             defaults={
                 "username": email.split("@")[0],
                 "first_name": name.split()[0],
+                "is_active": True,  # Google-authenticated users are active by default
             },
         )
 

@@ -47,13 +47,16 @@ const Register = () => {
     }
 
     try {
-      const res = await axiosInstance.post("/register/", payload, {
+      await axiosInstance.post("/register/", payload, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      setAlert({ message: "Account created successfully!", type: "success" });
+      setAlert({
+        message: "Registration successful! Please check your email to activate your account.",
+        type: "success"
+      });
       setFormData({
         username: "",
         email: "",
@@ -145,9 +148,8 @@ const Register = () => {
                       type="text"
                       id="username"
                       name="username"
-                      className={`form-control ${
-                        errors.username ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.username ? "is-invalid" : ""
+                        }`}
                       placeholder="Username"
                       value={formData.username}
                       onChange={handleChange}
@@ -167,9 +169,8 @@ const Register = () => {
                       type="email"
                       id="email"
                       name="email"
-                      className={`form-control ${
-                        errors.email ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.email ? "is-invalid" : ""
+                        }`}
                       placeholder="Email"
                       value={formData.email}
                       onChange={handleChange}
@@ -204,9 +205,8 @@ const Register = () => {
                       type="password"
                       id="password"
                       name="password"
-                      className={`form-control ${
-                        errors.password ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.password ? "is-invalid" : ""
+                        }`}
                       placeholder="Password"
                       value={formData.password}
                       onChange={handleChange}
@@ -226,9 +226,8 @@ const Register = () => {
                       type="password"
                       id="confirmPassword"
                       name="confirmPassword"
-                      className={`form-control ${
-                        errors.confirm_password ? "is-invalid" : ""
-                      }`}
+                      className={`form-control ${errors.confirm_password ? "is-invalid" : ""
+                        }`}
                       placeholder="Confirm Password"
                       value={formData.confirmPassword}
                       onChange={handleChange}
