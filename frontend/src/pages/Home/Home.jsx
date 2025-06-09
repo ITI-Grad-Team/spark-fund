@@ -1,7 +1,7 @@
 import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
 import "./Home.css";
-import { projects } from "../../lib/projects";
+// import { projects } from "../../lib/projects";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
 import { Link } from "react-router-dom";
@@ -10,8 +10,21 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import Footer from "../../components/Footer/Footer";
+import { useEffect, useState } from "react";
+import axiosInstance from "../../api/config";
 
 const Home = () => {
+  const [project, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    axiosInstance
+    .get("/projects")
+    .then((res) => {setProjects(res.data.projects);})
+    .catch((err) => console.error(err))
+    .finally(() => setLoading(false));
+  },[]);
+
   return (
     <section className="container-fluid home">
       <section className="container hero">
@@ -37,7 +50,7 @@ const Home = () => {
             spaceBetween={20}
             slidesPerView={1}
           >
-            {projects.map((project) => (
+            {project.map((project) => (
               <SwiperSlide key={project.id}>
                 <CampaignWideCard project={project} />
               </SwiperSlide>
@@ -54,9 +67,9 @@ const Home = () => {
           paragraph="These petitions need your help to achieve victory."
         />
 
-        <div className="campaigns-grid">
-          {projects.map((project) => (
-            <CampaignSmallCard key={project.id} project={project} />
+        <div className="campaigns-grid" key={project.id} >
+          {project.map((project) => (
+            <CampaignSmallCard project={project} />
           ))}
         </div>
 

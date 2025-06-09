@@ -113,90 +113,179 @@ const CreateProject = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <h2>Create New Project</h2>
-      {message && (
-        <p
-          style={{ color: message.includes("successfully") ? "green" : "red" }}
-        >
-          {message}
-        </p>
-      )}
-      <input
-        type="text"
-        name="title"
-        placeholder="Title"
-        value={formData.title}
-        onChange={handleChange}
-        required
-      />
-      <textarea
-        name="details"
-        placeholder="Details"
-        value={formData.details}
-        onChange={handleChange}
-        required
-      ></textarea>
-      <input
-        type="number"
-        name="total_target"
-        placeholder="Total Target"
-        value={formData.total_target}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="date"
-        name="start_date"
-        value={formData.start_date}
-        onChange={handleChange}
-        required
-      />
-      <input
-        type="date"
-        name="end_date"
-        value={formData.end_date}
-        onChange={handleChange}
-        required
-      />
-      <select
-        name="category"
-        value={formData.category}
-        onChange={handleChange}
-        required
-      >
-        <option value="">-- Select a Category --</option>
-        {Array.isArray(categories) &&
-          categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))}
-      </select>
-      <input
-        type="text"
-        value={tags}
-        onChange={(e) => setTags(e.target.value)}
-        placeholder="Tags (comma separated)"
-      />
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-      <div style={{ display: "flex", gap: "10px", marginTop: "10px" }}>
-        {images.map((img, i) => (
+    <section className="min-vh-100 d-flex justify-content-center align-items-center gradient-custom-3">
+  <div className="container">
+    <div className="card shadow" style={{ borderRadius: 20 }}>
+      <div className="row g-0">
+        {/* <div className="col-md-5 d-none d-md-block">
           <img
-            key={i}
-            src={URL.createObjectURL(img)}
-            alt={`preview-${i}`}
-            style={{ width: "100px", height: "100px", objectFit: "cover" }}
+            src="/Frame4.svg"
+            alt="project image"
+            className="img-fluid h-100"
+            style={{ borderTopLeftRadius: 20, borderBottomLeftRadius: 20, objectFit: "cover" }}
           />
-        ))}
+        </div> */}
+
+        <div className="col-md-12">
+          <div className="card-body p-5">
+            <h2 className="text-center mb-4">Start a Campaign</h2>
+
+            {message && (
+              <div
+                className={`alert text-center alert-${message.includes("successfully") ? "success" : "danger"}`}
+                role="alert"
+              >
+                {message}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} encType="multipart/form-data" >
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  name="title"
+                  id="title"
+                  className="form-control"
+                  placeholder="Title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="title">Title</label>
+              </div>
+
+              <div className="form-floating mb-3">
+                <textarea
+                  name="details"
+                  id="details"
+                  className="form-control"
+                  placeholder="Details"
+                  style={{ height: "120px" }}
+                  value={formData.details}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="details">Details</label>
+              </div>
+
+              <div className="form-floating mb-3">
+                <input
+                  type="number"
+                  name="total_target"
+                  id="total_target"
+                  className="form-control"
+                  placeholder="Total Target"
+                  value={formData.total_target}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="total_target">Total Target</label>
+              </div>
+
+              <div className="row mb-3">
+                <div className="col">
+                  <div className="form-floating">
+                    <input
+                      type="date"
+                      name="start_date"
+                      id="start_date"
+                      className="form-control"
+                      value={formData.start_date}
+                      onChange={handleChange}
+                      required
+                    />
+                    <label htmlFor="start_date">Start Date</label>
+                  </div>
+                </div>
+                <div className="col">
+                  <div className="form-floating">
+                    <input
+                      type="date"
+                      name="end_date"
+                      id="end_date"
+                      className="form-control"
+                      value={formData.end_date}
+                      onChange={handleChange}
+                      required
+                    />
+                    <label htmlFor="end_date">End Date</label>
+                  </div>
+                </div>
+              </div>
+
+              <div className="form-floating mb-3">
+                <select
+                  name="category"
+                  id="category"
+                  className="form-select"
+                  value={formData.category}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- Select a Category --</option>
+                  {Array.isArray(categories) &&
+                    categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                </select>
+                <label htmlFor="category">Category</label>
+              </div>
+
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  id="tags"
+                  className="form-control"
+                  placeholder="Tags (comma separated)"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                />
+                <label htmlFor="tags">Tags (comma separated)</label>
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="images" className="form-label">
+                  Upload Images
+                </label>
+                <input
+                  type="file"
+                  id="images"
+                  multiple
+                  accept="image/*"
+                  className="form-control"
+                  onChange={handleFileChange}
+                />
+              </div>
+
+              {images.length > 0 && (
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={URL.createObjectURL(img)}
+                      alt={`preview-${i}`}
+                      className="rounded"
+                      style={{ width: "100px", height: "100px", objectFit: "cover", border: "1px solid #ccc" }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              <div className="d-flex justify-content-center">
+                <button type="submit" className="btn btn-primary w-100 py-2">
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
-      <button type="submit">Create</button>
-    </form>
+    </div>
+  </div>
+</section>
+
   );
 };
 
