@@ -21,6 +21,7 @@
         outline: none;
         border: 0.5px solid #5f5f75;
         color: #5f5f75;
+        display: block;
       }
     }
   }

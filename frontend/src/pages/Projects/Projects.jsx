@@ -1,8 +1,8 @@
+import "./Projects.css";
 import { useEffect, useState } from "react";
 import { RingLoader } from "react-spinners";
 import axiosInstance from "../../api/config";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
-import "./Projects.css";
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -33,7 +33,7 @@ const Projects = () => {
           </div>
         </center>
       ) : (
-        <div className="campaigns-grid">
+        <div className="campaigns-grid container padding">
           {projects.map((project) => (
             <CampaignSmallCard key={project.id} project={project} />
           ))}
