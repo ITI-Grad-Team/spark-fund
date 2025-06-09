@@ -3,7 +3,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.generics import ListAPIView
-from api.models import Category, CustomUser, Project, Comment,ProjectReport,CommentReport,ProjectRating,Donation
+from api.models import (
+    Category,
+    CustomUser,
+    Project,
+    Comment,
+    ProjectReport,
+    CommentReport,
+    ProjectRating,
+    Donation,
+)
 from api.serializers import (
     CategorySerializer,
     CustomUserSerializer,
@@ -16,7 +25,6 @@ from api.serializers import (
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-
 
 
 class CustomUserAPIView(APIView):
@@ -67,23 +75,29 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
 
+
 class GoogleAuthView(APIView):
     def post(self, request):
-        email = request.data.get('email')
-        name = request.data.get('name')
+        email = request.data.get("email")
+        name = request.data.get("name")
 
-        user, created = CustomUser.objects.get_or_create(email=email, defaults={
-            'username': email.split('@')[0],
-            'first_name': name.split()[0],
-        })
+        user, created = CustomUser.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email.split("@")[0],
+                "first_name": name.split()[0],
+            },
+        )
 
         refresh = RefreshToken.for_user(user)
 
-        return Response({
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'msg': 'User created' if created else 'User verified'
-        })
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "msg": "User created" if created else "User verified",
+            }
+        )
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
@@ -107,7 +121,6 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         return Response(
             {"message": "Account deleted."}, status=status.HTTP_204_NO_CONTENT
         )
-
 
 
 class ProjectCreateView(generics.CreateAPIView):
@@ -193,32 +206,73 @@ class CommentAddReplyAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProjectDonateAPIView(APIView):
+    def post(self, request, id):
+        project = get_object_or_404(Project, id=id)
+        amount = request.data.get("amount")
+
+        if not amount:
+            return Response(
+                {"error": "Donation amount is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            amount = float(amount)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
+            return Response(
+                {"error": "Amount must be a positive number."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        project.donation_amount += amount
+        project.save()
+
+        return Response(
+            {
+                "message": "Donation added successfully.",
+                "new_total": project.donation_amount,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
 class ProjectReportView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, project_id):
         project = get_object_or_404(Project, id=project_id)
         data = request.data.copy()
-        data['project'] = project.id
+        data["project"] = project.id
         serializer = ProjectReportSerializer(data=data)
-        
+
         if serializer.is_valid():
-            if ProjectReport.objects.filter(project=project, reporter=request.user).exists():
-                return Response({"detail": "You have already reported this project."}, status=status.HTTP_400_BAD_REQUEST)
+            if ProjectReport.objects.filter(
+                project=project, reporter=request.user
+            ).exists():
+                return Response(
+                    {"detail": "You have already reported this project."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
+
 class UserDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    lookup_field = 'id'
+    lookup_field = "id"
     permission_classes = [permissions.IsAuthenticated]
 
 
@@ -228,18 +282,44 @@ class CommentReportView(APIView):
     def post(self, request, comment_id):
         comment = get_object_or_404(Comment, id=comment_id)
         data = request.data.copy()
-        data['comment'] = comment.id
+        data["comment"] = comment.id
         serializer = CommentReportSerializer(data=data)
 
         if serializer.is_valid():
-            if CommentReport.objects.filter(comment=comment, reporter=request.user).exists():
-                return Response({"detail": "You have already reported this comment."}, status=status.HTTP_400_BAD_REQUEST)
+            if CommentReport.objects.filter(
+                comment=comment, reporter=request.user
+            ).exists():
+                return Response(
+                    {"detail": "You have already reported this comment."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data.get("refresh_token")
+            if not refresh_token:
+                return Response(
+                    {"error": "Refresh token is required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(
+                {"message": "Successfully logged out."},
+                status=status.HTTP_205_RESET_CONTENT,
+            )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
@@ -248,7 +328,9 @@ class ProjectRatingView(APIView):
         try:
             project = Project.objects.get(pk=pk)
         except Project.DoesNotExist:
-            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         user = request.user
         rating = request.data.get("rating")
@@ -258,11 +340,17 @@ class ProjectRatingView(APIView):
             if rating < 1 or rating > 5:
                 raise ValueError
         except (ValueError, TypeError):
-            return Response({"error": "Rating must be an integer between 1 and 5"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Rating must be an integer between 1 and 5"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         # Check if user already rated
         if ProjectRating.objects.filter(user=user, project=project).exists():
-            return Response({"error": "You have already rated this project"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "You have already rated this project"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         # Save new rating
         ProjectRating.objects.create(user=user, project=project, rating=rating)
 
@@ -279,7 +367,8 @@ class ProjectRatingView(APIView):
             },
             status=status.HTTP_200_OK,
         )
-    
+
+
 class UserProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -287,14 +376,17 @@ class UserProjectRatingView(APIView):
         try:
             project = Project.objects.get(id=project_id)
         except Project.DoesNotExist:
-            return Response({'error': 'Project not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         try:
             rating = ProjectRating.objects.get(user=request.user, project=project)
-            return Response({'rating': rating.rating}, status=status.HTTP_200_OK)
+            return Response({"rating": rating.rating}, status=status.HTTP_200_OK)
         except ProjectRating.DoesNotExist:
-            return Response({'rating': None}, status=status.HTTP_200_OK)
-        
+            return Response({"rating": None}, status=status.HTTP_200_OK)
+
+
 class CancelProjectAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -302,19 +394,31 @@ class CancelProjectAPIView(APIView):
         project = get_object_or_404(Project, pk=pk)
 
         if project.project_creator != request.user:
-            return Response({"detail": "You are not the creator of this project."}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"detail": "You are not the creator of this project."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         if project.total_target > 0:
             donation_percentage = (project.donation_amount / project.total_target) * 100
             if donation_percentage >= 25:
-                return Response({"detail": "Cannot cancel project with donations >= 25% of the target."},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {
+                        "detail": "Cannot cancel project with donations >= 25% of the target."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
         project.is_cancelled = True
         project.save()
-        return Response({"detail": "Project cancelled successfully."}, status=status.HTTP_200_OK)
-    
+        return Response(
+            {"detail": "Project cancelled successfully."}, status=status.HTTP_200_OK
+        )
+
+
 from decimal import Decimal
+
+
 class DonateToProject(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -337,9 +441,7 @@ class DonateToProject(APIView):
             return Response({"error": "Amount must be positive"}, status=400)
 
         donation, created = Donation.objects.get_or_create(
-            user=request.user,
-            project=project,
-            defaults={'amount': amount}
+            user=request.user, project=project, defaults={"amount": amount}
         )
         if not created:
             donation.amount = donation.amount + amount
@@ -355,11 +457,11 @@ class UserDonationAmount(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, project_id):
-        user = request.user  
+        user = request.user
 
         donation = Donation.objects.filter(user=user, project_id=project_id).first()
 
         if donation is None:
-            return Response({"donation_amount": Decimal('0')}, status=200)
+            return Response({"donation_amount": Decimal("0")}, status=200)
 
         return Response({"donation_amount": donation.amount}, status=200)
