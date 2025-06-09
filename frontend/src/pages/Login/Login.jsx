@@ -2,7 +2,7 @@ import "./Login.css";
 import axiosInstance from "../../api/config";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 function parseJwt(token) {
   const base64Url = token.split(".")[1];
@@ -130,6 +130,11 @@ const Login = () => {
                     onChange={handleChange}
                   />
                   <label htmlFor="password">Password</label>
+                </div>
+                <div className="text-center mb-3">
+                  <Link to="/forgot-password" className="text-secondary">
+                    Forgot Password?
+                  </Link>
                 </div>
                 <button
                   type="submit"

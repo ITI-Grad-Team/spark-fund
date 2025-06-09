@@ -31,8 +31,10 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
+from decimal import Decimal
 
 
+# Existing views (unchanged, included for context)
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -83,13 +85,11 @@ class RegisterView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         user = serializer.save()
-        # Generate token and UID for email activation
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         activation_link = self.request.build_absolute_uri(
             reverse("activate", kwargs={"uidb64": uid, "token": token})
         )
-        # Send activation email
         subject = "Activate Your Spark-Fund Account"
         message = f"Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nThank you!"
         send_mail(
@@ -114,7 +114,6 @@ class ActivateAccountView(APIView):
         if user is not None and default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            # Generate JWT tokens for auto-login after activation
             refresh = RefreshToken.for_user(user)
             return Response(
                 {
@@ -174,7 +173,7 @@ class GoogleAuthView(APIView):
             defaults={
                 "username": email.split("@")[0],
                 "first_name": name.split()[0],
-                "is_active": True,  # Google-authenticated users are active by default
+                "is_active": True,
             },
         )
 
@@ -212,6 +211,87 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
         )
 
 
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response(
+                {"error": "Email is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            return Response(
+                {"error": "No user found with this email."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        frontend_base_url = (
+            "http://localhost:5173"  # We'll change it  to production URL in production
+        )
+        reset_link = f"{frontend_base_url}/reset-password/{uid}/{token}"
+
+        subject = "Reset Your Spark-Fund Password"
+        message = f"Hi {user.username},\n\nPlease click the link below to reset your password:\n{reset_link}\n\nThis link will expire in 1 hour.\n\nThank you!"
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+        return Response(
+            {"message": "Password reset email sent successfully."},
+            status=status.HTTP_200_OK,
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = CustomUser.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+            user = None
+
+        if user is not None and default_token_generator.check_token(user, token):
+            password = request.data.get("password")
+            confirm_password = request.data.get("confirm_password")
+
+            if not password or not confirm_password:
+                return Response(
+                    {"error": "Password and confirm password are required."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if password != confirm_password:
+                return Response(
+                    {"error": "Password do not match."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            user.set_password(password)
+            user.save()
+            return Response(
+                {"message": "Password reset successfully."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return Response(
+                {"error": "Invalid or expired reset link."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
 class ProjectCreateView(generics.CreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
@@ -228,16 +308,19 @@ class ProjectAPIView(APIView):
     def get(self, request, id=None):
         if id:
             project = get_object_or_404(
-                Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies"),
+                Project.objects.select_related(
+                    "project_creator", "category"
+                ).prefetch_related("tags", "images", "comments__replies"),
                 id=id,
             )
             serializer = ProjectSerializer(project)
             return Response(serializer.data)
 
-        projects = Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies")
+        projects = Project.objects.select_related(
+            "project_creator", "category"
+        ).prefetch_related("tags", "images", "comments__replies")
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
-
 
 
 class CategoryListView(ListAPIView):
@@ -439,16 +522,13 @@ class ProjectRatingView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Check if user already rated
         if ProjectRating.objects.filter(user=user, project=project).exists():
             return Response(
                 {"error": "You have already rated this project"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        # Save new rating
         ProjectRating.objects.create(user=user, project=project, rating=rating)
 
-        # Update aggregate fields on Project model
         project.sum_of_ratings += rating
         project.rates_count += 1
         project.save()
@@ -510,9 +590,6 @@ class CancelProjectAPIView(APIView):
         )
 
 
-from decimal import Decimal
-
-
 class DonateToProject(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -552,7 +629,6 @@ class UserDonationAmount(APIView):
 
     def get(self, request, project_id):
         user = request.user
-
         donation = Donation.objects.filter(user=user, project_id=project_id).first()
 
         if donation is None:
