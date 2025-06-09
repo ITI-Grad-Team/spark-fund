@@ -13,7 +13,7 @@ import Footer from "../../components/Footer/Footer";
 
 const Home = () => {
   return (
-    <section className="container-fluid">
+    <section className="container-fluid home">
       <section className="container hero">
         <h1>Make an impact to the world.</h1>
 
