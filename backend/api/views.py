@@ -326,3 +326,22 @@ class UserProjectRatingView(APIView):
             return Response({'rating': rating.rating}, status=status.HTTP_200_OK)
         except ProjectRating.DoesNotExist:
             return Response({'rating': None}, status=status.HTTP_200_OK)
+        
+class CancelProjectAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        project = get_object_or_404(Project, pk=pk)
+
+        if project.project_creator != request.user:
+            return Response({"detail": "You are not the creator of this project."}, status=status.HTTP_403_FORBIDDEN)
+
+        if project.total_target > 0:
+            donation_percentage = (project.donation_amount / project.total_target) * 100
+            if donation_percentage >= 25:
+                return Response({"detail": "Cannot cancel project with donations >= 25% of the target."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+        project.is_cancelled = True
+        project.save()
+        return Response({"detail": "Project cancelled successfully."}, status=status.HTTP_200_OK)

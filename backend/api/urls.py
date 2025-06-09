@@ -47,6 +47,7 @@ urlpatterns = [
     path("projects/<int:pk>/rate/", views.ProjectRatingView.as_view(), name="rate_project"),
     path('projects/<int:project_id>/my-rating/',  views.UserProjectRatingView.as_view(), name='user_project_rating'),
 
+    path('projects/<int:pk>/cancel/', views.CancelProjectAPIView.as_view(), name='cancel-project'),
 
 ]
 

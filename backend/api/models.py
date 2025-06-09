@@ -23,6 +23,8 @@ class Project(models.Model):
     category = models.ForeignKey('Category', on_delete=models.SET_NULL,null=True,blank=True)
     project_creator = models.ForeignKey(get_user_model(), on_delete=models.SET_NULL,null=True) #get_user_model()returns the custom user model you are using for authentication in your project(Best Practice)
     created_at = models.DateTimeField(auto_now_add=True)#The actual creation date of the project in the system(for filteriation)
+    is_cancelled = models.BooleanField(default=False)
+
     
 
     @property

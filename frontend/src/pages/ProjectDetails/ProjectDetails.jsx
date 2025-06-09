@@ -3,6 +3,18 @@ import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
 
+function getLoggedInUserId() {
+  const token = localStorage.getItem("access_token");
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.user_id || payload.id || null;
+  } catch {
+    return null;
+  }
+}
+
 // Comment component
 const Comment = ({ comment, refreshProject }) => {
   const [replyContent, setReplyContent] = useState("");
@@ -21,7 +33,7 @@ const Comment = ({ comment, refreshProject }) => {
       setShowReplyForm(false);
       refreshProject(); // to reload comments and replies from server
     } catch (err) {
-      alert("Error adding reply");
+      alert("Error adding reply: token expired");
       console.error(err);
     }
   };
@@ -95,6 +107,29 @@ export default function ProjectDetails() {
   const [rating, setRating] = useState(0);
   const [userRating, setUserRating] = useState(null);
   const [userRatingLoaded, setUserRatingLoaded] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [canceling, setCanceling] = useState(false);
+
+  const confirmCancel = async () => {
+    setCanceling(true);
+    try {
+      await axiosInstance.post(
+        `http://localhost:8000/api/projects/${id}/cancel/`
+      );
+      setShowCancelModal(false);
+      fetchProject();
+    } catch (error) {
+      console.error("Cancel error:", error);
+      alert("Failed to cancel project.");
+    } finally {
+      setCanceling(false);
+    }
+  };
+
+  useEffect(() => {
+    setCurrentUserId(getLoggedInUserId());
+  }, []);
 
   // Fetch project details
   const fetchProject = () => {
@@ -145,7 +180,7 @@ export default function ProjectDetails() {
       setNewComment("");
       fetchProject(); // Refresh comments
     } catch (err) {
-      alert("Error adding comment");
+      alert("Error adding comment: token expired");
       console.error(err);
     }
   };
@@ -172,7 +207,7 @@ export default function ProjectDetails() {
         fetchProject();
       }, 500);
     } catch (err) {
-      alert("Error submitting rating");
+      alert("Error submitting rating: token expired");
       console.error(err);
     }
   };
@@ -193,6 +228,104 @@ export default function ProjectDetails() {
 
       <h2>{project.title}</h2>
       <p>{project.details}</p>
+      {currentUserId === project.project_creator.id &&
+        !project.is_cancelled && (
+          <>
+            {!canceling ? (
+              <button onClick={() => setShowCancelModal(true)}>
+                Cancel Project
+              </button>
+            ) : (
+              <button disabled style={{ opacity: 0.6 }}>
+                Canceling...
+              </button>
+            )}
+
+            {showCancelModal && (
+              <div
+                style={{
+                  position: "fixed",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundColor: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  zIndex: 999,
+                }}
+              >
+                {project.donation_amount / project.total_target < 0.25 ? (
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "20px",
+                      borderRadius: "8px",
+                      width: "300px",
+                    }}
+                  >
+                    <p>Are you sure you want to cancel this project?</p>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: "10px",
+                      }}
+                    >
+                      <button
+                        onClick={() => setShowCancelModal(false)}
+                        disabled={canceling}
+                      >
+                        No
+                      </button>
+                      <button
+                        onClick={confirmCancel}
+                        disabled={canceling}
+                        style={{
+                          backgroundColor: "red",
+                          color: "white",
+                          opacity: canceling ? 0.6 : 1,
+                        }}
+                      >
+                        {canceling ? "Canceling..." : "Yes, Cancel"}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      background: "white",
+                      padding: "20px",
+                      borderRadius: "8px",
+                      width: "300px",
+                    }}
+                  >
+                    <p>
+                      Project can not be canceled. donation amount exceeds 25%
+                    </p>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: "10px",
+                      }}
+                    >
+                      <button
+                        onClick={() => setShowCancelModal(false)}
+                        disabled={canceling}
+                      >
+                        ok
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+
+      {project.is_cancelled && <p>PROJECT CANCELLED</p>}
 
       <div style={{ marginTop: "20px" }}>
         {localStorage.getItem("access_token") ? (
@@ -225,6 +358,10 @@ export default function ProjectDetails() {
 
       <p>
         <b>Total Target:</b> {project.total_target}
+      </p>
+
+      <p>
+        <b>Donated:</b> {project.donation_amount}
       </p>
       <p>
         <b>Category:</b> {project.category_detail.name}

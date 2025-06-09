@@ -118,11 +118,11 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'details',
             'total_target', 'tags', 'tags_detail',
-            'start_date', 'end_date',
+            'start_date', 'end_date','donation_amount',
             'category', 'category_detail',
             'project_creator',
             'created_at',
-            'images', 'comments', 'average_rating'
+            'images', 'comments', 'average_rating','is_cancelled'
         ]
 
     def get_average_rating(self, obj):
