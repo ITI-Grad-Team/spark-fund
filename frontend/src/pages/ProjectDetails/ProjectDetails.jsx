@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
 
+// Utility function to get logged in user ID
 function getLoggedInUserId() {
   const token = localStorage.getItem("access_token");
   if (!token) return null;
@@ -15,79 +15,17 @@ function getLoggedInUserId() {
   }
 }
 
-// Comment component
-const Comment = ({ comment, refreshProject }) => {
-  const [replyContent, setReplyContent] = useState("");
-  const [showReplyForm, setShowReplyForm] = useState(false);
-
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
-    if (!replyContent.trim()) return;
-
-    try {
-      await axiosInstance.post(
-        `http://localhost:8000/api/comments/${comment.id}/reply/`,
-        { content: replyContent }
-      );
-      setReplyContent("");
-      setShowReplyForm(false);
-      refreshProject(); // to reload comments and replies from server
-    } catch (err) {
-      alert("Error adding reply: token expired");
-      console.error(err);
-    }
-  };
-
-  return (
-    <div style={{ marginBottom: "15px" }}>
-      <p>
-        <Link to={`/user/${comment.user.id}`}>
-          <strong>{comment.user.username}</strong>
-        </Link>
-        : {comment.content}
-      </p>
-      <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
-
-      {comment.replies && comment.replies.length > 0 && (
-        <div style={{ marginLeft: "20px", marginTop: "10px" }}>
-          <h4>Replies</h4>
-          {comment.replies.map((reply) => (
-            <Reply key={reply.id} reply={reply} />
-          ))}
-        </div>
-      )}
-
-      <button
-        onClick={() => setShowReplyForm((prev) => !prev)}
-        style={{ marginTop: "10px" }}
-      >
-        {showReplyForm ? "Cancel" : "Reply"}
-      </button>
-
-      {showReplyForm && (
-        <form onSubmit={handleReplySubmit} style={{ marginTop: "10px" }}>
-          <textarea
-            rows={2}
-            value={replyContent}
-            onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Write your reply..."
-            style={{ width: "100%", marginBottom: "5px" }}
-          />
-          <button type="submit">Post Reply</button>
-        </form>
-      )}
-    </div>
-  );
-};
-
-// Reply component
-
+// Reply Component
 const Reply = ({ reply }) => {
+  if (!reply?.user) {
+    return <div className="error-message">Reply data is incomplete.</div>;
+  }
+
   return (
-    <div>
+    <div className="reply">
       <p>
         <Link to={`/user/${reply.user.id}`}>
-          <strong>{reply.user.username}</strong>
+          <strong>{reply.user.username || "Anonymous"}</strong>
         </Link>
         : {reply.content}
       </p>
@@ -96,10 +34,174 @@ const Reply = ({ reply }) => {
   );
 };
 
-// Main ProjectDetails Component
+// Comment Component
+const Comment = ({ comment, refreshProject }) => {
+  const [replyContent, setReplyContent] = useState("");
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showCommentReportForm, setShowCommentReportForm] = useState(false);
+  const [commentReportReason, setCommentReportReason] = useState("");
 
-export default function ProjectDetails() {
-  const { id } = useParams();
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    if (!replyContent.trim()) return;
+
+    try {
+      await axiosInstance.post(`/comments/${comment.id}/reply/`, {
+        content: replyContent,
+      });
+      setReplyContent("");
+      setShowReplyForm(false);
+      refreshProject?.();
+    } catch (err) {
+      console.error("Error adding reply:", err.response?.data || err.message);
+    }
+  };
+
+  const handleCommentReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!commentReportReason.trim()) return;
+
+    try {
+      await axiosInstance.post(`/comments/${comment.id}/report/`, {
+        reason: commentReportReason,
+      });
+      setCommentReportReason("");
+      setShowCommentReportForm(false);
+    } catch (err) {
+      console.error(
+        "Error reporting comment:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  if (!comment?.user) {
+    return <div className="error-message">Comment data is incomplete.</div>;
+  }
+
+  return (
+    <div className="comment">
+      <div className="comment-header">
+        <p>
+          <Link to={`/user/${comment.user.id}`}>
+            <strong>{comment.user.username || "Anonymous"}</strong>
+          </Link>
+          : {comment.content}
+        </p>
+        <button
+          onClick={() => setShowCommentReportForm((prev) => !prev)}
+          className={`report-button ${showCommentReportForm ? "active" : ""}`}
+        >
+          {showCommentReportForm ? "Cancel Report" : "Report"}
+        </button>
+      </div>
+
+      <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
+
+      {showCommentReportForm && (
+        <form onSubmit={handleCommentReportSubmit} className="report-form">
+          <textarea
+            rows={2}
+            value={commentReportReason}
+            onChange={(e) => setCommentReportReason(e.target.value)}
+            placeholder="Reason for reporting this comment..."
+            required
+          />
+          <div className="form-actions">
+            <button type="submit" className="submit-button">
+              Submit Report
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCommentReportForm(false)}
+              className="cancel-button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {comment.replies?.length > 0 && (
+        <div className="replies-container">
+          <h4>Replies:</h4>
+          {comment.replies.map((reply) => (
+            <Reply key={reply.id} reply={reply} />
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => setShowReplyForm((prev) => !prev)}
+        className="toggle-reply-button"
+      >
+        {showReplyForm ? "Cancel Reply" : "Reply"}
+      </button>
+
+      {showReplyForm && (
+        <form onSubmit={handleReplySubmit} className="reply-form">
+          <textarea
+            rows={2}
+            value={replyContent}
+            onChange={(e) => setReplyContent(e.target.value)}
+            placeholder="Write your reply..."
+          />
+          <button type="submit" className="submit-button">
+            Post Reply
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
+
+// Cancel Project Modal
+const CancelProjectModal = ({
+  show,
+  onClose,
+  onConfirm,
+  loading,
+  donationRatio,
+}) => {
+  if (!show) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        {donationRatio < 0.25 ? (
+          <>
+            <p>Are you sure you want to cancel this project?</p>
+            <div className="modal-actions">
+              <button onClick={onClose} disabled={loading}>
+                No
+              </button>
+              <button
+                onClick={onConfirm}
+                disabled={loading}
+                className="confirm-button"
+              >
+                {loading ? "Canceling..." : "Yes, Cancel"}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Project cannot be canceled. Donation amount exceeds 25%</p>
+            <div className="modal-actions">
+              <button onClick={onClose} disabled={loading}>
+                OK
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Project Details Main Component
+const ProjectDetails = () => {
+  const { id: projectId } = useParams();
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -112,37 +214,101 @@ export default function ProjectDetails() {
   const [canceling, setCanceling] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
   const [userDonation, setUserDonation] = useState(0);
+  const [showProjectReportForm, setShowProjectReportForm] = useState(false);
+  const [projectReportReason, setProjectReportReason] = useState("");
 
-  const fetchUserDonation = async () => {
+  const fetchProject = useCallback(async () => {
+    if (!projectId) {
+      setError("Project ID is missing");
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/projects/${projectId}/`);
+      setProject(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.detail || "Failed to fetch project");
+      setProject(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId]);
+
+  const fetchUserRating = useCallback(async () => {
     try {
       const response = await axiosInstance.get(
-        `http://localhost:8000/api/projects/${id}/donation-amount/`
+        `/projects/${projectId}/my-rating/`
+      );
+      setUserRating(response.data.rating);
+    } catch (err) {
+      console.error("Error fetching user rating", err);
+    } finally {
+      setUserRatingLoaded(true);
+    }
+  }, [projectId]);
+
+  const fetchUserDonation = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/projects/${projectId}/donation-amount/`
       );
       setUserDonation(response.data.donation_amount);
     } catch (error) {
       console.error("Error fetching user donation:", error);
     }
-  };
-
-  const confirmCancel = async () => {
-    setCanceling(true);
-    try {
-      await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/cancel/`
-      );
-      setShowCancelModal(false);
-      fetchProject();
-    } catch (error) {
-      console.error("Cancel error:", error);
-      alert("Failed to cancel project.");
-    } finally {
-      setCanceling(false);
-    }
-  };
+  }, [projectId]);
 
   useEffect(() => {
     setCurrentUserId(getLoggedInUserId());
   }, []);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProject();
+      fetchUserRating();
+      fetchUserDonation();
+    }
+  }, [projectId, fetchProject, fetchUserRating, fetchUserDonation]);
+
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+
+    try {
+      await axiosInstance.post(`/projects/${projectId}/comment/`, {
+        content: newComment,
+      });
+      setNewComment("");
+      fetchProject();
+    } catch (err) {
+      console.error("Error adding comment:", err.response?.data || err.message);
+    }
+  };
+
+  const handleRate = async () => {
+    if (rating < 1 || rating > 5) {
+      alert("Please select a rating from 1 to 5");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(`/projects/${projectId}/rate/`, { rating });
+      setRating(0);
+      // Refresh data after short delay
+      setTimeout(() => {
+        fetchUserRating();
+        fetchProject();
+      }, 500);
+    } catch (err) {
+      console.error(
+        "Error submitting rating:",
+        err.response?.data || err.message
+      );
+    }
+  };
 
   const handleDonate = async () => {
     const amount = parseFloat(donationAmount);
@@ -152,223 +318,186 @@ export default function ProjectDetails() {
     }
 
     try {
-      await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/donate/`,
-        {
-          amount,
-        }
-      );
-
+      await axiosInstance.post(`/projects/${projectId}/donate/`, {
+        amount,
+      });
       setDonationAmount("");
-      fetchProject(); // to update donation total
+      fetchProject();
       fetchUserDonation();
     } catch (err) {
-      console.error("Donation error:", err);
-      alert("Error while donating. Make sure you're logged in.");
+      console.error("Donation error:", err.response?.data || err.message);
     }
   };
 
-  // Fetch project details
-  const fetchProject = () => {
-    fetch(`http://localhost:8000/api/projects/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch project");
-        return res.json();
-      })
-      .then((data) => {
-        setProject(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+  const confirmCancel = async () => {
+    setCanceling(true);
+    try {
+      await axiosInstance.post(`/projects/${projectId}/cancel/`);
+      setShowCancelModal(false);
+      fetchProject();
+    } catch (error) {
+      console.error("Cancel error:", error);
+    } finally {
+      setCanceling(false);
+    }
   };
 
-  // Fetch user rating
-  const fetchUserRating = () => {
-    axiosInstance
-      .get(`http://localhost:8000/api/projects/${id}/my-rating/`)
-      .then((res) => {
-        setUserRating(res.data.rating);
-        setUserRatingLoaded(true);
-      })
-      .catch((err) => {
-        console.error("Error fetching user rating", err);
-        setUserRatingLoaded(true); // Ensure flag is set even on failure
-      });
-  };
-
-  useEffect(() => {
-    fetchProject();
-    fetchUserRating();
-    fetchUserDonation();
-  }, [id]);
-
-  // Handle adding a new comment
-  const handleAddComment = async (e) => {
+  const handleProjectReportSubmit = async (e) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!projectReportReason.trim()) return;
 
     try {
-      await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/comment/`,
-        { content: newComment }
-      );
-      setNewComment("");
-      fetchProject(); // Refresh comments
+      await axiosInstance.post(`/projects/${projectId}/report/`, {
+        reason: projectReportReason,
+      });
+      setProjectReportReason("");
+      setShowProjectReportForm(false);
     } catch (err) {
-      alert("Error adding comment: token expired");
-      console.error(err);
+      console.error(
+        "Error reporting project:",
+        err.response?.data || err.message
+      );
     }
   };
 
-  // Handle rating submission
-  const handleRate = async () => {
-    if (rating < 1 || rating > 5) {
-      alert("Please select a rating from 1 to 5");
-      return;
-    }
+  if (loading) return <div className="loading">Loading project...</div>;
+  if (error) return <div className="error">Error: {error}</div>;
+  if (!project) return <div>No project found</div>;
 
-    try {
-      await axiosInstance.post(
-        `http://localhost:8000/api/projects/${id}/rate/`,
-        { rating }
-      );
-      setRating(0); // reset dropdown
-      setUserRating(null);
-      setUserRatingLoaded(false);
+  const {
+    title,
+    details,
+    total_target,
+    category_detail,
+    tags_detail = [],
+    start_date,
+    end_date,
+    average_rating,
+    donation_amount,
+    images = [],
+    comments = [],
+    project_creator,
+    is_cancelled,
+  } = project;
 
-      // delay refetch to let backend update user rating
-      setTimeout(() => {
-        fetchUserRating();
-        fetchProject();
-      }, 500);
-    } catch (err) {
-      alert("Error submitting rating: token expired");
-      console.error(err);
-    }
-  };
-
-  // Loading or error UI
-  if (loading) return <p>Loading project...</p>;
-  if (error) return <p>Error: {error}</p>;
-  if (!project) return <p>No project found</p>;
+  const donationRatio = donation_amount / total_target;
 
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "20px" }}>
-      <p>
-        <b>Creator: </b>
-        <Link to={`/user/${project.project_creator.id}`}>
-          {project.project_creator.username}
-        </Link>
-      </p>
-      <h2>{project.title}</h2>
-      <p>{project.details}</p>
-      {currentUserId === project.project_creator.id &&
-        !project.is_cancelled && (
-          <>
-            {!canceling ? (
-              <button onClick={() => setShowCancelModal(true)}>
-                Cancel Project
-              </button>
-            ) : (
-              <button disabled style={{ opacity: 0.6 }}>
-                Canceling...
-              </button>
-            )}
+    <div className="project-details">
+      <div className="project-header">
+        <h2>{title || "Untitled Project"}</h2>
+        <button
+          onClick={() => setShowProjectReportForm((prev) => !prev)}
+          className={`report-button ${showProjectReportForm ? "active" : ""}`}
+        >
+          {showProjectReportForm ? "Cancel Report" : "Report Project"}
+        </button>
+      </div>
 
-            {showCancelModal && (
-              <div
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  zIndex: 999,
-                }}
-              >
-                {project.donation_amount / project.total_target < 0.25 ? (
-                  <div
-                    style={{
-                      background: "white",
-                      padding: "20px",
-                      borderRadius: "8px",
-                      width: "300px",
-                    }}
-                  >
-                    <p>Are you sure you want to cancel this project?</p>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: "10px",
-                      }}
-                    >
-                      <button
-                        onClick={() => setShowCancelModal(false)}
-                        disabled={canceling}
-                      >
-                        No
-                      </button>
-                      <button
-                        onClick={confirmCancel}
-                        disabled={canceling}
-                        style={{
-                          backgroundColor: "red",
-                          color: "white",
-                          opacity: canceling ? 0.6 : 1,
-                        }}
-                      >
-                        {canceling ? "Canceling..." : "Yes, Cancel"}
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      background: "white",
-                      padding: "20px",
-                      borderRadius: "8px",
-                      width: "300px",
-                    }}
-                  >
-                    <p>
-                      Project can not be canceled. donation amount exceeds 25%
-                    </p>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "flex-end",
-                        gap: "10px",
-                      }}
-                    >
-                      <button
-                        onClick={() => setShowCancelModal(false)}
-                        disabled={canceling}
-                      >
-                        ok
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </>
-        )}
-      {project.is_cancelled && <p>PROJECT CANCELLED</p>}
-      <div style={{ marginTop: "20px" }}>
+      {showProjectReportForm && (
+        <form onSubmit={handleProjectReportSubmit} className="report-form">
+          <h4>Report This Project</h4>
+          <textarea
+            rows={3}
+            value={projectReportReason}
+            onChange={(e) => setProjectReportReason(e.target.value)}
+            placeholder="Reason for reporting this project..."
+            required
+          />
+          <div className="form-actions">
+            <button type="submit" className="submit-button">
+              Submit Report
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowProjectReportForm(false)}
+              className="cancel-button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {project_creator && (
+        <p>
+          <b>Creator: </b>
+          <Link to={`/user/${project_creator.id}`}>
+            {project_creator.username || "Unknown"}
+          </Link>
+        </p>
+      )}
+
+      <p>
+        <b>Details:</b> {details || "No details available."}
+      </p>
+      <p>
+        <b>Total Target:</b> {total_target?.toLocaleString() || "N/A"}
+      </p>
+      <p>
+        <b>Donated:</b> {donation_amount?.toLocaleString() || "N/A"}
+      </p>
+      <p>
+        <b>Your Donation:</b> {userDonation?.toLocaleString() || "N/A"}
+      </p>
+
+      {category_detail && (
+        <p>
+          <b>Category:</b> {category_detail.name || "N/A"}
+        </p>
+      )}
+      <p>
+        <b>Tags:</b>{" "}
+        {tags_detail.length > 0
+          ? JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
+              .map((tag) => tag.name)
+              .join(" - ")
+          : "No tags"}
+      </p>
+      <p>
+        <b>Start Date:</b>{" "}
+        {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
+      </p>
+      <p>
+        <b>End Date:</b>{" "}
+        {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}
+      </p>
+      <p>
+        <b>Average Rating:</b>{" "}
+        {average_rating !== null
+          ? parseFloat(average_rating).toFixed(1)
+          : "Not rated"}
+      </p>
+
+      {is_cancelled && (
+        <div className="cancelled-banner">PROJECT CANCELLED</div>
+      )}
+
+      {currentUserId === project_creator?.id && !is_cancelled && (
+        <>
+          <button
+            onClick={() => setShowCancelModal(true)}
+            disabled={canceling}
+            className="cancel-project-button"
+          >
+            {canceling ? "Canceling..." : "Cancel Project"}
+          </button>
+
+          <CancelProjectModal
+            show={showCancelModal}
+            onClose={() => setShowCancelModal(false)}
+            onConfirm={confirmCancel}
+            loading={canceling}
+            donationRatio={donationRatio}
+          />
+        </>
+      )}
+
+      <div className="rating-section">
         {localStorage.getItem("access_token") ? (
           !userRatingLoaded ? (
-            <>
-              <p>Loading rating...</p>
-            </>
-          ) : userRating !== null && userRating !== undefined ? (
+            <p>Loading rating...</p>
+          ) : userRating !== null ? (
             <p>You rated this project: {userRating} ⭐</p>
           ) : (
             <>
@@ -377,98 +506,90 @@ export default function ProjectDetails() {
                 onChange={(e) => setRating(parseInt(e.target.value))}
               >
                 <option value={0}>Select rating</option>
-                <option value={1}>⭐</option>
-                <option value={2}>⭐⭐</option>
-                <option value={3}>⭐⭐⭐</option>
-                <option value={4}>⭐⭐⭐⭐</option>
-                <option value={5}>⭐⭐⭐⭐⭐</option>
+                {[1, 2, 3, 4, 5].map((num) => (
+                  <option key={num} value={num}>
+                    {"⭐".repeat(num)}
+                  </option>
+                ))}
               </select>
-              <button onClick={handleRate} style={{ marginLeft: "10px" }}>
+              <button onClick={handleRate} className="rate-button">
                 Submit Rating
               </button>
             </>
           )
         ) : null}
       </div>
-      <p>
-        <b>Total Target:</b> {project.total_target}
-      </p>
-      <p>
-        <b>Donated:</b> {project.donation_amount}
-      </p>
-      <p>
-        <b>Your Donation:</b> {userDonation}
-      </p>
 
-      {localStorage.getItem("access_token") ? (
-        <div style={{ marginTop: "20px" }}>
+      {localStorage.getItem("access_token") && !project.is_cancelled && (
+        <div className="donation-section">
           <h3>Donate to this project</h3>
           <input
             type="number"
             min="1"
-            step="0.01"
+            step="1"
             value={donationAmount}
             onChange={(e) => setDonationAmount(e.target.value)}
             placeholder="Enter donation amount"
           />
-          <button onClick={handleDonate} style={{ marginLeft: "10px" }}>
+          <button onClick={handleDonate} className="donate-button">
             Donate
           </button>
         </div>
-      ) : null}
-      <p>
-        <b>Category:</b> {project.category_detail.name}
-      </p>
-      <p>
-        <b>Tags:</b>{" "}
-        {JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
-          .map((tag) => tag.name)
-          .join(" - ")}
-      </p>
-      <p>
-        <b>Start Date:</b> {project.start_date}
-      </p>
-      <p>
-        <b>End Date:</b> {project.end_date}
-      </p>
-      <p>
-        <b>Average Rating:</b> {project.average_rating}
-      </p>
-      <div>
-        <h3>Images</h3>
-        {project.images.map((img) => (
-          <img
-            key={img.id}
-            src={`http://localhost:8000/${img.image}`}
-            alt={`Project img ${img.id}`}
-            style={{ width: "100px", marginRight: "10px" }}
-          />
-        ))}
-      </div>
-      <div style={{ marginTop: "30px" }}>
+      )}
+
+      {images.length > 0 && (
+        <div className="project-images">
+          <h3>Images</h3>
+          <div className="images-grid">
+            {images.map((img) => (
+              <img
+                key={img.id}
+                src={
+                  img.image.startsWith("http")
+                    ? img.image
+                    : `http://localhost:8000${img.image}`
+                }
+                alt={`Project ${title}`}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = "none";
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="comments-section">
         <h3>Comments</h3>
-        {project.comments.length === 0 && <p>No comments yet</p>}
-        {project.comments.map((comment) => (
-          <Comment
-            key={comment.id}
-            comment={comment}
-            refreshProject={fetchProject}
-          />
-        ))}
-      </div>
-      <div>
-        <h4>Add a Comment</h4>
-        <form onSubmit={handleAddComment}>
+        {comments.length === 0 ? (
+          <p>No comments yet. Be the first to comment!</p>
+        ) : (
+          comments.map((comment) => (
+            <Comment
+              key={comment.id}
+              comment={comment}
+              refreshProject={fetchProject}
+            />
+          ))
+        )}
+
+        <form onSubmit={handleAddComment} className="add-comment-form">
+          <h4>Add a Comment</h4>
           <textarea
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write your comment..."
             rows={3}
-            style={{ width: "100%", marginBottom: "10px" }}
+            required
           />
-          <button type="submit">Post Comment</button>
+          <button type="submit" className="submit-button">
+            Post Comment
+          </button>
         </form>
       </div>
     </div>
   );
-}
+};
+
+export default ProjectDetails;
