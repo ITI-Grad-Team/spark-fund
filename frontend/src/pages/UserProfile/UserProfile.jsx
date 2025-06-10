@@ -29,19 +29,36 @@ function UserProfile() {
   }, [id]);
 
   const handleEdit = () => {
-    axiosInstance.put(`/customuser/${id}/`, formData).then((res) => {
-      setUser(res.data);
-      setEditMode(false);
-    });
+    const updatedForm = new FormData();
+
+    for (let key in formData) {
+      if (formData[key] !== null && formData[key] !== undefined) {
+        updatedForm.append(key, formData[key]);
+      }
+    }
+
+    axiosInstance
+      .patch(`/update-user/${id}/`, updatedForm, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((res) => {
+        setUser(res.data);
+        setEditMode(false);
+      });
   };
 
   const handleDelete = () => {
     axiosInstance
-      .delete(`/customuser/${id}/`, {
+      .delete(`/update-user/${id}/`, {
         data: { password: deletePassword },
       })
       .then(() => {
         alert("Account deleted");
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
       });
   };
 
@@ -84,6 +101,34 @@ function UserProfile() {
         <div className="card p-4">
           {editMode ? (
             <>
+              <div className="mb-3 text-center">
+                <label htmlFor="profileImage" style={{ cursor: "pointer" }}>
+                <img
+                  src={
+                    formData.profile_picture instanceof File
+                      ? URL.createObjectURL(formData.profile_picture)
+                      : user?.profile_picture || "/profile-blank.png"
+                  }
+                  alt="Profile Preview"
+                  className="rounded-circle mb-2"
+                  width="150"
+                />
+                </label>
+                <input
+                  type="file"
+                  id="profileImage"
+                  accept="image/*"
+                  className="form-control mt-2"
+                  style={{ display: "none" }}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      profile_picture: e.target.files[0],
+                    })
+                  }
+                />
+              </div>
+
               <div className="row mb-3">
                 <div className="col-md-6">
                   <input
@@ -111,11 +156,11 @@ function UserProfile() {
                   <input
                     className="form-control"
                     type="date"
-                    value={formData.birthdate || ""}
+                    value={formData.birth_date || ""}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        birthdate: e.target.value,
+                        birth_date: e.target.value,
                       })
                     }
                   />
@@ -170,21 +215,25 @@ function UserProfile() {
                     <b>Phone:</b> {user.phone}
                   </p>
                   <p>
-                    <b>Birthdate:</b> {user.birthdate || "N/A"}
+                    <b>Birthdate:</b> {user.birth_date || " "}
                   </p>
                   <p>
                     <b>Facebook:</b>{" "}
                     <a href={user.facebook_profile}>
-                      {user.facebook_profile || "N/A"}
+                      {user.facebook_profile || " "}
                     </a>
                   </p>
                   <p>
-                    <b>Country:</b> {user.country || "N/A"}
+                    <b>Country:</b> {user.country || " "}
                   </p>
                 </div>
                 <div className="col-md-4 text-center">
                   <img
-                    src={user.profile_picture}
+                    src={
+                      user?.profile_picture
+                        ? user.profile_picture
+                        : "/profile-blank.png"
+                    }
                     alt="Profile"
                     className="rounded-circle"
                     width="150"

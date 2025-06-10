@@ -53,6 +53,7 @@ urlpatterns = [
     ),
     path("customuser/", views.UserListView.as_view(), name="user-list"),
     path("customuser/<int:id>/", views.UserDetailView.as_view(), name="user-detail"),
+    path("update-user/<int:id>/", views.CustomUserAPIView.as_view(), name="update-user"),
     path(
         "projects/<int:project_id>/report/",
         views.ProjectReportView.as_view(),

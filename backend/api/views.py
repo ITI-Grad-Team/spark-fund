@@ -32,9 +32,14 @@ from django.db.models import Sum
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        users = CustomUser.objects.all()
-        serializer = CustomUserSerializer(users, many=True)
+    
+    def get(self, request, id=None):
+        if id:
+            user = get_object_or_404(CustomUser, id=id)
+            serializer = CustomUserSerializer(user)
+        else:
+            users = CustomUser.objects.all()
+            serializer = CustomUserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request):
