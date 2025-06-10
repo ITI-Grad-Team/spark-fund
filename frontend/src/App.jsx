@@ -2,6 +2,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import React, { Suspense, lazy } from "react";
+import Footer from "./components/Footer/Footer";
 
 const Home = lazy(() => import("./pages/Home/Home"));
 const ProjectDetails = lazy(() =>
@@ -30,6 +31,7 @@ function App() {
           <Route path="/about" element={<About />} />
         </Routes>
       </Suspense>
+      <Footer />
     </Router>
   );
 }
