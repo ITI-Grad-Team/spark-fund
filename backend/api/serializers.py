@@ -14,6 +14,7 @@ from api.models import (
     Donation,
 )
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -35,9 +36,8 @@ class CustomUserSerializer(serializers.ModelSerializer):
             "country",
         ]
 
-    def validate_phone(self, value):
-        if value and not re.match(r"^01[0-2,5]{1}[0-9]{8}$", value):
-            raise serializers.ValidationError("Must be a valid Egyptian Phone Number")
+    def validate_password(self, value):
+        validate_password(value, self.instance)
         return value
 
 
@@ -55,6 +55,10 @@ class RegisterSerializer(serializers.ModelSerializer):
             "phone",
         ]
 
+    def validate_password(self, value):
+        validate_password(value, self.instance)
+        return value
+
     def validate(self, attrs):
         if attrs["password"] != attrs["confirm_password"]:
             raise serializers.ValidationError({"password": "Passwords do not match."})
@@ -68,9 +72,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("confirm_password")
         password = validated_data.pop("password")
-        user = self.Meta.model(
-            **validated_data, is_active=False
-        )  # Set is_active to False
+        user = self.Meta.model(**validated_data, is_active=False)
         user.set_password(password)
         user.save()
         return user
@@ -123,13 +125,10 @@ class ProjectSerializer(serializers.ModelSerializer):
     project_creator = UserSerializer(read_only=True)
     images = ProjectImageSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
-
     tags_detail = TagSerializer(source="tags", many=True, read_only=True)
     category_detail = CategorySerializer(source="category", read_only=True)
-
     tags = serializers.CharField(write_only=True)
     category = serializers.CharField(write_only=True)
-
     average_rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -160,25 +159,20 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_str = validated_data.pop("tags", "")
         category_name = validated_data.pop("category")
-
         user = self.context["request"].user
         project = Project.objects.create(**validated_data, project_creator=user)
-
         category, created = Category.objects.get_or_create(name=category_name)
         project.category = category
         project.save()
-
         tags_list = [t.strip() for t in tags_str.split(",") if t.strip()]
         for tag_name in tags_list:
             tag, created = Tag.objects.get_or_create(name=tag_name)
             project.tags.add(tag)
-
         request = self.context.get("request")
         if request and request.FILES:
             images_files = request.FILES.getlist("images")
             for image_file in images_files:
                 ProjectImage.objects.create(project=project, image=image_file)
-
         return project
 
 

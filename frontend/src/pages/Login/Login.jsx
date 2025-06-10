@@ -35,7 +35,7 @@ const Login = () => {
 
     setIsSubmitting(true);
     try {
-      const res = await axiosInstance.post("/login/", {
+      const res = await axiosInstance.post("/auth/login/", {
         username: formData.username,
         password: formData.password,
       });
@@ -46,7 +46,13 @@ const Login = () => {
 
       window.location.href = "/";
     } catch (error) {
-      if (error.response?.data?.detail === "No active account found with the given credentials") {
+      console.error("Login error:", error.response?.data);
+      if (
+        error.response?.data?.non_field_errors?.includes(
+          "No active account found with the given credentials"
+        ) ||
+        error.response?.data?.detail === "No active account found with the given credentials"
+      ) {
         setAlert({
           message: "Your account is not activated. Please check your email or resend the activation link.",
           type: "danger",
@@ -54,7 +60,10 @@ const Login = () => {
         setShowResend(true);
       } else {
         setAlert({
-          message: error.response?.data?.detail || "Login failed",
+          message:
+            error.response?.data?.non_field_errors?.[0] ||
+            error.response?.data?.detail ||
+            "Login failed",
           type: "danger",
         });
       }

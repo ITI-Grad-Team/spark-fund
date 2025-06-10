@@ -31,10 +31,11 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 
-# Existing views (unchanged, included for context)
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -232,9 +233,7 @@ class PasswordResetRequestView(APIView):
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        frontend_base_url = (
-            "http://localhost:5173"  # We'll change it  to production URL in production
-        )
+        frontend_base_url = "http://localhost:5173"
         reset_link = f"{frontend_base_url}/reset-password/{uid}/{token}"
 
         subject = "Reset Your Spark-Fund Password"
@@ -275,16 +274,23 @@ class PasswordResetConfirmView(APIView):
 
             if password != confirm_password:
                 return Response(
-                    {"error": "Password do not match."},
+                    {"error": "Passwords do not match."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-            user.set_password(password)
-            user.save()
-            return Response(
-                {"message": "Password reset successfully."},
-                status=status.HTTP_200_OK,
-            )
+            try:
+                validate_password(password, user=user)
+                user.set_password(password)
+                user.save()
+                return Response(
+                    {"message": "Password reset successfully."},
+                    status=status.HTTP_200_OK,
+                )
+            except ValidationError as e:
+                return Response(
+                    {"error": e.messages},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         else:
             return Response(
                 {"error": "Invalid or expired reset link."},
