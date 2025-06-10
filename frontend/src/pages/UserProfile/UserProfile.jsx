@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../api/config";
-import "./UserProfile.css";
 
 function UserProfile() {
   const { id } = useParams();
@@ -21,7 +20,6 @@ function UserProfile() {
     });
 
     axiosInstance.get(`/projects/?project_creator=${id}`).then((res) => {
-      console.log("Projects:", res.data);
       setProjects(res.data);
     });
 
@@ -47,108 +45,187 @@ function UserProfile() {
       });
   };
 
-  if (!user) return <p>Loading...</p>;
+  if (!user) return <div className="text-center my-5">Loading...</div>;
 
   return (
-    <div className="profile-container">
-      <h2>User Profile</h2>
+    <div className="container my-5">
+      <h2 className="mb-4">User Profile</h2>
 
-      <div className="tabs">
-        <button onClick={() => setActiveTab("profile")}>Profile</button>
-        <button onClick={() => setActiveTab("projects")}>Projects</button>
-        <button onClick={() => setActiveTab("donations")}>Donations</button>
-      </div>
+      {/* Tabs */}
+      <ul className="nav nav-tabs mb-4">
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "profile" ? "active" : ""}`}
+            onClick={() => setActiveTab("profile")}
+          >
+            Profile
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "projects" ? "active" : ""}`}
+            onClick={() => setActiveTab("projects")}
+          >
+            Projects
+          </button>
+        </li>
+        <li className="nav-item">
+          <button
+            className={`nav-link ${activeTab === "donations" ? "active" : ""}`}
+            onClick={() => setActiveTab("donations")}
+          >
+            Donations
+          </button>
+        </li>
+      </ul>
 
+      {/* Profile */}
       {activeTab === "profile" && (
-        <div className="tab-content">
+        <div className="card p-4">
           {editMode ? (
             <>
-              <input
-                value={formData.username || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, username: e.target.value })
-                }
-                placeholder="Username"
-              />
-              <input
-                value={formData.phone || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, phone: e.target.value })
-                }
-                placeholder="Phone"
-              />
-              <input
-                value={formData.birthdate || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, birthdate: e.target.value })
-                }
-                type="date"
-              />
-              <input
-                value={formData.facebook_profile || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, facebook_profile: e.target.value })
-                }
-                placeholder="Facebook URL"
-              />
-              <input
-                value={formData.country || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, country: e.target.value })
-                }
-                placeholder="Country"
-              />
-              <button onClick={handleEdit}>Save</button>
-              <button onClick={() => setEditMode(false)}>Cancel</button>
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <input
+                    className="form-control"
+                    value={formData.username || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, username: e.target.value })
+                    }
+                    placeholder="Username"
+                  />
+                </div>
+                <div className="col-md-6">
+                  <input
+                    className="form-control"
+                    value={formData.phone || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                    placeholder="Phone"
+                  />
+                </div>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <input
+                    className="form-control"
+                    type="date"
+                    value={formData.birthdate || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        birthdate: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="col-md-6">
+                  <input
+                    className="form-control"
+                    value={formData.facebook_profile || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        facebook_profile: e.target.value,
+                      })
+                    }
+                    placeholder="Facebook URL"
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <input
+                  className="form-control"
+                  value={formData.country || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
+                  placeholder="Country"
+                />
+              </div>
+              <div className="d-flex gap-2">
+                <button className="btn btn-primary" onClick={handleEdit}>
+                  Save
+                </button>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setEditMode(false)}
+                >
+                  Cancel
+                </button>
+              </div>
             </>
           ) : (
             <>
-              <p>
-                <b>Username:</b> {user.username}
-              </p>
-              <p>
-                <b>Email:</b> {user.email}
-              </p>
-              <p>
-                <b>Phone:</b> {user.phone}
-              </p>
-              <p>
-                <b>Birthdate:</b> {user.birthdate || "N/A"}
-              </p>
-              <p>
-                <b>Facebook:</b>{" "}
-                <a href={user.facebook_profile}>{user.facebook_profile}</a>
-              </p>
-              <p>
-                <b>Country:</b> {user.country || "N/A"}
-              </p>
-              <img
-                src={user.profile_picture}
-                alt="Profile"
-                className="rounded-circle mb-3"
-                width="150"
-              />
-              <button onClick={() => setEditMode(true)}>Edit Profile</button>
+              <div className="row mb-3">
+                <div className="col-md-8">
+                  <p>
+                    <b>Username:</b> {user.username}
+                  </p>
+                  <p>
+                    <b>Email:</b> {user.email}
+                  </p>
+                  <p>
+                    <b>Phone:</b> {user.phone}
+                  </p>
+                  <p>
+                    <b>Birthdate:</b> {user.birthdate || "N/A"}
+                  </p>
+                  <p>
+                    <b>Facebook:</b>{" "}
+                    <a href={user.facebook_profile}>
+                      {user.facebook_profile || "N/A"}
+                    </a>
+                  </p>
+                  <p>
+                    <b>Country:</b> {user.country || "N/A"}
+                  </p>
+                </div>
+                <div className="col-md-4 text-center">
+                  <img
+                    src={user.profile_picture}
+                    alt="Profile"
+                    className="rounded-circle"
+                    width="150"
+                  />
+                </div>
+              </div>
+              <button
+                className="btn btn-outline-primary mb-3"
+                onClick={() => setEditMode(true)}
+              >
+                Edit Profile
+              </button>
             </>
           )}
 
           <hr />
-          <h3>Delete Account</h3>
+          <h5>Delete Account</h5>
           <input
             type="password"
+            className="form-control mb-2"
             placeholder="Enter password to confirm"
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
           />
-          <button onClick={() => setShowDeleteConfirm(true)}>
+          <button
+            className="btn btn-danger"
+            onClick={() => setShowDeleteConfirm(true)}
+          >
             Delete Account
           </button>
 
           {showDeleteConfirm && (
-            <div className="modal">
+            <div className="alert alert-warning mt-3">
               <p>Are you sure you want to delete your account?</p>
-              <button onClick={handleDelete}>Yes, delete</button>
-              <button onClick={() => setShowDeleteConfirm(false)}>
+              <button className="btn btn-danger me-2" onClick={handleDelete}>
+                Yes, delete
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -156,26 +233,47 @@ function UserProfile() {
         </div>
       )}
 
+      {/* Projects */}
       {activeTab === "projects" && (
-        <div className="tab-content">
-          <h3>Projects</h3>
-          {Array.isArray(projects) && projects.length > 0 ? (
-            projects.map((proj) => <div key={proj.id}>{proj.title}</div>)
+        <div className="row">
+          {projects.length > 0 ? (
+            projects.map((proj) => (
+              <div className="col-md-4 mb-3" key={proj.id}>
+                <div className="card h-100">
+                  <div className="card-body">
+                    <h5 className="card-title">{proj.title}</h5>
+                  </div>
+                </div>
+              </div>
+            ))
           ) : (
             <p>No projects found.</p>
           )}
         </div>
       )}
 
+      {/* Donations */}
       {activeTab === "donations" && (
-        <div className="tab-content">
-          <h3>Donations</h3>
-          {Array.isArray(donations) && donations.length > 0 ? (
-            donations.map((donation) => (
-              <div key={donation.id}>
-                ${donation.amount} to project {donation.project_title}
-              </div>
-            ))
+        <div className="card p-3">
+          <h5 className="mb-3">Your Donations</h5>
+          {donations.length > 0 ? (
+            <>
+              <ul className="list-group mb-3">
+                {donations.map((donation) => (
+                  <li key={donation.id} className="list-group-item">
+                    ${donation.amount} to project{" "}
+                    <strong>{donation.project_title}</strong>
+                  </li>
+                ))}
+              </ul>
+              <p>
+                <strong>Total:</strong> $
+                {donations.reduce(
+                  (acc, curr) => acc + parseFloat(curr.amount),
+                  0
+                )}
+              </p>
+            </>
           ) : (
             <p>No donations found.</p>
           )}
