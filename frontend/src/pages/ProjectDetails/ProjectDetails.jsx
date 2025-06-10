@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
+import "./ProjectDetails.css";
 
 // Utility function to get logged in user ID
 function getLoggedInUserId() {
@@ -382,6 +383,8 @@ const ProjectDetails = () => {
 
   const donationRatio = donation_amount / total_target;
 
+  console.log(tags_detail);
+
   return (
     <div className="project-details">
       <div className="project-header">
@@ -446,14 +449,42 @@ const ProjectDetails = () => {
           <b>Category:</b> {category_detail.name || "N/A"}
         </p>
       )}
+
       <p>
         <b>Tags:</b>{" "}
         {tags_detail.length > 0
-          ? JSON.parse(project.tags_detail.map((tag) => tag.name).join(", "))
-              .map((tag) => tag.name)
-              .join(" - ")
+          ? tags_detail.map((tag) => {
+              let tags = [];
+
+              try {
+                let fixedName = tag.name;
+
+                if (fixedName.startsWith("[") && !fixedName.endsWith("]")) {
+                  fixedName += "]";
+                }
+
+                if (!fixedName.startsWith("[") && fixedName.endsWith("]")) {
+                  fixedName = "[" + fixedName;
+                }
+
+                if (fixedName.startsWith("{") && fixedName.endsWith("}")) {
+                  fixedName = `[${fixedName}]`;
+                }
+
+                tags = JSON.parse(fixedName);
+              } catch (e) {
+                tags = [{ name: tag.name }];
+              }
+
+              return tags.map((t, i) => (
+                <span key={`${tag.id}-${i}`} className="tag">
+                  {t.name}
+                </span>
+              ));
+            })
           : "No tags"}
       </p>
+
       <p>
         <b>Start Date:</b>{" "}
         {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
