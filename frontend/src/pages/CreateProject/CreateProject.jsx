@@ -1,8 +1,5 @@
 import "./CreateProject.css";
-import {
-  useState,
-  //  useEffect
-} from "react";
+import { useState, useEffect } from "react";
 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
@@ -16,27 +13,29 @@ const CreateProject = () => {
 
   const [images, setImages] = useState([]);
   const [tags, setTags] = useState("");
-  // const [token, setToken] = useState("");
+  const [token, setToken] = useState("");
   const [message, setMessage] = useState("");
-  // const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState([]);
 
-  // useEffect(() => {
-  //   const storedToken = localStorage.getItem("access_token");
-  //   if (!storedToken) {
-  //     setMessage("Please log in to create a project");
-  //     setTimeout(() => (window.location.href = "/login"), 2000);
-  //   } else {
-  //     setToken(storedToken);
-  //   }
+  useEffect(() => {
+    const storedToken = localStorage.getItem("access_token");
+    if (!storedToken) {
+      setMessage("Please log in to create a project");
+      setTimeout(() => (window.location.href = "/login"), 2000);
+    } else {
+      setToken(storedToken);
+    }
 
-  //   fetch("http://localhost:8000/api/categories/")
-  //     .then((res) => res.json())
-  //     .then((data) => setCategories(data))
-  //     .catch((err) => {
-  //       console.error("Error fetching categories:", err);
-  //       setMessage("Failed to load categories");
-  //     });
-  // }, []);
+    fetch("http://localhost:8000/api/categories/")
+      .then((res) => res.json())
+      .then((data) => {
+        setCategories(data.results);
+      })
+      .catch((err) => {
+        console.error("Error fetching categories:", err);
+        setMessage("Failed to load categories");
+      });
+  }, []);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -87,7 +86,7 @@ const CreateProject = () => {
       const res = await fetch("http://localhost:8000/api/projects/create/", {
         method: "POST",
         headers: {
-          // Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: data,
       });
@@ -208,13 +207,13 @@ const CreateProject = () => {
                       onChange={handleChange}
                       required
                     >
-                      <option value="">-- Select a Category --</option>
-                      {/* {Array.isArray(categories) &&
-          categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name}
-            </option>
-          ))} */}
+                      <option value="">Select a Category</option>
+                      {Array.isArray(categories) &&
+                        categories.map((cat) => (
+                          <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </option>
+                        ))}
                     </select>
                     <label htmlFor="category">Category</label>
                   </div>
