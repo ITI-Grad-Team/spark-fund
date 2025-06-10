@@ -22,9 +22,11 @@ from api.serializers import (
     RegisterSerializer,
     CommentReportSerializer,
     ProjectReportSerializer,
+    DonationSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db.models import Sum
 
 
 class CustomUserAPIView(APIView):
@@ -139,15 +141,23 @@ class ProjectAPIView(APIView):
     def get(self, request, id=None):
         if id:
             project = get_object_or_404(
-                Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies"),
+                Project.objects.select_related("project_creator", "category")
+                .prefetch_related("tags", "images", "comments__replies"),
                 id=id,
             )
             serializer = ProjectSerializer(project)
             return Response(serializer.data)
 
-        projects = Project.objects.select_related("project_creator", "category").prefetch_related("tags", "images", "comments__replies")
+        projects = Project.objects.select_related("project_creator", "category") \
+            .prefetch_related("tags", "images", "comments__replies")
+
+        project_creator_id = request.query_params.get("project_creator")
+        if project_creator_id and project_creator_id.isdigit():
+            projects = projects.filter(project_creator_id=int(project_creator_id))
+
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
+
 
 
 
@@ -448,9 +458,26 @@ class UserDonationAmount(APIView):
     def get(self, request, project_id):
         user = request.user
 
-        donation = Donation.objects.filter(user=user, project_id=project_id).first()
+        total = Donation.objects.filter(user=user, project_id=project_id).aggregate(
+            total_donation=Sum("amount")
+        )["total_donation"] or Decimal("0")
 
-        if donation is None:
-            return Response({"donation_amount": Decimal("0")}, status=200)
+        return Response({"donation_amount": total}, status=200)
 
-        return Response({"donation_amount": donation.amount}, status=200)
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = CustomUserSerializer(request.user)
+        return Response(serializer.data)
+    
+class MyDonationsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        donations = Donation.objects.filter(user=request.user).select_related("project")
+        serializer = DonationSerializer(donations, many=True)
+        return Response(serializer.data)
+
+    

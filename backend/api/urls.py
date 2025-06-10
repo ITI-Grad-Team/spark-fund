@@ -79,6 +79,8 @@ urlpatterns = [
     path(
         "projects/<int:project_id>/donation-amount/", views.UserDonationAmount.as_view()
     ),
+    path('customuser/me/', views.CurrentUserView.as_view(), name='current_user'),
+    path('my-donations/', views.MyDonationsAPIView.as_view(), name='my-donations'),
     path("logout/", views.LogoutView.as_view(), name="logout"),
 ]
 

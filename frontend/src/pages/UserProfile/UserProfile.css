@@ -1,0 +1,54 @@
+
+.profile-container {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+  color: #555;
+  transition: all 0.3s ease-in-out;
+}
+
+.nav-tabs .nav-link:hover {
+  color: #007bff;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 8px 8px 0 0;
+  font-weight: bold;
+}
+
+.card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  background-color: #fafafa;
+}
+
+.card p {
+  margin-bottom: 0.75rem;
+}
+
+img.rounded-circle {
+  border: 3px solid #ccc;
+  object-fit: cover;
+}
+
+.btn {
+  border-radius: 8px;
+}
+
+input.form-control {
+  border-radius: 8px;
+}
+
+.alert-warning {
+  border-radius: 10px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+}

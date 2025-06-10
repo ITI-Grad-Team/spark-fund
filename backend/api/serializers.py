@@ -171,7 +171,8 @@ class ProjectRatingSerializer(serializers.ModelSerializer):
         fields = ['rating']
 
 class DonationSerializer(serializers.ModelSerializer):
+    project_title = serializers.CharField(source="project.title", read_only=True)
     class Meta:
         model = Donation
-        fields = ['id', 'user', 'project', 'amount', 'created_at']
+        fields = ['id', 'user', 'project', 'amount', 'created_at', 'project_title']
         read_only_fields = ['user', 'created_at']
