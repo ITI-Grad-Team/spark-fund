@@ -87,7 +87,7 @@ const About = () => {
         <div className="voice">
           <h2>We believe in your voice</h2>
 
-          <div>
+          <div className="paragraphs">
             <p>
               We're in here with a simple and clear mission is building a
               powerful platform for the change, helping people around the world
