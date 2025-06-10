@@ -2,7 +2,14 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 import axiosInstance from "../../api/config";
 import { useState, useEffect } from "react";
-import { BarLoader, CircleLoader, ClipLoader, ClockLoader, DotLoader, RotateLoader } from "react-spinners";
+import {
+  BarLoader,
+  CircleLoader,
+  ClipLoader,
+  ClockLoader,
+  DotLoader,
+  RotateLoader,
+} from "react-spinners";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,7 +59,7 @@ const Navbar = () => {
           </Link>
           <Link to="/">Home</Link>
           <Link to="/projects">Campaigns</Link>
-          <Link to="/">About</Link>
+          <Link to="/about">About</Link>
           <Link to="/">Contact</Link>
           <Link to="/">Blog</Link>
           <div>
@@ -65,7 +72,11 @@ const Navbar = () => {
           <div className="sign-btns">
             {isAuthenticated ? (
               <button className="logout-btn" onClick={handleLogout}>
-                {isClicked ? (<ClipLoader color="white" size={20} />) : "Sign out"}
+                {isClicked ? (
+                  <ClipLoader color="white" size={20} />
+                ) : (
+                  "Sign out"
+                )}
               </button>
             ) : (
               <>
