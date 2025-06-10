@@ -1,10 +1,12 @@
 .about-background-color {
-  background-color: #f5efe0;
+  background-color: #fffcf7;
 }
 
 .about {
-  padding-top: 5rem;
-
+  .hero-background {
+    padding-top: 5rem;
+    background-color: #f5efe0;
+  }
   .about-hero {
     display: flex;
     flex-direction: column;
@@ -27,36 +29,70 @@
     }
   }
 
-  .users-background {
-    background-color: #fff;
+  .users {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5rem;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding-top: 10rem;
 
-    .users {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      max-width: 1300px;
-      margin: 0 auto;
-      padding-top: 5rem;
+    .column-1 {
+      flex: 1;
 
-      .column-1 {
-        flex: 1;
+      p {
+        font-size: 24px;
+        color: #5f5f75;
+      }
 
-        p {
-          font-size: 24px;
-          color: #5f5f75;
+      h2 {
+        font-size: 48px;
+        font-weight: 700;
+        color: #2b2b39;
+        width: 414px;
+      }
+    }
+
+    .column-2 {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+
+      .users-categories {
+        background-color: #6059c9;
+        padding-top: 3rem;
+        padding-inline: 2rem;
+        padding-bottom: 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        border-radius: 20px;
+
+        .users-img {
+          background-color: #fff;
+          border-radius: 50%;
+          padding: 1rem;
         }
 
         h4 {
-          font-size: 48px;
-          font-weight: 700;
-          color: #2b2b39;
-          width: 414px;
+          font-size: 24px;
+          font-weight: 600;
+          color: #fffcf7;
+          margin-top: 2rem;
+        }
+
+        p {
+          font-size: 14px;
+          color: #fffcf7;
+          width: 227px;
         }
       }
-
-      .column-2 {
-        flex: 1;
-      }
     }
+  }
+
+  .voice {
   }
 }
