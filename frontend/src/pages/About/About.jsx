@@ -240,7 +240,9 @@ const About = () => {
             </div>
 
             <div className="user">
-              <img src="/testimonial-img.png" alt="user image" />
+              <div>
+                <img src="/testimonial-img.png" alt="user image" />
+              </div>
 
               <div className="user-info">
                 <h6>Jack Burley</h6>
