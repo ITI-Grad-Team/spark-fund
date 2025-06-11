@@ -41,9 +41,15 @@ const CampaignSmallCard = ({ project }) => {
               </div>
 
               <img
-                src={project.project_creator.profile_picture}
-                alt="campaign owner"
-              />
+                    src={project.project_creator?.profile_picture || "/profile-blank.png"}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/profile-blank.png";
+                    }}
+                    alt="Profile"
+                    className="rounded-circle"
+                    width="40"
+                  /> 
             </div>
           </div>
 
