@@ -12,7 +12,15 @@ const CampaignSmallCard = ({ project }) => {
     
 
     <section className="small-card"  onClick={() => {handleClick()}} style={{cursor: "pointer"}}>
-      <img className="project-img" src="/Rectangle.png" alt={project.title} />
+      <img
+          src={project.images.length > 0 ? `http://127.0.0.1:8000${project.images[0].image}`: "/Rectangle.png"}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/Rectangle.png";
+          }}
+          alt="Profile"
+          className="project-img"
+        />
 
         <div className="content">
           <div className="small-card-content">

@@ -10,7 +10,7 @@ const Projects = () => {
 
   useEffect(() => {
       axiosInstance
-        .get("/projects/?limit=10&offset=0")
+        .get("/projects/")
         .then((res) => {
           console.log("API response:", res);
           setProjects(res.data);

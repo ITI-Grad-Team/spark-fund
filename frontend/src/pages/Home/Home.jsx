@@ -33,6 +33,7 @@ const Home = () => {
         .get("/projects")
         .then((res) => {
           setProjects(res.data);
+          console.log(res.data);
         })
         .catch(console.error)
         .finally(() => setLoading(false));

@@ -14,7 +14,15 @@ const CampaignWideCard = ({ project }) => {
       style={{ cursor: "pointer" }}
     >
       <section className="col-1">
-        <img src="/Rectangle.png" alt="Project photo" />
+        <img
+          src={project.images.length > 0 ? `http://127.0.0.1:8000${project.images[0].image}`: "/Rectangle.png"}
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = "/Rectangle.png";
+          }}
+          alt="Profile"
+          style={{width: "auto", height: "auto" , fill: "cover"}}
+        />
       </section>
 
       <section className="col-2">
