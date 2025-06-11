@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../api/config";
+import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 
 function UserProfile() {
   const { id } = useParams();
@@ -12,6 +13,7 @@ function UserProfile() {
   const [deletePassword, setDeletePassword] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
+  const [donationProjects, setDonationProjects] = useState([]);
 
   useEffect(() => {
     axiosInstance.get(`/customuser/${id}/`).then((res) => {
@@ -23,8 +25,32 @@ function UserProfile() {
       setProjects(res.data);
     });
 
-    axiosInstance.get(`my-donations/`).then((res) => {
+    axiosInstance.get(`my-donations/`).then(async (res) => {
       setDonations(res.data);
+
+      // Get unique project IDs from donations
+      const projectIds = [...new Set(res.data.map((d) => d.project))];
+
+      if (projectIds.length > 0) {
+        try {
+          // Fetch each project one by one
+          const projects = [];
+          for (const id of projectIds) {
+            try {
+              const projectRes = await axiosInstance.get(`/projects/${id}/`);
+              projects.push(projectRes.data);
+              console.log(`Fetched project ${id}:`, projectRes.data);
+            } catch (error) {
+              console.error(`Error fetching project ${id}:`, error);
+            }
+          }
+          setDonationProjects(projects);
+        } catch (error) {
+          console.error("Error fetching donation projects:", error);
+        }
+      } else {
+        setDonationProjects([]); // Clear if no donations
+      }
     });
   }, [id]);
 
@@ -103,16 +129,16 @@ function UserProfile() {
             <>
               <div className="mb-3 text-center">
                 <label htmlFor="profileImage" style={{ cursor: "pointer" }}>
-                <img
-                  src={
-                    formData.profile_picture instanceof File
-                      ? URL.createObjectURL(formData.profile_picture)
-                      : user?.profile_picture || "/profile-blank.png"
-                  }
-                  alt="Profile Preview"
-                  className="rounded-circle mb-2"
-                  width="150"
-                />
+                  <img
+                    src={
+                      formData.profile_picture instanceof File
+                        ? URL.createObjectURL(formData.profile_picture)
+                        : user?.profile_picture || "/profile-blank.png"
+                    }
+                    alt="Profile Preview"
+                    className="rounded-circle mb-2"
+                    width="150"
+                  />
                 </label>
                 <input
                   type="file"
@@ -286,42 +312,57 @@ function UserProfile() {
       {activeTab === "projects" && (
         <div className="row">
           {projects.length > 0 ? (
-            projects.map((proj) => (
-              <div className="col-md-4 mb-3" key={proj.id}>
-                <div className="card h-100">
-                  <div className="card-body">
-                    <h5 className="card-title">{proj.title}</h5>
-                  </div>
-                </div>
+            projects.map((project) => (
+              <div className="col-md-4 mb-4" key={project.id}>
+                <CampaignSmallCard project={project} />
               </div>
             ))
           ) : (
-            <p>No projects found.</p>
+            <div className="col-12">
+              <p>No projects found.</p>
+            </div>
           )}
         </div>
       )}
 
       {/* Donations */}
       {activeTab === "donations" && (
-        <div className="card p-3">
-          <h5 className="mb-3">Your Donations</h5>
+        <div>
+          <h5 className="mb-4">Your Donations</h5>
           {donations.length > 0 ? (
             <>
-              <ul className="list-group mb-3">
-                {donations.map((donation) => (
-                  <li key={donation.id} className="list-group-item">
-                    ${donation.amount} to project{" "}
-                    <strong>{donation.project_title}</strong>
-                  </li>
-                ))}
-              </ul>
-              <p>
-                <strong>Total:</strong> $
-                {donations.reduce(
-                  (acc, curr) => acc + parseFloat(curr.amount),
-                  0
-                )}
-              </p>
+              <div className="row">
+                {donationProjects.map((project) => {
+                  const projectDonations = donations.filter(
+                    (d) => d.project === project.id
+                  );
+                  const totalDonated = projectDonations.reduce(
+                    (sum, d) => sum + parseFloat(d.amount),
+                    0
+                  );
+
+                  return (
+                    <div className="col-md-4 mb-4" key={project.id}>
+                      <CampaignSmallCard project={project} />
+                      <div className="mt-2">
+                        <p>
+                          <strong>Total donated:</strong> $
+                          {totalDonated.toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3">
+                <h5>Donation Summary</h5>
+                <p>
+                  <strong>Total donated to all projects:</strong> $
+                  {donations
+                    .reduce((acc, curr) => acc + parseFloat(curr.amount), 0)
+                    .toFixed(2)}
+                </p>
+              </div>
             </>
           ) : (
             <p>No donations found.</p>
