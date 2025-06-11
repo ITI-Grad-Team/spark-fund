@@ -105,6 +105,8 @@ const About = () => {
 
           <img src="/Mask Group.png" alt="protest image" />
         </div>
+
+        <div></div>
       </section>
     </section>
   );
