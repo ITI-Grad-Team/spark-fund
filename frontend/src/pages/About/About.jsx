@@ -252,6 +252,24 @@ const About = () => {
             </div>
           </div>
         </div>
+
+        <div className="newspaper-background">
+          <div className="newspaper">
+            <div className="column-1">
+              <h2>Try something fresh and new right now</h2>
+            </div>
+
+            <div className="column-2">
+              <div className="email-input">
+                <input type="email" placeholder="Your Email" />
+
+                <button>Subscribe</button>
+              </div>
+
+              <p>Get latest update from us. You can cancel any time.</p>
+            </div>
+          </div>
+        </div>
       </section>
     </section>
   );

@@ -315,4 +315,65 @@
       }
     }
   }
+
+  .newspaper-background {
+    background-color: #6059c9;
+    margin-top: 10rem;
+    margin-bottom: -10rem;
+
+    .newspaper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding-block: 5rem;
+      gap: 5rem;
+
+      .column-1 {
+        flex: 1;
+
+        h2 {
+          font-size: 60px;
+          font-weight: 700;
+          color: #fffcf7;
+          letter-spacing: 0;
+        }
+      }
+
+      .column-2 {
+        flex: 1;
+
+        .email-input {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-bottom: 1rem;
+
+          input {
+            width: 354px;
+            height: 56px;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            padding-left: 2rem;
+          }
+
+          button {
+            height: 56px;
+            width: 159px;
+            border-radius: 10px;
+            border: none;
+            background-color: #ffc20e;
+            color: #fffcf7;
+            font-weight: 600;
+          }
+        }
+
+        p {
+          color: #fffcf7;
+        }
+      }
+    }
+  }
 }
