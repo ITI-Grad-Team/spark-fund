@@ -192,10 +192,25 @@ const About = () => {
           </div>
 
           <div className="story-img">
-            <img src="Mask Group2.png" alt="filler image" />
-            <img src="Mask Group(2).png" alt="filler image" />
-            <img src="Mask Group(1).png" alt="filler image" />
-            <img src="Mask Group(3).png" alt="filler image" />
+            <img src="/Mask Group2.png" alt="filler image" className="first" />
+
+            <img
+              src="/Mask Group(2).png"
+              alt="filler image"
+              className="second"
+            />
+
+            <img
+              src="/Mask Group(1).png"
+              alt="filler image"
+              className="third"
+            />
+
+            <img
+              src="/Mask Group(3).png"
+              alt="filler image"
+              className="forth"
+            />
           </div>
         </div>
       </section>
