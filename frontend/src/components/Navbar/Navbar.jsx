@@ -21,7 +21,8 @@ const Navbar = () => {
       .get("/customuser/me/")
       .then((res) => {
         setUser(res.data);
-        console.log("User data:", res.data);
+        console.log("User data:", res.data.id);
+        localStorage.setItem("user_id", res.data.id);
       })
       .catch((err) => {
         console.error("Error fetching current user:", err);

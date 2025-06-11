@@ -17,6 +17,7 @@ function UserProfile() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
   const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const user_id = localStorage.getItem("user_id");
 
   useEffect(() => {
     axiosInstance.get(`/customuser/${id}/`).then((res) => {
@@ -55,7 +56,6 @@ function UserProfile() {
       }
     });
   }, [id]);
-
 
   const handleEdit = () => {
     const updatedForm = new FormData();
@@ -134,14 +134,18 @@ function UserProfile() {
             Projects
           </button>
         </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link ${activeTab === "donations" ? "active" : ""}`}
-            onClick={() => setActiveTab("donations")}
-          >
-            Donations
-          </button>
-        </li>
+        {user_id === id && (
+          <li className="nav-item">
+            <button
+              className={`nav-link ${
+                activeTab === "donations" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("donations")}
+            >
+              Donations
+            </button>
+          </li>
+        )}
       </ul>
 
       {/* Profile */}
@@ -288,43 +292,49 @@ function UserProfile() {
                   />
                 </div>
               </div>
-              <button
-                className="btn btn-outline-primary mb-3"
-                onClick={() => setEditMode(true)}
-              >
-                Edit Profile
-              </button>
+              {user_id === id && (
+                <button
+                  className="btn btn-outline-primary mb-3"
+                  onClick={() => setEditMode(true)}
+                >
+                  Edit Profile
+                </button>
+              )}
             </>
           )}
 
-          <hr />
-          <h5>Delete Account</h5>
-          <input
-            type="password"
-            className="form-control mb-2"
-            placeholder="Enter password to confirm"
-            value={deletePassword}
-            onChange={(e) => setDeletePassword(e.target.value)}
-            disabled={isDeleting}
-          />
-          <button
-            className="btn btn-danger"
-            onClick={() => setShowDeleteConfirm(true)}
-            disabled={!deletePassword || isDeleting}
-          >
-            {isDeleting ? (
-              <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                Deleting...
-              </>
-            ) : (
-              "Delete Account"
-            )}
-          </button>
+          {user_id === id && (
+            <>
+              <hr />
+              <h5>Delete Account</h5>
+              <input
+                type="password"
+                className="form-control mb-2"
+                placeholder="Enter password to confirm"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                disabled={isDeleting}
+              />
+              <button
+                className="btn btn-danger"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={!deletePassword || isDeleting}
+              >
+                {isDeleting ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete Account"
+                )}
+              </button>
+            </>
+          )}
 
           {/* Alerts */}
           {deleteError &&
