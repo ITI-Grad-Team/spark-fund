@@ -68,10 +68,9 @@ const CreateProject = () => {
     data.append("start_date", formData.start_date);
     data.append("end_date", formData.end_date);
     data.append("category", formData.category);
-    const tagsData = JSON.stringify(
-      tags.split(",").map((tag) => ({ name: tag.trim() }))
-    );
-    data.append("tags", tagsData);
+    const tagNames = tags.split(",").map((tag) => tag.trim());
+
+    data.append("tags", tagNames.join(","));
     images.forEach((file) => {
       data.append("images", file);
     });
