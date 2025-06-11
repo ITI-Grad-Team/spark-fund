@@ -213,6 +213,16 @@ const About = () => {
             />
           </div>
         </div>
+
+        <div className="vision-background">
+          <div className="vision">
+            <h2>Our Vision</h2>
+
+            <p>Our vision is to be the best petition platform in the world.</p>
+
+            <img src="/Frame10.svg" alt="Vision section image" />
+          </div>
+        </div>
       </section>
     </section>
   );
