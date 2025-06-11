@@ -1,6 +1,6 @@
 import "./Projects.css";
 import { useEffect, useState } from "react";
-import { RingLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
 import axiosInstance from "../../api/config";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 
@@ -9,22 +9,28 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axiosInstance
-      .get("/projects/?limit=10&offset=0")
-      .then((res) => {
-        console.log("API response:", res);
-        setProjects(res.data);
-      })
-      .catch((err) => console.error(err))
-      .finally(() => setLoading(false));
+    const cachedProjects = localStorage.getItem("projects");
+    if (cachedProjects) {
+      setProjects(JSON.parse(cachedProjects));
+      setLoading(false);
+    } else {
+      axiosInstance
+        .get("/projects/?limit=10&offset=0")
+        .then((res) => {
+          console.log("API response:", res);
+          setProjects(res.data);
+        })
+        .catch((err) => console.error(err))
+        .finally(() => setLoading(false));
+    }
   }, []);
   return (
     <section className="container-fluid">
       {loading ? (
         <center>
           <div className="loader-wrapper">
-            <RingLoader
-              color="#3b82f6"
+            <BarLoader
+              color="#6059c9"
               size={80}
               speedMultiplier={1.2}
               aria-label="Loading Spinner"

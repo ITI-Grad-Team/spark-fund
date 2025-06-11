@@ -8,10 +8,9 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import Footer from "../../components/Footer/Footer";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/config";
-import { ClipLoader, RingLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
@@ -28,26 +27,28 @@ const Home = () => {
     )
     .slice(0, 5);
 
-  
-
-    
   useEffect(() => {
-    setLoading(true);
-    axiosInstance.get("/projects")
-      .then((res) => {
-        setProjects(res.data);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-}, []);
+    const cachedProjects = localStorage.getItem("projects");
+    if (cachedProjects) {
+      setProjects(JSON.parse(cachedProjects));
+      setLoading(false);
+    } else {
+      setLoading(true);
+      axiosInstance
+        .get("/projects")
+        .then((res) => {
+          setProjects(res.data);
+          localStorage.setItem("projects", JSON.stringify(res.data));
+        })
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem("access_token");
     setIsAuthenticated(!!token);
   }, []);
-
-
-
 
   return (
     <section className="container-fluid home">
@@ -61,13 +62,11 @@ useEffect(() => {
             <Link to="/login/" className="started-btn">
               Get Started
             </Link>
-          ) :(
+          ) : (
             <Link to="/create/" className="started-btn">
-            Get Started
-          </Link>
-          )
-          
-          }
+              Get Started
+            </Link>
+          )}
 
           <button className="learn-btn">Learn More</button>
         </div>
@@ -76,8 +75,8 @@ useEffect(() => {
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
         {loading ? (
-          <RingLoader
-            color="#3b82f6"
+          <BarLoader
+            color="#6059c9"
             size={80}
             speedMultiplier={1.2}
             aria-label="Loading Spinner"
@@ -111,8 +110,8 @@ useEffect(() => {
 
         {loading ? (
           <div className="loader-wrapper">
-            <RingLoader
-              color="#3b82f6"
+            <BarLoader
+              color="#6059c9"
               size={80}
               speedMultiplier={1.2}
               aria-label="Loading Spinner"
@@ -231,8 +230,6 @@ useEffect(() => {
           <img src="/Frame1.png" alt="call to action image" />
         </div>
       </section>
-
-      <Footer />
     </section>
   );
 };
