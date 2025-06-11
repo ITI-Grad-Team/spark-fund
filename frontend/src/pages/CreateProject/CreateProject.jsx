@@ -210,7 +210,7 @@ const CreateProject = () => {
                       <option value="">Select a Category</option>
                       {Array.isArray(categories) &&
                         categories.map((cat) => (
-                          <option key={cat.id} value={cat.id}>
+                          <option key={cat.name} value={cat.name}>
                             {cat.name}
                           </option>
                         ))}
