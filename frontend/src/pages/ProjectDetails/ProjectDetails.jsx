@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
 import "./ProjectDetails.css";
+import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 
 // Utility function to get logged in user ID
 function getLoggedInUserId() {
@@ -217,6 +218,38 @@ const ProjectDetails = () => {
   const [userDonation, setUserDonation] = useState(0);
   const [showProjectReportForm, setShowProjectReportForm] = useState(false);
   const [projectReportReason, setProjectReportReason] = useState("");
+  const [similarProjectsByTag, setSimilarProjectsByTag] = useState({});
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
+
+  // Add this effect
+  useEffect(() => {
+    if (project && project.tags_detail?.length > 0) {
+      fetchSimilarProjectsByTag();
+    }
+  }, [project]);
+
+  const fetchSimilarProjectsByTag = async () => {
+    setLoadingSimilar(true);
+    try {
+      const currentTagNames = project.tags_detail.map((tag) => tag.name);
+      const results = {};
+
+      // Fetch 3 projects for each tag
+      for (const tagName of currentTagNames) {
+        const response = await axiosInstance.get(
+          `/projects/?tag=${encodeURIComponent(tagName)}&limit=4`
+        );
+        // Filter out current project and store by tag name
+        results[tagName] = response.data.filter((p) => p.id !== project.id);
+      }
+
+      setSimilarProjectsByTag(results);
+    } catch (err) {
+      console.error("Error fetching similar projects:", err);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
 
   const fetchProject = useCallback(async () => {
     if (!projectId) {
@@ -449,42 +482,16 @@ const ProjectDetails = () => {
           <b>Category:</b> {category_detail.name || "N/A"}
         </p>
       )}
-
       <p>
         <b>Tags:</b>{" "}
         {tags_detail.length > 0
-          ? tags_detail.map((tag) => {
-              let tags = [];
-
-              try {
-                let fixedName = tag.name;
-
-                if (fixedName.startsWith("[") && !fixedName.endsWith("]")) {
-                  fixedName += "]";
-                }
-
-                if (!fixedName.startsWith("[") && fixedName.endsWith("]")) {
-                  fixedName = "[" + fixedName;
-                }
-
-                if (fixedName.startsWith("{") && fixedName.endsWith("}")) {
-                  fixedName = `[${fixedName}]`;
-                }
-
-                tags = JSON.parse(fixedName);
-              } catch (e) {
-                tags = [{ name: tag.name }];
-              }
-
-              return tags.map((t, i) => (
-                <span key={`${tag.id}-${i}`} className="tag">
-                  {t.name}
-                </span>
-              ));
-            })
+          ? tags_detail.map((tag) => (
+              <span key={tag.id} className="tag">
+                {tag.name}
+              </span>
+            ))
           : "No tags"}
       </p>
-
       <p>
         <b>Start Date:</b>{" "}
         {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
@@ -566,7 +573,6 @@ const ProjectDetails = () => {
           </div>
         )}
       {new Date(end_date) < Date.now() && <p>PROJECT CLOSED</p>}
-
       {images.length > 0 && (
         <div className="project-images">
           <h3>Images</h3>
@@ -617,6 +623,31 @@ const ProjectDetails = () => {
               Post Comment
             </button>
           </form>
+        </div>
+      )}
+
+      {Object.keys(similarProjectsByTag).length > 0 && (
+        <div className="similar-projects">
+          <h3>Similar Projects</h3>
+          {loadingSimilar ? (
+            <div>Loading similar projects...</div>
+          ) : (
+            Object.entries(similarProjectsByTag).map(
+              ([tagName, projects]) =>
+                projects.length > 0 && (
+                  <div key={tagName}>
+                    <h4>{tagName}</h4>
+                    <div className="row">
+                      {projects.map((project) => (
+                        <div className="col-md-3 mb-4" key={project.id}>
+                          <CampaignSmallCard project={project} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+            )
+          )}
         </div>
       )}
     </div>

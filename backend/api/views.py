@@ -192,6 +192,14 @@ class ProjectAPIView(APIView):
         if project_creator_id and project_creator_id.isdigit():
             projects = projects.filter(project_creator_id=int(project_creator_id))
 
+        tag_name = request.query_params.get("tag")
+        if tag_name:
+            projects = projects.filter(tags__name__iexact=tag_name)
+
+        limit = request.query_params.get("limit")
+        if limit and limit.isdigit():
+            projects = projects[:int(limit)]
+
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
 
