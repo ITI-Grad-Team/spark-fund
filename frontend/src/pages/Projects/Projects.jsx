@@ -9,11 +9,6 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const cachedProjects = localStorage.getItem("projects");
-    if (cachedProjects) {
-      setProjects(JSON.parse(cachedProjects));
-      setLoading(false);
-    } else {
       axiosInstance
         .get("/projects/?limit=10&offset=0")
         .then((res) => {
@@ -22,7 +17,6 @@ const Projects = () => {
         })
         .catch((err) => console.error(err))
         .finally(() => setLoading(false));
-    }
   }, []);
   return (
     <section className="container-fluid">

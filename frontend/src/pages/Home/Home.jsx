@@ -28,21 +28,14 @@ const Home = () => {
     .slice(0, 5);
 
   useEffect(() => {
-    const cachedProjects = localStorage.getItem("projects");
-    if (cachedProjects) {
-      setProjects(JSON.parse(cachedProjects));
-      setLoading(false);
-    } else {
       setLoading(true);
       axiosInstance
         .get("/projects")
         .then((res) => {
           setProjects(res.data);
-          localStorage.setItem("projects", JSON.stringify(res.data));
         })
         .catch(console.error)
         .finally(() => setLoading(false));
-    }
   }, []);
 
   useEffect(() => {

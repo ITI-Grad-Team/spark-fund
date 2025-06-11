@@ -27,6 +27,7 @@ from api.serializers import (
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Sum
+from django.contrib.auth.hashers import check_password
 
 
 class CustomUserAPIView(APIView):
@@ -36,11 +37,12 @@ class CustomUserAPIView(APIView):
     def get(self, request, id=None):
         if id:
             user = get_object_or_404(CustomUser, id=id)
-            serializer = CustomUserSerializer(user)
+            serializer = CustomUserSerializer(user, context={"request": request})
         else:
             users = CustomUser.objects.all()
-            serializer = CustomUserSerializer(users, many=True)
+            serializer = CustomUserSerializer(users, many=True, context={"request": request})
         return Response(serializer.data)
+
 
     def post(self, request):
         serializer = CustomUserSerializer(data=request.data)
@@ -74,8 +76,24 @@ class CustomUserAPIView(APIView):
 
     def delete(self, request, id):
         user = get_object_or_404(CustomUser, id=id)
+
+        if request.user != user:
+            return Response({"detail": "You are not authorized to delete this account."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        password = request.data.get("password")
+
+        if not password:
+            return Response({"detail": "Password is required."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if not check_password(password, user.password):
+            return Response({"detail": "Incorrect password."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "User deleted successfully."},
+                        status=status.HTTP_204_NO_CONTENT)
 
 
 class RegisterView(generics.CreateAPIView):

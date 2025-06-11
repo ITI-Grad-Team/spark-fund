@@ -14,9 +14,13 @@ function UserProfile() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
   const [donationProjects, setDonationProjects] = useState([]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
 
   useEffect(() => {
     axiosInstance.get(`/customuser/${id}/`).then((res) => {
+      console.log("User data:", res.data);
       setUser(res.data);
       setFormData(res.data);
     });
@@ -28,12 +32,10 @@ function UserProfile() {
     axiosInstance.get(`my-donations/`).then(async (res) => {
       setDonations(res.data);
 
-      // Get unique project IDs from donations
       const projectIds = [...new Set(res.data.map((d) => d.project))];
 
       if (projectIds.length > 0) {
         try {
-          // Fetch each project one by one
           const projects = [];
           for (const id of projectIds) {
             try {
@@ -49,10 +51,11 @@ function UserProfile() {
           console.error("Error fetching donation projects:", error);
         }
       } else {
-        setDonationProjects([]); // Clear if no donations
+        setDonationProjects([]);
       }
     });
   }, [id]);
+
 
   const handleEdit = () => {
     const updatedForm = new FormData();
@@ -76,15 +79,34 @@ function UserProfile() {
   };
 
   const handleDelete = () => {
+    setIsDeleting(true);
+    setDeleteError("");
+    setDeleteSuccess(false);
+
     axiosInstance
       .delete(`/update-user/${id}/`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
         data: { password: deletePassword },
       })
       .then(() => {
-        alert("Account deleted");
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+        setDeleteSuccess(true);
+        setTimeout(() => {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          window.location.href = "/login";
+        }, 1500);
+      })
+      .catch((error) => {
+        if (error.response && error.response.data) {
+          setDeleteError(error.response.data.detail);
+        } else {
+          setDeleteError("Something went wrong. Please try again.");
+        }
+      })
+      .finally(() => {
+        setIsDeleting(false);
       });
   };
 
@@ -255,11 +277,11 @@ function UserProfile() {
                 </div>
                 <div className="col-md-4 text-center">
                   <img
-                    src={
-                      user?.profile_picture
-                        ? user.profile_picture
-                        : "/profile-blank.png"
-                    }
+                    src={user?.profile_picture || "/profile-blank.png"}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = "/profile-blank.png";
+                    }}
                     alt="Profile"
                     className="rounded-circle"
                     width="150"
@@ -283,23 +305,52 @@ function UserProfile() {
             placeholder="Enter password to confirm"
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
+            disabled={isDeleting}
           />
           <button
             className="btn btn-danger"
             onClick={() => setShowDeleteConfirm(true)}
+            disabled={!deletePassword || isDeleting}
           >
-            Delete Account
+            {isDeleting ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Deleting...
+              </>
+            ) : (
+              "Delete Account"
+            )}
           </button>
 
-          {showDeleteConfirm && (
+          {/* Alerts */}
+          {deleteError &&
+            (setTimeout(() => setDeleteError(""), 5000),
+            (<div className="alert alert-danger mt-3">{deleteError}</div>))}
+          {deleteSuccess && (
+            <div className="alert alert-success mt-3">
+              Account deleted successfully. Redirecting...
+            </div>
+          )}
+
+          {/* Confirmation Dialog */}
+          {showDeleteConfirm && !deleteSuccess && (
             <div className="alert alert-warning mt-3">
               <p>Are you sure you want to delete your account?</p>
-              <button className="btn btn-danger me-2" onClick={handleDelete}>
-                Yes, delete
+              <button
+                className="btn btn-danger me-2"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Yes, delete"}
               </button>
               <button
                 className="btn btn-secondary"
                 onClick={() => setShowDeleteConfirm(false)}
+                disabled={isDeleting}
               >
                 Cancel
               </button>
