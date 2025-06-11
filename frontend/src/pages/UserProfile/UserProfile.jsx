@@ -328,7 +328,6 @@ function UserProfile() {
       {/* Donations */}
       {activeTab === "donations" && (
         <div>
-          <h5 className="mb-4">Your Donations</h5>
           {donations.length > 0 ? (
             <>
               <div className="row">
