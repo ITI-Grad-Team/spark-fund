@@ -223,6 +223,33 @@ const About = () => {
             <img src="/Frame10.svg" alt="Vision section image" />
           </div>
         </div>
+
+        <div className="testimonials">
+          <img src="/Frame11.svg" alt="testimonials section image" />
+
+          <div className="testimonials-content">
+            <div className="testimonial">
+              <p>
+                I signed a petition about animals being left behind in BC`s
+                recent floods. Who ever wrote and inset the picture for this
+                narrative sure knows what pics to install to bring the response
+                they want home. Keep up your good work, You do a lot for causes,
+                which would go unaddressed. And forgotten, or just swept under
+                the rug.
+              </p>
+            </div>
+
+            <div className="user">
+              <img src="/testimonial-img.png" alt="user image" />
+
+              <div className="user-info">
+                <h6>Jack Burley</h6>
+
+                <p>Graphic Designer</p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </section>
   );

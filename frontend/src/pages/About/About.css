@@ -266,4 +266,22 @@
       }
     }
   }
+
+  .testimonials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 1300px;
+    margin: 0 auto;
+    padding-top: 10rem;
+    gap: 5rem;
+
+    img {
+      flex: 1;
+    }
+
+    .testimonials-content {
+      flex: 1;
+    }
+  }
 }
