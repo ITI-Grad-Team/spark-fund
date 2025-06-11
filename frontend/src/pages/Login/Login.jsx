@@ -106,7 +106,20 @@ const Login = () => {
                   className="btn btn-primary w-100 mb-3"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Logging in..." : "Login"}
+                  {isSubmitting ? (
+                    
+                    <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Logging in...
+                    </>
+                    
+                  ): (
+                    "Login"
+                  )}
                 </button>
 
                 <div className="google-login justify-content-center mb-3 w-100">

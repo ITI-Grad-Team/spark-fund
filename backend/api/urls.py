@@ -38,7 +38,7 @@ urlpatterns = [
         name="comment-add-reply",
     ),
     path("register/", views.RegisterView.as_view(), name="register"),
-    path("login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("login/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("google-login/", views.GoogleAuthView.as_view(), name="google_register"),
     path(
@@ -82,6 +82,7 @@ urlpatterns = [
     ),
     path('customuser/me/', views.CurrentUserView.as_view(), name='current_user'),
     path('my-donations/', views.MyDonationsAPIView.as_view(), name='my-donations'),
+    path("change-password/", views.ChangePasswordView.as_view(), name="change-password"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
 ]
 

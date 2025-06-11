@@ -5,6 +5,7 @@ from api.models import CustomUser
 from .models import Project, Tag, Category, ProjectImage, Reply, Comment,ProjectReport,CommentReport,ProjectRating,Donation
 from django.contrib.auth import get_user_model
 from rest_framework.fields import ListField
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -176,3 +177,18 @@ class DonationSerializer(serializers.ModelSerializer):
         model = Donation
         fields = ['id', 'user', 'project', 'amount', 'created_at', 'project_title']
         read_only_fields = ['user', 'created_at']
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user = self.user
+
+        if self.user.is_deleted:
+            raise serializers.ValidationError(
+                {"detail": "This account has been deleted."},
+                code="account_deleted"
+            )
+
+        return data

@@ -18,6 +18,12 @@ function UserProfile() {
   const [deleteError, setDeleteError] = useState("");
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const user_id = localStorage.getItem("user_id");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     axiosInstance.get(`/customuser/${id}/`).then((res) => {
@@ -57,6 +63,17 @@ function UserProfile() {
     });
   }, [id]);
 
+  useEffect(() => {
+  if (passwordSuccess || passwordError) {
+    const timer = setTimeout(() => {
+      setPasswordSuccess("");
+      setPasswordError("");
+    }, 3000);
+
+    return () => clearTimeout(timer); 
+  }
+}, [passwordSuccess, passwordError]);
+
   const handleEdit = () => {
     const updatedForm = new FormData();
 
@@ -65,7 +82,7 @@ function UserProfile() {
         updatedForm.append(key, formData[key]);
       }
     }
-
+    setIsSaving(true);
     axiosInstance
       .patch(`/update-user/${id}/`, updatedForm, {
         headers: {
@@ -75,6 +92,7 @@ function UserProfile() {
       .then((res) => {
         setUser(res.data);
         setEditMode(false);
+        setIsSaving(false);
       });
   };
 
@@ -84,11 +102,9 @@ function UserProfile() {
     setDeleteSuccess(false);
 
     axiosInstance
-      .delete(`/update-user/${id}/`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        data: { password: deletePassword },
+      .patch(`/update-user/${id}/`, {
+        is_deleted: true,
+        password: deletePassword,
       })
       .then(() => {
         setDeleteSuccess(true);
@@ -108,6 +124,30 @@ function UserProfile() {
       .finally(() => {
         setIsDeleting(false);
       });
+  };
+
+  const handleChangePassword = () => {
+    setIsChangingPassword(true);
+    axiosInstance
+      .post("/change-password/", {
+        current_password: currentPassword,
+        new_password: newPassword,
+      })
+      .then((res) => {
+        setPasswordSuccess(res.data.detail);
+        setPasswordError("");
+        setCurrentPassword("");
+        setNewPassword("");
+      })
+      .catch((err) => {
+        setPasswordError(
+          err.response?.data?.detail || "Error changing password"
+        );
+        setPasswordSuccess("");
+      })
+      .finally(() => {
+        setIsChangingPassword(false);
+      })
   };
 
   if (!user) return <div className="text-center my-5">Loading...</div>;
@@ -243,7 +283,18 @@ function UserProfile() {
               </div>
               <div className="d-flex gap-2">
                 <button className="btn btn-primary" onClick={handleEdit}>
-                  Save
+                  {isSaving ? (
+                    <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
                 </button>
                 <button
                   className="btn btn-secondary"
@@ -299,6 +350,53 @@ function UserProfile() {
                 >
                   Edit Profile
                 </button>
+              )}
+            </>
+          )}
+
+          {user_id === id && (
+            <>
+              <hr />
+              <h5>Change Password</h5>
+              <input
+                type="password"
+                className="form-control mb-2"
+                placeholder="Current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+              <input
+                type="password"
+                className="form-control mb-2"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <button
+                className="btn btn-outline-primary"
+                onClick={handleChangePassword}
+              >
+                {isChangingPassword ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Changing...
+                  </>
+                ) : (
+                  "Change Password"
+                )}
+              </button>
+
+              {passwordError && (
+                <div className="alert alert-danger mt-2">{passwordError}</div>
+              )}
+              {passwordSuccess && (
+                <div className="alert alert-success mt-2">
+                  {passwordSuccess}
+                </div>
               )}
             </>
           )}
