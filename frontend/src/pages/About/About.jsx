@@ -106,7 +106,45 @@ const About = () => {
           <img src="/Mask Group.png" alt="protest image" />
         </div>
 
-        <div></div>
+        <div className="values-background">
+          <div className="values">
+            <h2>Our Values</h2>
+
+            <div className="value">
+              <div className="first">
+                <span>01</span>
+
+                <h4>Make more value, not money.</h4>
+
+                <p>
+                  We focus on creative and delivering value to people across the
+                  world.
+                </p>
+              </div>
+
+              <div className="second">
+                <span>02</span>
+
+                <h4>Make it simple, not stressful.</h4>
+
+                <p>
+                  We make everything simple, clearly and accessible to everyone.
+                </p>
+              </div>
+
+              <div className="third">
+                <span>03</span>
+
+                <h4>Be human, not devil.</h4>
+
+                <p>
+                  We do the right things with love and sincerity to create
+                  sustainability.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
     </section>
   );
