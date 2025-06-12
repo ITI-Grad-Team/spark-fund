@@ -74,6 +74,14 @@ const CampaignWideCard = ({ project }) => {
               <img src="/comments 1.png" alt="Comments Icon" />{" "}
               {project.comments?.length || 0} comments
             </button>
+            <button className="tags-btn rating-button">
+              <img
+                className="rating-image"
+                src="/star-white-icon.png"
+                alt="Rating Icon"
+              />{" "}
+              {project.average_rating || 0}
+            </button>
           </div>
 
           <img

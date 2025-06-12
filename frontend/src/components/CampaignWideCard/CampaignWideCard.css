@@ -139,3 +139,14 @@
   object-fit: cover;
   border-radius: 20px 0px 0px 20px;
 }
+
+.rating-image {
+  width: 17px;
+  filter: brightness(0.93) contrast(1.1);
+  margin-bottom: 2px;
+}
+
+.rating-button {
+  background-color: #ffc20b !important;
+  color: whitesmoke !important;
+}
