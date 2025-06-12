@@ -419,242 +419,243 @@ const ProjectDetails = () => {
   console.log(tags_detail);
 
   return (
-    <div className="project-details">
-      <div className="project-header">
-        <h2>{title || "Untitled Project"}</h2>
-        {localStorage.getItem("access_token") && (
-          <button
-            onClick={() => setShowProjectReportForm((prev) => !prev)}
-            className={`report-button ${showProjectReportForm ? "active" : ""}`}
-          >
-            {showProjectReportForm ? "Cancel Report" : "Report Project"}
-          </button>
-        )}
-      </div>
-      {showProjectReportForm && (
-        <form onSubmit={handleProjectReportSubmit} className="report-form">
-          <h4>Report This Project</h4>
-          <textarea
-            rows={3}
-            value={projectReportReason}
-            onChange={(e) => setProjectReportReason(e.target.value)}
-            placeholder="Reason for reporting this project..."
-            required
-          />
-          <div className="form-actions">
-            <button type="submit" className="submit-button">
-              Submit Report
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowProjectReportForm(false)}
-              className="cancel-button"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+    <div className="container py-5">
+  <div className="card border-0 shadow-sm p-4 rounded-4" style={{ backgroundColor: "#fff" }}>
+    <div className="d-flex justify-content-between align-items-center mb-4">
+      <h2 className="fw-bold">{title || "Untitled Project"}</h2>
+      {localStorage.getItem("access_token") && (
+        <button
+          onClick={() => setShowProjectReportForm((prev) => !prev)}
+          className={`btn ${showProjectReportForm ? "btn-outline-secondary" : "btn-danger"} rounded-pill px-4`}
+        >
+          {showProjectReportForm ? "Cancel Report" : "Report Project"}
+        </button>
       )}
+    </div>
+
+    {showProjectReportForm && (
+      <form onSubmit={handleProjectReportSubmit} className="mb-4">
+        <h5 className="fw-semibold">Report This Project</h5>
+        <textarea
+          className="form-control mb-3 rounded-3"
+          rows={3}
+          value={projectReportReason}
+          onChange={(e) => setProjectReportReason(e.target.value)}
+          placeholder="Why are you reporting this project?"
+          required
+        />
+        <div className="d-flex gap-2">
+          <button type="submit" className="btn btn-danger rounded-pill px-4">Submit</button>
+          <button type="button" onClick={() => setShowProjectReportForm(false)} className="btn btn-outline-secondary rounded-pill px-4">Cancel</button>
+        </div>
+      </form>
+    )}
+
+    <div className="mb-3">
+      <p className="mb-1"><strong>Creator:</strong></p>
       {project_creator && (
-        <p>
-          <b>Creator: </b>
-          <Link to={`/user/${project_creator.id}`}>
-            {project_creator.username || "Unknown"}
-          </Link>
+        <div className="d-flex align-items-center gap-2">
           <img
             src={`http://127.0.0.1:8000${project_creator.profile_picture}`}
             alt="profile_pic"
+            className="rounded-circle"
+            style={{ width: "40px", height: "40px", objectFit: "cover" }}
           />
-        </p>
+          <Link to={`/user/${project_creator.id}`} className="text-decoration-none text-dark">
+            {project_creator.username}
+          </Link>
+        </div>
       )}
-      <p>
-        <b>Details:</b> {details || "No details available."}
-      </p>
-      <p>
-        <b>Total Target:</b> {total_target?.toLocaleString() || "N/A"}
-      </p>
-      <p>
-        <b>Donated:</b> {donation_amount?.toLocaleString() || "N/A"}
-      </p>
-      {localStorage.getItem("access_token") && (
-        <p>
-          <b>Your Donation:</b> {userDonation?.toLocaleString() || "N/A"}
-        </p>
-      )}
-      {category_detail && (
-        <p>
-          <b>Category:</b> {category_detail.name || "N/A"}
-        </p>
-      )}
-      <p>
-        <b>Tags:</b>{" "}
-        {tags_detail.length > 0
-          ? tags_detail.map((tag) => (
-              <span key={tag.id} className="tag">
-                {tag.name}
-              </span>
-            ))
-          : "No tags"}
-      </p>
-      <p>
-        <b>Start Date:</b>{" "}
-        {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
-      </p>
-      <p>
-        <b>End Date:</b>{" "}
-        {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}
-      </p>
-      <p>
-        <b>Average Rating:</b>{" "}
-        {average_rating !== null
-          ? parseFloat(average_rating).toFixed(1)
-          : "Not rated"}
-      </p>
-      {is_cancelled && (
-        <div className="cancelled-banner">PROJECT CANCELLED</div>
-      )}
-      {currentUserId === project_creator?.id && !is_cancelled && (
-        <>
-          <button
-            onClick={() => setShowCancelModal(true)}
-            disabled={canceling}
-            className="cancel-project-button"
-          >
-            {canceling ? "Canceling..." : "Cancel Project"}
-          </button>
+    </div>
 
-          <CancelProjectModal
-            show={showCancelModal}
-            onClose={() => setShowCancelModal(false)}
-            onConfirm={confirmCancel}
-            loading={canceling}
-            donationRatio={donationRatio}
-          />
-        </>
-      )}
-      <div className="rating-section">
-        {localStorage.getItem("access_token") ? (
-          !userRatingLoaded ? (
-            <p>Loading rating...</p>
-          ) : userRating !== null ? (
-            <p>You rated this project: {userRating} ⭐</p>
-          ) : (
-            <>
-              <select
-                value={rating}
-                onChange={(e) => setRating(parseInt(e.target.value))}
-              >
-                <option value={0}>Select rating</option>
-                {[1, 2, 3, 4, 5].map((num) => (
-                  <option key={num} value={num}>
-                    {"⭐".repeat(num)}
-                  </option>
-                ))}
-              </select>
-              <button onClick={handleRate} className="rate-button">
-                Submit Rating
-              </button>
-            </>
-          )
-        ) : null}
+    <p><strong>Details:</strong> {details || "No details available."}</p>
+
+    <div className="row text-center my-4">
+      <div className="col">
+        <div className="fw-bold fs-5">{total_target?.toLocaleString() || "0"}</div>
+        <div className="text-muted small">Target</div>
       </div>
-      {localStorage.getItem("access_token") &&
-        !project.is_cancelled &&
-        !(new Date(end_date) < Date.now()) && (
-          <div className="donation-section">
-            <h3>Donate to this project</h3>
+      <div className="col">
+        <div className="fw-bold fs-5 text-success">{donation_amount?.toLocaleString() || "0"}</div>
+        <div className="text-muted small">Donated</div>
+      </div>
+      {localStorage.getItem("access_token") && (
+        <div className="col">
+          <div className="fw-bold fs-5 text-primary">{userDonation?.toLocaleString() || "0"}</div>
+          <div className="text-muted small">Your Donation</div>
+        </div>
+      )}
+    </div>
+
+    <div className="mb-3">
+      <span className="fw-semibold me-2">Category:</span>
+      <span className="badge bg-secondary-subtle text-dark">{category_detail?.name || "N/A"}</span>
+    </div>
+
+    <div className="mb-3">
+      <span className="fw-semibold me-2">Tags:</span>
+      {tags_detail.length > 0 ? tags_detail.map((tag) => (
+        <span key={tag.id} className="badge bg-primary-subtle text-primary me-1 rounded-pill">
+          {tag.name}
+        </span>
+      )) : "No tags"}
+    </div>
+
+    <div className="mb-4 text-muted small">
+      <p className="mb-1">Start Date: {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}</p>
+      <p className="mb-1">End Date: {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}</p>
+      <p className="mb-1">Average Rating: {average_rating !== null ? parseFloat(average_rating).toFixed(1) : "Not rated"}</p>
+    </div>
+
+    {is_cancelled && (
+      <div className="alert alert-danger text-center rounded-3">🚫 This project is cancelled</div>
+    )}
+
+    {currentUserId === project_creator?.id && !is_cancelled && (
+      <>
+        <button
+          onClick={() => setShowCancelModal(true)}
+          disabled={canceling}
+          className="btn btn-warning rounded-pill px-4 mb-3"
+        >
+          {canceling ? "Canceling..." : "Cancel Project"}
+        </button>
+        <CancelProjectModal
+          show={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          onConfirm={confirmCancel}
+          loading={canceling}
+          donationRatio={donationRatio}
+        />
+      </>
+    )}
+
+    {/* Rating */}
+    <div className="mb-4">
+      {localStorage.getItem("access_token") && (
+        !userRatingLoaded ? (
+          <p>Loading rating...</p>
+        ) : userRating !== null ? (
+          <p>You rated this project: <strong>{userRating} ⭐</strong></p>
+        ) : (
+          <div className="d-flex align-items-center gap-2">
+            <select
+              value={rating}
+              onChange={(e) => setRating(parseInt(e.target.value))}
+              className="form-select w-auto"
+            >
+              <option value={0}>Select rating</option>
+              {[1, 2, 3, 4, 5].map((num) => (
+                <option key={num} value={num}>
+                  {"⭐".repeat(num)}
+                </option>
+              ))}
+            </select>
+            <button onClick={handleRate} className="btn btn-success rounded-pill px-4">
+              Submit
+            </button>
+          </div>
+        )
+      )}
+    </div>
+
+    {/* Donation */}
+    {localStorage.getItem("access_token") &&
+      !project.is_cancelled &&
+      !(new Date(end_date) < Date.now()) && (
+        <div className="mb-4">
+          <h5 className="fw-semibold">Support this project</h5>
+          <div className="d-flex gap-2">
             <input
               type="number"
               min="1"
               step="1"
               value={donationAmount}
               onChange={(e) => setDonationAmount(e.target.value)}
-              placeholder="Enter donation amount"
+              placeholder="Amount"
+              className="form-control w-auto"
             />
-            <button onClick={handleDonate} className="donate-button">
+            <button onClick={handleDonate} className="btn btn-primary rounded-pill px-4">
               Donate
             </button>
           </div>
-        )}
-      {new Date(end_date) < Date.now() && <p>PROJECT CLOSED</p>}
-      {images.length > 0 && (
-        <div className="project-images">
-          <h3>Images</h3>
-          <div className="images-grid">
-            {images.map((img) => (
+        </div>
+      )}
+
+    {new Date(end_date) < Date.now() && (
+      <div className="alert alert-info text-center rounded-3">📌 Project has ended</div>
+    )}
+
+    {/* Images */}
+    {images.length > 0 && (
+      <div className="mt-4">
+        <h5>Project Images</h5>
+        <div className="row">
+          {images.map((img) => (
+            <div className="col-md-3 mb-3" key={img.id}>
               <img
-                key={img.id}
-                src={
-                  img.image.startsWith("http")
-                    ? img.image
-                    : `http://localhost:8000${img.image}`
-                }
-                alt={`Project ${title}`}
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.style.display = "none";
-                }}
+                src={img.image.startsWith("http") ? img.image : `http://localhost:8000${img.image}`}
+                alt={title}
+                className="img-fluid rounded-3"
               />
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      )}
-      {localStorage.getItem("access_token") && (
-        <div className="comments-section">
-          <h3>Comments</h3>
-          {comments.length === 0 ? (
-            <p>No comments yet. Be the first to comment!</p>
-          ) : (
-            comments.map((comment) => (
-              <Comment
-                key={comment.id}
-                comment={comment}
-                refreshProject={fetchProject}
-              />
-            ))
-          )}
+      </div>
+    )}
 
-          <form onSubmit={handleAddComment} className="add-comment-form">
-            <h4>Add a Comment</h4>
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Write your comment..."
-              rows={3}
-              required
-            />
-            <button type="submit" className="submit-button">
-              Post Comment
-            </button>
-          </form>
-        </div>
-      )}
+    {/* Comments */}
+    {localStorage.getItem("access_token") && (
+      <div className="mt-4">
+        <h5>Comments</h5>
+        {comments.length === 0 ? (
+          <p className="text-muted">No comments yet.</p>
+        ) : (
+          comments.map((comment) => (
+            <Comment key={comment.id} comment={comment} refreshProject={fetchProject} />
+          ))
+        )}
+        <form onSubmit={handleAddComment} className="mt-3">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Add your comment..."
+            rows={3}
+            required
+            className="form-control mb-2 rounded-3"
+          />
+          <button type="submit" className="btn btn-success rounded-pill px-4">Post Comment</button>
+        </form>
+      </div>
+    )}
 
-      {Object.keys(similarProjectsByTag).length > 0 && (
-        <div className="similar-projects">
-          <h3>Similar Projects</h3>
-          {loadingSimilar ? (
-            <div>Loading similar projects...</div>
-          ) : (
-            Object.entries(similarProjectsByTag).map(
-              ([tagName, projects]) =>
-                projects.length > 0 && (
-                  <div key={tagName}>
-                    <h4>{tagName}</h4>
-                    <div className="row">
-                      {projects.map((project) => (
-                        <div className="col-md-3 mb-4" key={project.id}>
-                          <CampaignSmallCard project={project} />
-                        </div>
-                      ))}
+    {/* Similar Projects */}
+    {Object.keys(similarProjectsByTag).length > 0 && (
+      <div className="mt-5">
+        <h5>Similar Projects</h5>
+        {loadingSimilar ? (
+          <p>Loading...</p>
+        ) : (
+          Object.entries(similarProjectsByTag).map(([tagName, projects]) =>
+            projects.length > 0 ? (
+              <div key={tagName} className="mb-4">
+                <h6 className="fw-semibold">{tagName}</h6>
+                <div className="row">
+                  {projects.map((project) => (
+                    <div className="col-md-3 mb-3" key={project.id}>
+                      <CampaignSmallCard project={project} />
                     </div>
-                  </div>
-                )
-            )
-          )}
-        </div>
-      )}
-    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null
+          )
+        )}
+      </div>
+    )}
+  </div>
+</div>
+
   );
 };
 
