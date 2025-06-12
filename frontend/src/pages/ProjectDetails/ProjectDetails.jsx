@@ -461,6 +461,10 @@ const ProjectDetails = () => {
           <Link to={`/user/${project_creator.id}`}>
             {project_creator.username || "Unknown"}
           </Link>
+          <img
+            src={`http://127.0.0.1:8000${project_creator.profile_picture}`}
+            alt="profile_pic"
+          />
         </p>
       )}
       <p>

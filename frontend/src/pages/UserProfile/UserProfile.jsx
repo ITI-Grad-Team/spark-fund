@@ -56,7 +56,6 @@ function UserProfile() {
     });
   }, [id]);
 
-
   const handleEdit = () => {
     const updatedForm = new FormData();
 
@@ -296,7 +295,6 @@ function UserProfile() {
               </button>
             </>
           )}
-
           <hr />
           <h5>Delete Account</h5>
           <input

@@ -68,7 +68,7 @@ class TagSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username'] 
+        fields = ['id', 'username', 'profile_picture'] 
 
 
 class CategorySerializer(serializers.ModelSerializer):
