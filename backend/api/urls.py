@@ -84,6 +84,7 @@ urlpatterns = [
     path('my-donations/', views.MyDonationsAPIView.as_view(), name='my-donations'),
     path("change-password/", views.ChangePasswordView.as_view(), name="change-password"),
     path("logout/", views.LogoutView.as_view(), name="logout"),
+    path('category-names/', views.CategoryNamesAPIView.as_view(), name='category-names'),
 ]
 
 if settings.DEBUG:

@@ -196,6 +196,10 @@ class ProjectAPIView(APIView):
         if tag_name:
             projects = projects.filter(tags__name__iexact=tag_name)
 
+        category_name = request.query_params.get("category")
+        if category_name:
+            projects = projects.filter(category__name__iexact=category_name)
+
         limit = request.query_params.get("limit")
         if limit and limit.isdigit():
             projects = projects[:int(limit)]
@@ -544,3 +548,9 @@ class ChangePasswordView(APIView):
         user.save()
 
         return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
+    
+    
+class CategoryNamesAPIView(APIView):
+    def get(self, request):
+        categories = Category.objects.all().order_by('name').values_list('name', flat=True)
+        return Response(list(categories))

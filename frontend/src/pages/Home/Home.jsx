@@ -16,6 +16,7 @@ const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const lastFive = [...projects]
     .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
@@ -28,15 +29,20 @@ const Home = () => {
     .slice(0, 5);
 
   useEffect(() => {
-      setLoading(true);
-      axiosInstance
-        .get("/projects")
-        .then((res) => {
-          setProjects(res.data);
-          console.log(res.data);
-        })
-        .catch(console.error)
-        .finally(() => setLoading(false));
+    axiosInstance.get("/category-names/").then((res) => {
+      setCategories(res.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    axiosInstance
+      .get("/projects")
+      .then((res) => {
+        setProjects(res.data);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -93,9 +99,7 @@ const Home = () => {
           </div>
         )}
       </section>
-
       <CampaignDesc />
-
       <div className="campaigns container">
         <SectionHeader
           header="Your voice matters"
@@ -124,6 +128,20 @@ const Home = () => {
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
       </div>
+
+      {/* style me */}
+      <section className="container">
+        <h2>Categories</h2>
+        <div>
+          {console.log(categories)}
+          {categories.map((category) => (
+            <Link to={`/projects/?category=${category}`}>
+              <button>{category}</button>
+            </Link>
+          ))}
+        </div>
+      </section>
+      {/* style me */}
 
       <section className="role container">
         <section className="col-1">
@@ -164,7 +182,6 @@ const Home = () => {
           </Link>
         </section>
       </section>
-
       <section className="getting-started container">
         <div>
           <SectionHeader
@@ -205,7 +222,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
       <section className="cta container">
         <section className="cta-content">
           <h2>Start one today!</h2>
