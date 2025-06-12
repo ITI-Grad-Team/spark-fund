@@ -31,7 +31,6 @@ from django.db.models import Sum
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
