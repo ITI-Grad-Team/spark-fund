@@ -22,10 +22,14 @@ const Home = () => {
     .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
     .slice(0, 5);
 
-  const topFiveByDonation = [...projects]
-    .sort(
-      (a, b) => parseFloat(b.donation_amount) - parseFloat(a.donation_amount)
+  const currentDate = new Date();
+
+  const topRated = [...projects]
+    .filter(
+      (project) =>
+        !project.is_cancelled && new Date(project.end_date) > currentDate
     )
+    .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 5);
 
   useEffect(() => {
@@ -90,7 +94,7 @@ const Home = () => {
               spaceBetween={20}
               slidesPerView={1}
             >
-              {topFiveByDonation.map((project) => (
+              {topRated.map((project) => (
                 <SwiperSlide key={project.id}>
                   <CampaignWideCard project={project} />
                 </SwiperSlide>
@@ -134,8 +138,8 @@ const Home = () => {
         <h2>Categories</h2>
         <div>
           {console.log(categories)}
-          {categories.map((category) => (
-            <Link to={`/projects/?category=${category}`}>
+          {categories.map((category, index) => (
+            <Link key={index} to={`/projects/?category=${category}`}>
               <button>{category}</button>
             </Link>
           ))}
