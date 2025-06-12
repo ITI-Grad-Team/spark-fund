@@ -123,3 +123,19 @@
     }
   }
 }
+
+.owner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-image {
+  width: 300px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 20px 0px 0px 20px;
+}
