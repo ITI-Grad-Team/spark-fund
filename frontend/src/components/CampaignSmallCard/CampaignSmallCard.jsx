@@ -69,10 +69,12 @@ const CampaignSmallCard = ({ project }) => {
           </div>
         </div>
 
-        <progress
-          value={project.donation_amount}
-          max={project.total_target}
-        ></progress>
+        <div className="card-progress">
+          <progress
+            value={project.donation_amount}
+            max={project.total_target}
+          ></progress>
+        </div>
       </div>
     </section>
   );
