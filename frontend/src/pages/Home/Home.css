@@ -139,6 +139,32 @@
   display: flex;
 }
 
+.categories {
+  .categories-card {
+    margin-top: 5rem;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+
+    button {
+      width: 10rem;
+      height: 10rem;
+      outline: none;
+      border: none;
+      background-color: #6059c9;
+      border-radius: 10px;
+      font-size: 18px;
+      font-weight: 700;
+      place-self: center;
+
+      a {
+        text-decoration: none;
+        color: #fffcf7;
+      }
+    }
+  }
+}
+
 .role {
   display: flex;
   align-items: center;

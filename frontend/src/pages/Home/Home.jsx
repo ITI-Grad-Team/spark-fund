@@ -103,7 +103,24 @@ const Home = () => {
           </div>
         )}
       </section>
+
       <CampaignDesc />
+
+      <section className="container categories">
+        <SectionHeader
+          header="Browse Campaigns"
+          paragraph="See Your Desired Campaigns Based on There categories."
+        />
+
+        <div className="categories-card">
+          {categories.map((category, index) => (
+            <button key={index}>
+              <Link to={`/projects/?category=${category}`}>{category}</Link>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="campaigns container">
         <SectionHeader
           header="Your voice matters"
@@ -132,20 +149,6 @@ const Home = () => {
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
       </div>
-
-      {/* style me */}
-      <section className="container">
-        <h2>Categories</h2>
-        <div>
-          {console.log(categories)}
-          {categories.map((category, index) => (
-            <Link key={index} to={`/projects/?category=${category}`}>
-              <button>{category}</button>
-            </Link>
-          ))}
-        </div>
-      </section>
-      {/* style me */}
 
       <section className="role container">
         <section className="col-1">
