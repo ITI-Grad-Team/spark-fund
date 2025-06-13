@@ -40,11 +40,12 @@
     p {
       font-size: 16px;
       color: #5f5f75;
+      height: 6rem;
     }
 
     progress {
       width: 100%;
-      height: 8px;
+      height: 4px;
       border-radius: 50px;
       border: none;
       background-color: #f2eae1;

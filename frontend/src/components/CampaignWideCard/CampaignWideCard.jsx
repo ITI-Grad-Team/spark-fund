@@ -50,13 +50,13 @@ const CampaignWideCard = ({ project }) => {
         <h2>{project.title}</h2>
 
         <p>{project.details}</p>
-        {/* 
+
         <div>
           <h3>
             <img src="/map-marker 1.png" alt="Map Marker image" /> Division No.
             6, AB, CA
           </h3>
-        </div> */}
+        </div>
 
         <progress value={donationPercentage} max="100"></progress>
 
@@ -74,6 +74,7 @@ const CampaignWideCard = ({ project }) => {
               <img src="/comments 1.png" alt="Comments Icon" />{" "}
               {project.comments?.length || 0} comments
             </button>
+
             <button className="tags-btn rating-button">
               <img
                 className="rating-image"
