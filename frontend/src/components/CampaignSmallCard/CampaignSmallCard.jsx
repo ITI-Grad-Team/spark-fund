@@ -20,7 +20,7 @@ const CampaignSmallCard = ({ project }) => {
 
   const userProfilePic = project.project_creator?.profile_picture
     ? `http://127.0.0.1:8000${project.project_creator.profile_picture}`
-    : "../../../public/Ellipse 53.png";
+    : "../../../public/profile-blank.png";
 
   return (
     <section
@@ -63,7 +63,7 @@ const CampaignSmallCard = ({ project }) => {
               alt="campaign owner"
               className="profile-picture"
               onError={(e) => {
-                e.target.src = "../../../public/Ellipse 53.png";
+                e.target.src = "../../../public/profile-blank.png";
               }}
             />
           </div>

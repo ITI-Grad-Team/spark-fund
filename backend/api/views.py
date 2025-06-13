@@ -30,6 +30,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.db.models import Sum
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.db.models import Q
 
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -199,9 +200,26 @@ class ProjectAPIView(APIView):
         if category_name:
             projects = projects.filter(category__name__iexact=category_name)
 
+        search_query = request.query_params.get("search")
+        search_in_title = request.query_params.get("title") == "true"
+        search_in_tags = request.query_params.get("tags") == "true"
+
+        if search_query:
+            q = Q()
+            if search_in_title:
+                q |= Q(title__icontains=search_query)
+            if search_in_tags:
+                q |= Q(tags__name__icontains=search_query)
+            if q:
+                projects = projects.filter(q).distinct()
+
+
         limit = request.query_params.get("limit")
         if limit and limit.isdigit():
             projects = projects[:int(limit)]
+
+        
+
 
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)

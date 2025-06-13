@@ -63,7 +63,7 @@ const Navbar = () => {
         </div>
 
         <div className="navbar-col-2">
-          <Link className="search-btn" to="/">
+          <Link className="search-btn" to="/projects">
             <img src="/search.svg" alt="search icon" /> Search
           </Link>
           <Link to="/">Home</Link>
