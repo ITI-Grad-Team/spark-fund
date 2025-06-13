@@ -70,7 +70,6 @@ const Navbar = () => {
           <Link to="/projects">Campaigns</Link>
           <Link to="/about">About</Link>
           <Link to="/">Contact</Link>
-          <Link to="/">Blog</Link>
           <div>
             <Link to="/create/">
               <button className="create-btn">
