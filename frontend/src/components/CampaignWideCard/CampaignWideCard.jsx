@@ -20,7 +20,7 @@ const CampaignWideCard = ({ project }) => {
 
   const userProfilePic = project.project_creator?.profile_picture
     ? `http://127.0.0.1:8000${project.project_creator.profile_picture}`
-    : "/Ellipse 53.png";
+    : "/profile-blank.png";
 
   return (
     <section
@@ -34,6 +34,7 @@ const CampaignWideCard = ({ project }) => {
           src={projectImage}
           alt={project.title}
           onError={(e) => {
+            e.target.onerror = null;
             e.target.src = "/Rectangle.png";
           }}
         />
@@ -90,7 +91,8 @@ const CampaignWideCard = ({ project }) => {
             src={userProfilePic}
             alt="campaign owner"
             onError={(e) => {
-              e.target.src = "/Ellipse 53.png";
+              e.target.onerror = null;
+              e.target.src = "/profile-blank.png";
             }}
           />
         </div>
