@@ -79,19 +79,17 @@
             border: none;
             border-radius: 8px;
           }
-
-          
         }
       }
     }
     .profile-picture {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          }
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
     .card-progress {
       display: flex;
@@ -123,4 +121,19 @@
       }
     }
   }
+}
+
+.rating-image {
+  width: 17px;
+  filter: brightness(0.93) contrast(1.1);
+  margin-bottom: 2px;
+}
+
+.lock-image {
+  width: 28px;
+}
+
+.rating-button {
+  background-color: #ffc20b !important;
+  color: whitesmoke !important;
 }
