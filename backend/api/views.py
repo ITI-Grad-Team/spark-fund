@@ -357,6 +357,7 @@ class ProjectCreateView(generics.CreateAPIView):
 
 
 class ProjectAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request, id=None):
         if id:
             project = get_object_or_404(
@@ -524,7 +525,7 @@ class UserDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     lookup_field = "id"
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class CommentReportView(APIView):
