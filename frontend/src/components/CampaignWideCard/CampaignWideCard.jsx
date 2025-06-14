@@ -63,7 +63,7 @@ const CampaignWideCard = ({ project }) => {
         <div className="campaign-details">
           <div className="btns">
             <button className="users-btn">
-              <img src="/user 1.png" alt="User icon" />{" "}
+              <strong>$ </strong>
               {donationPercentage.toFixed(0)}% funded
             </button>
             <button className="tags-btn">
