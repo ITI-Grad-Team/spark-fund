@@ -29,6 +29,10 @@
     gap: 2rem;
     margin-top: 3rem;
 
+    a {
+      text-decoration: none;
+    }
+
     .started-btn {
       background-color: #6059c9;
       color: #fffcf7;

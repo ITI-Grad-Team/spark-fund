@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
 import "./ProjectDetails.css";
@@ -37,7 +37,8 @@ const Reply = ({ reply }) => {
 };
 
 // Comment Component
-const Comment = ({ comment, updateCommentReplies }) => { // Changed refreshProject to updateCommentReplies
+const Comment = ({ comment, updateCommentReplies }) => {
+  // Changed refreshProject to updateCommentReplies
   const [replyContent, setReplyContent] = useState("");
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [showCommentReportForm, setShowCommentReportForm] = useState(false);
@@ -48,9 +49,12 @@ const Comment = ({ comment, updateCommentReplies }) => { // Changed refreshProje
     if (!replyContent.trim()) return;
 
     try {
-      const response = await axiosInstance.post(`/comments/${comment.id}/reply/`, {
-        content: replyContent,
-      });
+      const response = await axiosInstance.post(
+        `/comments/${comment.id}/reply/`,
+        {
+          content: replyContent,
+        }
+      );
       // Optimistically update replies
       updateCommentReplies(comment.id, response.data); // Call the new function
       setReplyContent("");
@@ -310,21 +314,21 @@ const ProjectDetails = () => {
 
   // New function to update replies for a specific comment
   const updateCommentReplies = useCallback((commentId, newReply) => {
-    setProject(prevProject => {
+    setProject((prevProject) => {
       if (!prevProject) return prevProject;
 
-      const updatedComments = prevProject.comments.map(comment => {
+      const updatedComments = prevProject.comments.map((comment) => {
         if (comment.id === commentId) {
           return {
             ...comment,
-            replies: [...(comment.replies || []), newReply]
+            replies: [...(comment.replies || []), newReply],
           };
         }
         return comment;
       });
       return {
         ...prevProject,
-        comments: updatedComments
+        comments: updatedComments,
       };
     });
   }, []);
@@ -335,13 +339,16 @@ const ProjectDetails = () => {
 
     try {
       // Get the new comment from the API response
-      const response = await axiosInstance.post(`/projects/${projectId}/comment/`, {
-        content: newComment,
-      });
+      const response = await axiosInstance.post(
+        `/projects/${projectId}/comment/`,
+        {
+          content: newComment,
+        }
+      );
 
-      setProject(prevProject => ({
+      setProject((prevProject) => ({
         ...prevProject,
-        comments: [...prevProject.comments, response.data]
+        comments: [...prevProject.comments, response.data],
       }));
 
       setNewComment("");
@@ -448,13 +455,18 @@ const ProjectDetails = () => {
 
   return (
     <div className="container py-5">
-      <div className="card border-0 shadow-sm p-4 rounded-4" style={{ backgroundColor: "#fff" }}>
+      <div
+        className="card border-0 shadow-sm p-4 rounded-4"
+        style={{ backgroundColor: "#fff" }}
+      >
         <div className="d-flex justify-content-between align-items-center mb-4">
           <h2 className="fw-bold">{title || "Untitled Project"}</h2>
           {localStorage.getItem("access_token") && (
             <button
               onClick={() => setShowProjectReportForm((prev) => !prev)}
-              className={`btn ${showProjectReportForm ? "btn-outline-secondary" : "btn-danger"} rounded-pill px-4`}
+              className={`btn ${
+                showProjectReportForm ? "btn-outline-secondary" : "btn-danger"
+              } rounded-pill px-4`}
             >
               {showProjectReportForm ? "Cancel Report" : "Report Project"}
             </button>
@@ -473,14 +485,27 @@ const ProjectDetails = () => {
               required
             />
             <div className="d-flex gap-2">
-              <button type="submit" className="btn btn-danger rounded-pill px-4">Submit</button>
-              <button type="button" onClick={() => setShowProjectReportForm(false)} className="btn btn-outline-secondary rounded-pill px-4">Cancel</button>
+              <button
+                type="submit"
+                className="btn btn-danger rounded-pill px-4"
+              >
+                Submit
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowProjectReportForm(false)}
+                className="btn btn-outline-secondary rounded-pill px-4"
+              >
+                Cancel
+              </button>
             </div>
           </form>
         )}
 
         <div className="mb-3">
-          <p className="mb-1"><strong>Creator:</strong></p>
+          <p className="mb-1">
+            <strong>Creator:</strong>
+          </p>
           {project_creator && (
             <div className="d-flex align-items-center gap-2">
               <img
@@ -489,27 +514,38 @@ const ProjectDetails = () => {
                 className="rounded-circle"
                 style={{ width: "40px", height: "40px", objectFit: "cover" }}
               />
-              <Link to={`/user/${project_creator.id}`} className="text-decoration-none text-dark">
+              <Link
+                to={`/user/${project_creator.id}`}
+                className="text-decoration-none text-dark"
+              >
                 {project_creator.username}
               </Link>
             </div>
           )}
         </div>
 
-        <p><strong>Details:</strong> {details || "No details available."}</p>
+        <p>
+          <strong>Details:</strong> {details || "No details available."}
+        </p>
 
         <div className="row text-center my-4">
           <div className="col">
-            <div className="fw-bold fs-5">{total_target?.toLocaleString() || "0"}</div>
+            <div className="fw-bold fs-5">
+              {total_target?.toLocaleString() || "0"}
+            </div>
             <div className="text-muted small">Target</div>
           </div>
           <div className="col">
-            <div className="fw-bold fs-5 text-success">{donation_amount?.toLocaleString() || "0"}</div>
+            <div className="fw-bold fs-5 text-success">
+              {donation_amount?.toLocaleString() || "0"}
+            </div>
             <div className="text-muted small">Donated</div>
           </div>
           {localStorage.getItem("access_token") && (
             <div className="col">
-              <div className="fw-bold fs-5 text-primary">{userDonation?.toLocaleString() || "0"}</div>
+              <div className="fw-bold fs-5 text-primary">
+                {userDonation?.toLocaleString() || "0"}
+              </div>
               <div className="text-muted small">Your Donation</div>
             </div>
           )}
@@ -517,26 +553,46 @@ const ProjectDetails = () => {
 
         <div className="mb-3">
           <span className="fw-semibold me-2">Category:</span>
-          <span className="badge bg-secondary-subtle text-dark">{category_detail?.name || "N/A"}</span>
+          <span className="badge bg-secondary-subtle text-dark">
+            {category_detail?.name || "N/A"}
+          </span>
         </div>
 
         <div className="mb-3">
           <span className="fw-semibold me-2">Tags:</span>
-          {tags_detail.length > 0 ? tags_detail.map((tag) => (
-            <span key={tag.id} className="badge bg-primary-subtle text-primary me-1 rounded-pill">
-              {tag.name}
-            </span>
-          )) : "No tags"}
+          {tags_detail.length > 0
+            ? tags_detail.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="badge bg-primary-subtle text-primary me-1 rounded-pill"
+                >
+                  {tag.name}
+                </span>
+              ))
+            : "No tags"}
         </div>
 
         <div className="mb-4 text-muted small">
-          <p className="mb-1">Start Date: {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}</p>
-          <p className="mb-1">End Date: {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}</p>
-          <p className="mb-1">Average Rating: {average_rating !== null ? parseFloat(average_rating).toFixed(1) : "Not rated"}</p>
+          <p className="mb-1">
+            Start Date:{" "}
+            {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
+          </p>
+          <p className="mb-1">
+            End Date:{" "}
+            {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}
+          </p>
+          <p className="mb-1">
+            Average Rating:{" "}
+            {average_rating !== null
+              ? parseFloat(average_rating).toFixed(1)
+              : "Not rated"}
+          </p>
         </div>
 
         {is_cancelled && (
-          <div className="alert alert-danger text-center rounded-3">🚫 This project is cancelled</div>
+          <div className="alert alert-danger text-center rounded-3">
+            🚫 This project is cancelled
+          </div>
         )}
 
         {currentUserId === project_creator?.id && !is_cancelled && (
@@ -560,11 +616,13 @@ const ProjectDetails = () => {
 
         {/* Rating */}
         <div className="mb-4">
-          {localStorage.getItem("access_token") && (
-            !userRatingLoaded ? (
+          {localStorage.getItem("access_token") &&
+            (!userRatingLoaded ? (
               <p>Loading rating...</p>
             ) : userRating !== null ? (
-              <p>You rated this project: <strong>{userRating} ⭐</strong></p>
+              <p>
+                You rated this project: <strong>{userRating} ⭐</strong>
+              </p>
             ) : (
               <div className="d-flex align-items-center gap-2">
                 <select
@@ -579,12 +637,14 @@ const ProjectDetails = () => {
                     </option>
                   ))}
                 </select>
-                <button onClick={handleRate} className="btn btn-success rounded-pill px-4">
+                <button
+                  onClick={handleRate}
+                  className="btn btn-success rounded-pill px-4"
+                >
                   Submit
                 </button>
               </div>
-            )
-          )}
+            ))}
         </div>
 
         {/* Donation */}
@@ -603,7 +663,10 @@ const ProjectDetails = () => {
                   placeholder="Amount"
                   className="form-control w-auto"
                 />
-                <button onClick={handleDonate} className="btn btn-primary rounded-pill px-4">
+                <button
+                  onClick={handleDonate}
+                  className="btn btn-primary rounded-pill px-4"
+                >
                   Donate
                 </button>
               </div>
@@ -611,7 +674,9 @@ const ProjectDetails = () => {
           )}
 
         {new Date(end_date) < Date.now() && (
-          <div className="alert alert-info text-center rounded-3">📌 Project has ended</div>
+          <div className="alert alert-info text-center rounded-3">
+            📌 Project has ended
+          </div>
         )}
 
         {/* Images */}
@@ -622,7 +687,11 @@ const ProjectDetails = () => {
               {images.map((img) => (
                 <div className="col-md-3 mb-3" key={img.id}>
                   <img
-                    src={img.image.startsWith("http") ? img.image : `http://localhost:8000${img.image}`}
+                    src={
+                      img.image.startsWith("http")
+                        ? img.image
+                        : `http://localhost:8000${img.image}`
+                    }
                     alt={title}
                     className="img-fluid rounded-3"
                   />
@@ -640,7 +709,11 @@ const ProjectDetails = () => {
               <p className="text-muted">No comments yet.</p>
             ) : (
               comments.map((comment) => (
-                <Comment key={comment.id} comment={comment} updateCommentReplies={updateCommentReplies} /> 
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  updateCommentReplies={updateCommentReplies}
+                />
               ))
             )}
             <form onSubmit={handleAddComment} className="mt-3">
@@ -652,7 +725,12 @@ const ProjectDetails = () => {
                 required
                 className="form-control mb-2 rounded-3"
               />
-              <button type="submit" className="btn btn-success rounded-pill px-4">Post Comment</button>
+              <button
+                type="submit"
+                className="btn btn-success rounded-pill px-4"
+              >
+                Post Comment
+              </button>
             </form>
           </div>
         )}

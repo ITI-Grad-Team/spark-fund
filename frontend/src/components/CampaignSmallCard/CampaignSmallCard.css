@@ -47,7 +47,10 @@
       .description {
         font-size: 16px;
         color: #5f5f75;
-        height: 8.2rem;
+        height: 7.7rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.25rem;
       }
 
       .info {
@@ -77,19 +80,17 @@
             border: none;
             border-radius: 8px;
           }
-
-          
         }
       }
     }
     .profile-picture {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-          }
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
     .card-progress {
       display: flex;

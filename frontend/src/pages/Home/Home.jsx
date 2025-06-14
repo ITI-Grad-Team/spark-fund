@@ -72,7 +72,9 @@ const Home = () => {
             </Link>
           )}
 
-          <button className="learn-btn">Learn More</button>
+          <Link className="learn-btn" to="/about">
+            Learn More
+          </Link>
         </div>
 
         <img className="hero-image" src="/Frame.svg" alt="Hero image" />
