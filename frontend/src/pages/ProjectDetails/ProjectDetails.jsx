@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axiosInstance from "../../api/config";
 import "./ProjectDetails.css";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
-import "../../components/ProjectComment/ProjectComment"
+import "../../components/ProjectComment/ProjectComment";
 import ProjectComment from "../../components/ProjectComment/ProjectComment";
 
 // Utility function to get logged in user ID
@@ -18,157 +18,6 @@ function getLoggedInUserId() {
     return null;
   }
 }
-
-// Reply Component
-const Reply = ({ reply }) => {
-  if (!reply?.user) {
-    return <div className="error-message">Reply data is incomplete.</div>;
-  }
-
-  return (
-    <div className="reply">
-      <p>
-        <Link to={`/user/${reply.user.id}`}>
-          <strong>{reply.user.username || "Anonymous"}</strong>
-        </Link>
-        : {reply.content}
-      </p>
-      <small>Replied on: {new Date(reply.created_at).toLocaleString()}</small>
-    </div>
-  );
-};
-
-// Comment Component
-const Comment = ({ comment, updateCommentReplies }) => {
-  // Changed refreshProject to updateCommentReplies
-  const [replyContent, setReplyContent] = useState("");
-  const [showReplyForm, setShowReplyForm] = useState(false);
-  const [showCommentReportForm, setShowCommentReportForm] = useState(false);
-  const [commentReportReason, setCommentReportReason] = useState("");
-
-  const handleReplySubmit = async (e) => {
-    e.preventDefault();
-    if (!replyContent.trim()) return;
-
-    try {
-      const response = await axiosInstance.post(
-        `/comments/${comment.id}/reply/`,
-        {
-          content: replyContent,
-        }
-      );
-      // Optimistically update replies
-      updateCommentReplies(comment.id, response.data); // Call the new function
-      setReplyContent("");
-      setShowReplyForm(false);
-    } catch (err) {
-      console.error("Error adding reply:", err.response?.data || err.message);
-    }
-  };
-
-  const handleCommentReportSubmit = async (e) => {
-    e.preventDefault();
-    if (!commentReportReason.trim()) return;
-
-    try {
-      await axiosInstance.post(`/comments/${comment.id}/report/`, {
-        reason: commentReportReason,
-      });
-      setCommentReportReason("");
-      setShowCommentReportForm(false);
-    } catch (err) {
-      console.error(
-        "Error reporting comment:",
-        err.response?.data || err.message
-      );
-    }
-  };
-
-  if (!comment?.user) {
-    return <div className="error-message">Comment data is incomplete.</div>;
-  }
-
-  return (
-    <div className="comment">
-      <hr />
-      <div className="comment-header">
-        <p>
-          <Link to={`/user/${comment.user.id}`}>
-            <strong>{comment.user.username || "Anonymous"}</strong>
-          </Link>
-          : {comment.content}
-        </p>
-
-        <div className="comment-btns">
-          <button
-            onClick={() => setShowReplyForm((prev) => !prev)}
-            className="toggle-reply-button"
-          >
-            {showReplyForm ? "Cancel Reply" : "Reply"}
-          </button>
-
-          <button
-            onClick={() => setShowCommentReportForm((prev) => !prev)}
-            className={`report-btn ${showCommentReportForm ? "active" : ""}`}
-          >
-            {showCommentReportForm ? "Cancel Report" : "Report"}
-          </button>
-        </div>
-      </div>
-
-      <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
-
-      {showCommentReportForm && (
-        <form onSubmit={handleCommentReportSubmit} className="report-form">
-          <textarea
-            rows={2}
-            value={commentReportReason}
-            onChange={(e) => setCommentReportReason(e.target.value)}
-            placeholder="Reason for reporting this comment..."
-            required
-          />
-          <div className="form-actions">
-            <button type="submit" className="submit-button">
-              Submit Report
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowCommentReportForm(false)}
-              className="cancel-button"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {comment.replies?.length > 0 && (
-        <div className="replies-container">
-          {comment.replies.map((reply) => (
-            <div key={reply.id} className="reply">
-              <hr />
-              <Reply reply={reply} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {showReplyForm && (
-        <form onSubmit={handleReplySubmit} className="reply-form">
-          <textarea
-            rows={2}
-            value={replyContent}
-            onChange={(e) => setReplyContent(e.target.value)}
-            placeholder="Write your reply..."
-          />
-          <button type="submit" className="submit-button">
-            Post Reply
-          </button>
-        </form>
-      )}
-    </div>
-  );
-};
 
 // Cancel Project Modal
 const CancelProjectModal = ({
@@ -233,7 +82,6 @@ const ProjectDetails = () => {
   const [projectReportReason, setProjectReportReason] = useState("");
   const [similarProjectsByTag, setSimilarProjectsByTag] = useState({});
   const [loadingSimilar, setLoadingSimilar] = useState(false);
-
 
   useEffect(() => {
     if (project && project.tags_detail?.length > 0) {
@@ -471,7 +319,17 @@ const ProjectDetails = () => {
       <section className="container project-details">
         {/* Column 1 */}
         <div className="column-1">
-          <h2 className="campaign-header">{title || "Untitled Project"}</h2>
+          <div className="campaign-post mb-4 p-4 rounded-4 shadow-sm bg-white">
+            <h2 className="fw-bold fs-3 mb-3 text-dark">
+              {title || "Untitled Project"}
+            </h2>
+            <p
+              className="text-secondary fs-6"
+              style={{ whiteSpace: "pre-line" }}
+            >
+              {details || "No details available."}
+            </p>
+          </div>
 
           {/* Images */}
           {images.length > 0 && (
@@ -492,25 +350,27 @@ const ProjectDetails = () => {
             </div>
           )}
 
-          <p className="campaign-details">
-            {details || "No details available."}
-          </p>
-
           {/* Comments */}
           {localStorage.getItem("access_token") && (
             <div className="campaign-comments">
               <hr />
-              <h5>Comments:</h5>
+              <h5 className="mb-3">Comments</h5>
               {comments.length === 0 ? (
                 <p className="text-muted">No comments yet.</p>
               ) : (
-                comments.map((comment) => (
-                  <Comment
-                    key={comment.id}
-                    comment={comment}
-                    updateCommentReplies={updateCommentReplies}
-                  />
-                ))
+                <div className="vstack gap-3">
+                  {comments.map((comment) => (
+                    <div
+                      key={comment.id}
+                      className="p-3 rounded-4 border shadow-sm bg-light-subtle"
+                    >
+                      <ProjectComment
+                        comment={comment}
+                        updateCommentReplies={updateCommentReplies}
+                      />
+                    </div>
+                  ))}
+                </div>
               )}
               <form
                 onSubmit={handleAddComment}
@@ -529,32 +389,6 @@ const ProjectDetails = () => {
                   Post Comment
                 </button>
               </form>
-            </div>
-          )}
-
-          {/* Similar Projects */}
-          {Object.keys(similarProjectsByTag).length > 0 && (
-            <div className="mt-5">
-              <h5>Similar Projects</h5>
-              {loadingSimilar ? (
-                <p>Loading...</p>
-              ) : (
-                Object.entries(similarProjectsByTag).map(
-                  ([tagName, projects]) =>
-                    projects.length > 0 ? (
-                      <div key={tagName} className="mb-4">
-                        <h6 className="fw-semibold">{tagName}</h6>
-                        <div className="row">
-                          {projects.map((project) => (
-                            <div className="col-md-3 mb-3" key={project.id}>
-                              <CampaignSmallCard project={project} />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ) : null
-                )
-              )}
             </div>
           )}
         </div>
@@ -607,11 +441,11 @@ const ProjectDetails = () => {
                     className="text-decoration-none"
                   >
                     <img
-                      src={`${
-                        project_creator.profile_picture
-                          ? `http://127.0.0.1:8000${project_creator.profile_picture}`
-                          : `/user 1.png`
-                      } `}
+                      src={`http://localhost:8000${project_creator.profile_picture}`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/profile-blank.png";
+                      }}
                       alt="profile_pic"
                       className="rounded-circle main-background"
                       style={{
@@ -789,6 +623,30 @@ const ProjectDetails = () => {
               </form>
             )}
           </div>
+          {Object.keys(similarProjectsByTag).length > 0 && (
+            <div className="mt-5">
+              <h5 className="mb-3">Similar Projects</h5>
+              {loadingSimilar ? (
+                <p>Loading...</p>
+              ) : (
+                Object.entries(similarProjectsByTag).map(
+                  ([tagName, projects]) =>
+                    projects.length > 0 ? (
+                      <div key={tagName} className="mb-4">
+                        <h6 className="fw-semibold">{tagName}</h6>
+                        <div className="row">
+                          {projects.map((project) => (
+                            <div className="col-md-12 mb-3" key={project.id}>
+                              <CampaignSmallCard project={project} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                )
+              )}
+            </div>
+          )}
         </div>
       </section>
     </section>

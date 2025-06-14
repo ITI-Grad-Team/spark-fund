@@ -81,6 +81,7 @@ const Home = () => {
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
         {loading ? (
+          <center>
           <BarLoader
             color="#6059c9"
             size={80}
@@ -88,6 +89,7 @@ const Home = () => {
             aria-label="Loading Spinner"
             data-testid="loader"
           />
+          </center>
         ) : (
           <div className="home-carousel">
             <Swiper
@@ -131,6 +133,7 @@ const Home = () => {
 
         {loading ? (
           <div className="loader-wrapper">
+            <center>
             <BarLoader
               color="#6059c9"
               size={80}
@@ -138,7 +141,9 @@ const Home = () => {
               aria-label="Loading Spinner"
               data-testid="loader"
             />
+            </center>
           </div>
+          
         ) : (
           <div className="campaigns-grid">
             {lastFive.map((project) => (
