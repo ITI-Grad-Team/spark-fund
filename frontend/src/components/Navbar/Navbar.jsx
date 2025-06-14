@@ -13,21 +13,29 @@ const Navbar = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    setIsAuthenticated(!!token);
-  }, []);
-
-  useEffect(() => {
-    axiosInstance
-      .get("/customuser/me/")
-      .then((res) => {
-        setUser(res.data);
-        console.log("User data:", res.data.id);
-        localStorage.setItem("user_id", res.data.id);
-      })
-      .catch((err) => {
-        console.error("Error fetching current user:", err);
-      });
-  }, []);
+    if (token) {
+      setIsAuthenticated(true);
+      axiosInstance
+        .get("/customuser/me/")
+        .then((res) => {
+          setUser(res.data);
+          console.log("User data:", res.data.id);
+          localStorage.setItem("user_id", res.data.id);
+        })
+        .catch((err) => {
+          console.error("Error fetching current user:", err);
+          if (err.response?.status === 401) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            setIsAuthenticated(false);
+            navigate("/login");
+          }
+        });
+    } else {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  }, [navigate]);
 
   const handleLogout = async () => {
     setIsClicked(true);
@@ -36,14 +44,20 @@ const Navbar = () => {
       await axiosInstance.post("/logout/", { refresh_token: refreshToken });
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_id");
       setIsAuthenticated(false);
-      window.location.href = "/login";
+      setUser(null);
+      navigate("/login");
     } catch (error) {
       console.error("Logout error:", error);
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("user_id");
       setIsAuthenticated(false);
-      window.location.href = "/login";
+      setUser(null);
+      navigate("/login");
+    } finally {
+      setIsClicked(false);
     }
   };
 
@@ -54,14 +68,12 @@ const Navbar = () => {
           <Link className="navbar-brand" to="/">
             <img src="/navbar-logo.png" alt="Logo" />
           </Link>
-
           <div className="language">
             <button>
               <img src="/language.svg" alt="Language icon" /> Global
             </button>
           </div>
         </div>
-
         <div className="navbar-col-2">
           <Link className="search-btn" to="/projects">
             <img src="/search.svg" alt="search icon" /> Search
@@ -78,34 +90,28 @@ const Navbar = () => {
             </Link>
           </div>
           <div className="sign-btns d-flex align-items-center gap-2">
-            {isAuthenticated ? (
+            {isAuthenticated && user ? (
               <>
                 <button className="logout-btn" onClick={handleLogout}>
-                  {isClicked ? (
-                    <ClipLoader color="white" size={20} />
-                  ) : (
-                    "Sign out"
-                  )}
+                  {isClicked ? <ClipLoader color="white" size={20} /> : "Sign out"}
                 </button>
-                {user && (
-                  <img
-                    src={
-                      user?.profile_picture
-                        ? `http://127.0.0.1:8000${user.profile_picture}`
-                        : "/profile-blank.png"
-                    }
-                    alt="Profile"
-                    className="rounded-circle"
-                    style={{
-                      width: 40,
-                      height: 40,
-                      objectFit: "cover",
-                      border: "1px solid #ccc",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => navigate(`/user/${user.id}`)}
-                  />
-                )}
+                <img
+                  src={
+                    user?.profile_picture
+                      ? `http://127.0.0.1:8000${user.profile_picture}`
+                      : "/profile-blank.png"
+                  }
+                  alt="Profile"
+                  className="rounded-circle"
+                  style={{
+                    width: 40,
+                    height: 40,
+                    objectFit: "cover",
+                    border: "1px solid #ccc",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate(`/user/${user.id}`)}
+                />
               </>
             ) : (
               <>

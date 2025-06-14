@@ -30,23 +30,26 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setIsSubmitting(true);
     try {
       const res = await axiosInstance.post("/auth/login/", {
         username: formData.username,
         password: formData.password,
       });
-
-      localStorage.setItem("access_token", res.data.access);
-      localStorage.setItem("refresh_token", res.data.refresh);
-      setAlert({ message: "Logged in successfully", type: "success" });
-      
-      window.location.href = "/";
+      console.log("Login response:", res.data); // Debug response
+      if (res.data.access && res.data.refresh) {
+        localStorage.setItem("access_token", res.data.access);
+        localStorage.setItem("refresh_token", res.data.refresh);
+        setAlert({ message: "Logged in successfully", type: "success" });
+        window.location.href = "/";
+      } else {
+        throw new Error("Invalid response format: access or refresh token missing");
+      }
     } catch (error) {
-      console.error("Login error:", error.response?.data);
+      console.error("Login error:", error.response?.data || error.message);
       if (
         error.response?.data?.non_field_errors?.includes(
           "No active account found with the given credentials"
@@ -63,7 +66,7 @@ const Login = () => {
           message:
             error.response?.data?.non_field_errors?.[0] ||
             error.response?.data?.detail ||
-            "Login failed",
+            "Login failed. Please check your credentials.",
           type: "danger",
         });
       }
@@ -72,6 +75,7 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
+
 
   const handleResendActivation = async () => {
     if (!resendEmail) {
@@ -151,17 +155,17 @@ const Login = () => {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    
+
                     <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Logging in...
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Logging in...
                     </>
-                    
-                  ): (
+
+                  ) : (
                     "Login"
                   )}
                 </button>

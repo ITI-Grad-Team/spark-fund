@@ -26,8 +26,13 @@ from .views import (
     UserDonationAmount,
     PasswordResetRequestView,
     PasswordResetConfirmView,
+    CurrentUserView,
+    MyDonationsAPIView,
+    ChangePasswordView,
+    CategoryNamesAPIView,
+    CustomTokenObtainPairView,
 )
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
     path("users/", CustomUserAPIView.as_view(), name="users"),
@@ -60,10 +65,6 @@ urlpatterns = [
         ProjectDonateAPIView.as_view(),
         name="project_donate",
     ),
-    path("register/", views.RegisterView.as_view(), name="register"),
-    path("login/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("google-login/", views.GoogleAuthView.as_view(), name="google_register"),
     path(
         "projects/<int:project_id>/report/",
         ProjectReportView.as_view(),
@@ -76,11 +77,9 @@ urlpatterns = [
         CommentReportView.as_view(),
         name="comment_report",
     ),
-    path("customuser/", views.UserListView.as_view(), name="user-list"),
-    path("customuser/<int:id>/", views.UserDetailView.as_view(), name="user-detail"),
-    path(
-        "update-user/<int:id>/", views.CustomUserAPIView.as_view(), name="update-user"
-    ),
+    path("customuser/", UserListView.as_view(), name="user-list"),
+    path("customuser/<int:id>/", UserDetailView.as_view(), name="user-detail"),
+    path("update-user/<int:id>/", CustomUserAPIView.as_view(), name="update-user"),
     path(
         "projects/<int:pk>/rating/", ProjectRatingView.as_view(), name="project_rating"
     ),
@@ -114,13 +113,16 @@ urlpatterns = [
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
     ),
-    path("customuser/me/", views.CurrentUserView.as_view(), name="current_user"),
-    path("my-donations/", views.MyDonationsAPIView.as_view(), name="my-donations"),
+    path("customuser/me/", CurrentUserView.as_view(), name="current_user"),
+    path("my-donations/", MyDonationsAPIView.as_view(), name="my-donations"),
+    path("change-password/", ChangePasswordView.as_view(), name="change-password"),
+    path("logout/", LogoutView.as_view(), name="logout"),
+    path("category-names/", CategoryNamesAPIView.as_view(), name="category-names"),
+    path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path(
-        "change-password/", views.ChangePasswordView.as_view(), name="change-password"
-    ),
-    path("logout/", views.LogoutView.as_view(), name="logout"),
-    path(
-        "category-names/", views.CategoryNamesAPIView.as_view(), name="category-names"
+        "token/custom/",
+        CustomTokenObtainPairView.as_view(),
+        name="custom_token_obtain_pair",
     ),
 ]
