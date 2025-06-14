@@ -22,6 +22,9 @@ const CampaignSmallCard = ({ project }) => {
     ? `http://127.0.0.1:8000${project.project_creator.profile_picture}`
     : "../../../public/profile-blank.png";
 
+  const isProjectClosedOrEnded =
+    project.is_cancelled || new Date(project.end_date) < new Date();
+
   return (
     <section
       className="small-card"
@@ -53,9 +56,23 @@ const CampaignSmallCard = ({ project }) => {
           <div className="info">
             <div className="btns">
               <button className="users-btn">
-                <img src="/user 1.png" alt="User icon" />{" "}
-                {donationPercentage.toFixed(0)}% funded
+                <strong>$</strong> {donationPercentage.toFixed(0)}% funded
               </button>
+              <button className="users-btn rating-button">
+                <img
+                  className="rating-image"
+                  src="/star-white-icon.png"
+                  alt="Rating Icon"
+                />{" "}
+                {project.average_rating || 0}
+              </button>
+              {isProjectClosedOrEnded && (
+                <img
+                  className="lock-image"
+                  src="/lock_icon.png"
+                  alt="Closed Icon"
+                />
+              )}
             </div>
 
             <img
