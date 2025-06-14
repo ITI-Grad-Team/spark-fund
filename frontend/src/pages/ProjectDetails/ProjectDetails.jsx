@@ -19,7 +19,156 @@ function getLoggedInUserId() {
   }
 }
 
+// Reply Component
+const Reply = ({ reply }) => {
+  if (!reply?.user) {
+    return <div className="error-message">Reply data is incomplete.</div>;
+  }
 
+  return (
+    <div className="reply">
+      <p>
+        <Link to={`/user/${reply.user.id}`}>
+          <strong>{reply.user.username || "Anonymous"}</strong>
+        </Link>
+        : {reply.content}
+      </p>
+      <small>Replied on: {new Date(reply.created_at).toLocaleString()}</small>
+    </div>
+  );
+};
+
+// Comment Component
+const Comment = ({ comment, updateCommentReplies }) => {
+  // Changed refreshProject to updateCommentReplies
+  const [replyContent, setReplyContent] = useState("");
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showCommentReportForm, setShowCommentReportForm] = useState(false);
+  const [commentReportReason, setCommentReportReason] = useState("");
+
+  const handleReplySubmit = async (e) => {
+    e.preventDefault();
+    if (!replyContent.trim()) return;
+
+    try {
+      const response = await axiosInstance.post(
+        `/comments/${comment.id}/reply/`,
+        {
+          content: replyContent,
+        }
+      );
+      // Optimistically update replies
+      updateCommentReplies(comment.id, response.data); // Call the new function
+      setReplyContent("");
+      setShowReplyForm(false);
+    } catch (err) {
+      console.error("Error adding reply:", err.response?.data || err.message);
+    }
+  };
+
+  const handleCommentReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!commentReportReason.trim()) return;
+
+    try {
+      await axiosInstance.post(`/comments/${comment.id}/report/`, {
+        reason: commentReportReason,
+      });
+      setCommentReportReason("");
+      setShowCommentReportForm(false);
+    } catch (err) {
+      console.error(
+        "Error reporting comment:",
+        err.response?.data || err.message
+      );
+    }
+  };
+
+  if (!comment?.user) {
+    return <div className="error-message">Comment data is incomplete.</div>;
+  }
+
+  return (
+    <div className="comment">
+      <hr />
+      <div className="comment-header">
+        <p>
+          <Link to={`/user/${comment.user.id}`}>
+            <strong>{comment.user.username || "Anonymous"}</strong>
+          </Link>
+          : {comment.content}
+        </p>
+
+        <div className="comment-btns">
+          <button
+            onClick={() => setShowReplyForm((prev) => !prev)}
+            className="toggle-reply-button"
+          >
+            {showReplyForm ? "Cancel Reply" : "Reply"}
+          </button>
+
+          <button
+            onClick={() => setShowCommentReportForm((prev) => !prev)}
+            className={`report-btn ${showCommentReportForm ? "active" : ""}`}
+          >
+            {showCommentReportForm ? "Cancel Report" : "Report"}
+          </button>
+        </div>
+      </div>
+
+      <small>Posted on: {new Date(comment.created_at).toLocaleString()}</small>
+
+      {showCommentReportForm && (
+        <form onSubmit={handleCommentReportSubmit} className="report-form">
+          <textarea
+            rows={2}
+            value={commentReportReason}
+            onChange={(e) => setCommentReportReason(e.target.value)}
+            placeholder="Reason for reporting this comment..."
+            required
+          />
+          <div className="form-actions">
+            <button type="submit" className="submit-button">
+              Submit Report
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowCommentReportForm(false)}
+              className="cancel-button"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+
+      {comment.replies?.length > 0 && (
+        <div className="replies-container">
+          {comment.replies.map((reply) => (
+            <div key={reply.id} className="reply">
+              <hr />
+              <Reply reply={reply} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {showReplyForm && (
+        <form onSubmit={handleReplySubmit} className="reply-form">
+          <textarea
+            rows={2}
+            value={replyContent}
+            onChange={(e) => setReplyContent(e.target.value)}
+            placeholder="Write your reply..."
+          />
+          <button type="submit" className="submit-button">
+            Post Reply
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
 
 // Cancel Project Modal
 const CancelProjectModal = ({
@@ -79,7 +228,7 @@ const ProjectDetails = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
-  const [userDonation, setUserDonation] = useState(0);
+  // const [userDonation, setUserDonation] = useState(0);
   const [showProjectReportForm, setShowProjectReportForm] = useState(false);
   const [projectReportReason, setProjectReportReason] = useState("");
   const [similarProjectsByTag, setSimilarProjectsByTag] = useState({});
@@ -148,16 +297,16 @@ const ProjectDetails = () => {
     }
   }, [projectId]);
 
-  const fetchUserDonation = useCallback(async () => {
-    try {
-      const response = await axiosInstance.get(
-        `/projects/${projectId}/donation-amount/`
-      );
-      setUserDonation(response.data.donation_amount);
-    } catch (error) {
-      console.error("Error fetching user donation:", error);
-    }
-  }, [projectId]);
+  // const fetchUserDonation = useCallback(async () => {
+  //   try {
+  //     const response = await axiosInstance.get(
+  //       `/projects/${projectId}/donation-amount/`
+  //     );
+  //     setUserDonation(response.data.donation_amount);
+  //   } catch (error) {
+  //     console.error("Error fetching user donation:", error);
+  //   }
+  // }, [projectId]);
 
   useEffect(() => {
     setCurrentUserId(getLoggedInUserId());
@@ -167,9 +316,14 @@ const ProjectDetails = () => {
     if (projectId) {
       fetchProject();
       fetchUserRating();
-      fetchUserDonation();
+      // fetchUserDonation();
     }
-  }, [projectId, fetchProject, fetchUserRating, fetchUserDonation]);
+  }, [
+    projectId,
+    fetchProject,
+    fetchUserRating,
+    // fetchUserDonation
+  ]);
 
   // New function to update replies for a specific comment
   const updateCommentReplies = useCallback((commentId, newReply) => {
@@ -251,7 +405,7 @@ const ProjectDetails = () => {
       });
       setDonationAmount("");
       fetchProject();
-      fetchUserDonation();
+      // fetchUserDonation();
     } catch (err) {
       console.error("Donation error:", err.response?.data || err.message);
     }
@@ -313,191 +467,331 @@ const ProjectDetails = () => {
   console.log(tags_detail);
 
   return (
-    <div className="container py-4">
-  <div className="row justify-content-center">
-    {/* Left Column - Project Details */}
-    <div className="col-lg-8 mb-4">
-      <div
-        className="card shadow-sm rounded-4"
-        style={{ backgroundColor: "#f9f9f9" }}
-      >
-        {/* === Header === */}
-        <div className="d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
-          <div className="d-flex align-items-center gap-2">
-            <img
-              src={`http://127.0.0.1:8000${project_creator.profile_picture}`}
-              onError={(e) => (e.target.src = "/profile-blank.png")}
-              alt="profile"
-              className="rounded-circle"
-              style={{ width: "45px", height: "45px", objectFit: "cover" }}
-            />
-            <div>
-              <Link to={`/user/${project_creator.id}`} className="fw-semibold text-dark text-decoration-none">
-                {project_creator.username}
-              </Link>
-              <div className="text-muted small">
-                {new Date(start_date).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={() => setShowProjectReportForm((prev) => !prev)}
-            className="btn btn-sm btn-outline-secondary rounded-pill"
-          >
-            Report
-          </button>
-        </div>
+    <section className="container-fluid details-background">
+      <section className="container project-details">
+        {/* Column 1 */}
+        <div className="column-1">
+          <h2 className="campaign-header">{title || "Untitled Project"}</h2>
 
-        {/* === Body === */}
-        <div className="px-4 py-3">
-          <h3 className="fw-bold mb-2">{title}</h3>
-
+          {/* Images */}
           {images.length > 0 && (
-            <div className="mb-3">
-              <img
-                src={`http://localhost:8000${images[0].image}`}
-                alt={title}
-                className="img-fluid rounded-3 w-100"
-                style={{ maxHeight: "400px", objectFit: "cover" }}
-              />
+            <div className="campaign-images">
+              {images.map((img) => (
+                <div key={img.id}>
+                  <img
+                    src={
+                      img.image.startsWith("http")
+                        ? img.image
+                        : `http://localhost:8000${img.image}`
+                    }
+                    alt={title}
+                    className="img-fluid rounded-3"
+                  />
+                </div>
+              ))}
             </div>
           )}
 
-          <p className="text-muted">{details}</p>
-
-          <div className="bg-white rounded-3 p-3 shadow-sm mb-3 d-flex justify-content-around text-center">
-            <div>
-              <div className="fw-bold text-success">{donation_amount} EGP</div>
-              <small className="text-muted">Donated</small>
-            </div>
-            <div>
-              <div className="fw-bold">{total_target} EGP</div>
-              <small className="text-muted">Target</small>
-            </div>
-            <div>
-              <div className="fw-bold text-primary">{userDonation || 0} EGP</div>
-              <small className="text-muted">Your Donation</small>
-            </div>
-          </div>
-
-          {/* Rating + Donation */}
-          <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
-            <div>
-              <strong>Avg Rating:</strong>{" "}
-              {average_rating ? `${parseFloat(average_rating).toFixed(1)} ⭐` : "N/A"}
-            </div>
-
-            {userRating === null ? (
-              <div className="d-flex gap-2">
-                <select
-                  className="form-select form-select-sm"
-                  value={rating}
-                  onChange={(e) => setRating(Number(e.target.value))}
-                >
-                  <option value={0}>Rate</option>
-                  {[1, 2, 3, 4, 5].map((r) => (
-                    <option key={r} value={r}>
-                      {r} ⭐
-                    </option>
-                  ))}
-                </select>
-                <button className="btn btn-sm btn-success" onClick={handleRate}>
-                  Submit
-                </button>
-              </div>
-            ) : (
-              <div>You rated: {userRating} ⭐</div>
-            )}
-
-            <div className="ms-auto d-flex gap-2">
-              <input
-                type="number"
-                min={1}
-                value={donationAmount}
-                onChange={(e) => setDonationAmount(e.target.value)}
-                className="form-control form-control-sm w-50"
-                placeholder="EGP"
-              />
-              <button className="btn btn-sm btn-primary" onClick={handleDonate}>
-                Donate
-              </button>
-            </div>
-          </div>
-
-          <div className="mb-3">
-            <span className="fw-semibold me-2">Category:</span>
-            <span className="badge text-bg-light">{category_detail?.name}</span>
-          </div>
-
-          <div className="mb-4">
-            <span className="fw-semibold me-2">Tags:</span>
-            {tags_detail.map((tag) => (
-              <span key={tag.id} className="badge rounded-pill bg-secondary-subtle text-dark me-1">
-                #{tag.name}
-              </span>
-            ))}
-          </div>
+          <p className="campaign-details">
+            {details || "No details available."}
+          </p>
 
           {/* Comments */}
-          <div className="pt-3 border-top">
-            <h6 className="fw-bold mb-3">Comments</h6>
-            {comments.length === 0 ? (
-              <p className="text-muted">No comments yet. Be the first!</p>
-            ) : (
-              comments.map((comment) => (
-                <div key={comment.id} className="mb-3">
-                  <ProjectComment comment={comment} updateCommentReplies={updateCommentReplies} />
-                </div>
-              ))
-            )}
+          {localStorage.getItem("access_token") && (
+            <div className="campaign-comments">
+              <hr />
+              <h5>Comments:</h5>
+              {comments.length === 0 ? (
+                <p className="text-muted">No comments yet.</p>
+              ) : (
+                comments.map((comment) => (
+                  <Comment
+                    key={comment.id}
+                    comment={comment}
+                    updateCommentReplies={updateCommentReplies}
+                  />
+                ))
+              )}
+              <form
+                onSubmit={handleAddComment}
+                className="campaign-comments-form"
+              >
+                <textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add your comment..."
+                  rows={3}
+                  required
+                  className="form-control mb-2 rounded-3"
+                />
 
-            <form onSubmit={handleAddComment}>
-              <textarea
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-                className="form-control mb-2"
-                placeholder="Write a comment..."
-                rows="2"
-                required
-              />
-              <button type="submit" className="btn btn-sm btn-outline-success">
-                Comment
-              </button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+                <button type="submit" className="post-comment-btn">
+                  Post Comment
+                </button>
+              </form>
+            </div>
+          )}
 
-    {/* Right Column - Similar Projects */}
-    {Object.keys(similarProjectsByTag).length > 0 && (
-      <div className="col-lg-4">
-        <div className="sticky-top" style={{ top: "80px" }}>
-          <div className="card shadow-sm rounded-4 p-3">
-            <h5 className="fw-bold mb-3">Similar Projects</h5>
-            {loadingSimilar ? (
-              <p>Loading...</p>
-            ) : (
-              Object.entries(similarProjectsByTag).map(([tagName, projects]) =>
-                projects.length > 0 ? (
-                  <div key={tagName} className="mb-4">
-                    <h6 className="fw-semibold">{tagName}</h6>
-                    {projects.map((project) => (
-                      <div key={project.id} className="mb-2">
-                        <CampaignSmallCard project={project} />
+          {/* Similar Projects */}
+          {Object.keys(similarProjectsByTag).length > 0 && (
+            <div className="mt-5">
+              <h5>Similar Projects</h5>
+              {loadingSimilar ? (
+                <p>Loading...</p>
+              ) : (
+                Object.entries(similarProjectsByTag).map(
+                  ([tagName, projects]) =>
+                    projects.length > 0 ? (
+                      <div key={tagName} className="mb-4">
+                        <h6 className="fw-semibold">{tagName}</h6>
+                        <div className="row">
+                          {projects.map((project) => (
+                            <div className="col-md-3 mb-3" key={project.id}>
+                              <CampaignSmallCard project={project} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    ) : null
+                )
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Column 2 */}
+        <div className="column-2">
+          <div
+            className="column-2-content shadow"
+            style={{ backgroundColor: "#fff" }}
+          >
+            <div className="row text-center my-4">
+              <div className="col">
+                <div className="fw-bold fs-5">
+                  {total_target?.toLocaleString() || "0"}
+                </div>
+                <div className="text-muted small">Target</div>
+              </div>
+
+              <div className="col">
+                <div className="fw-bold fs-5 text-success">
+                  {donation_amount?.toLocaleString() || "0"}
+                </div>
+                <div className="text-muted small">Donated</div>
+              </div>
+
+              <div className="col">
+                <div className="fw-bold fs-5 text-warning">
+                  {average_rating !== null
+                    ? parseFloat(average_rating).toFixed(1)
+                    : "Not rated"}
+                </div>
+                <div className="text-muted small">Average Rating</div>
+              </div>
+
+              {/* {localStorage.getItem("access_token") && (
+                <div className="col">
+                  <div className="fw-bold fs-5 text-primary">
+                    {userDonation?.toLocaleString() || "0"}
                   </div>
-                ) : null
-              )
+                  <div className="text-muted small">Your Donation</div>
+                </div>
+              )} */}
+            </div>
+
+            <div className="campaign-creator d-flex align-items-center justify-content-between">
+              {project_creator && (
+                <div className="d-flex align-items-center gap-2">
+                  <Link
+                    to={`/user/${project_creator.id}`}
+                    className="text-decoration-none"
+                  >
+                    <img
+                      src={`${
+                        project_creator.profile_picture
+                          ? `http://127.0.0.1:8000${project_creator.profile_picture}`
+                          : `/user 1.png`
+                      } `}
+                      alt="profile_pic"
+                      className="rounded-circle main-background"
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        objectFit: "cover",
+                      }}
+                    />
+                    {project_creator.username}
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <div className="mb-3">
+              <span className="badge bg-secondary-subtle text-dark">
+                {category_detail?.name || "N/A"}
+              </span>
+            </div>
+
+            <div className="mb-3">
+              <span className="fw-semibold me-2">Tags:</span>
+              {tags_detail.length > 0
+                ? tags_detail.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="badge bg-primary-subtle text-primary me-1 rounded-pill"
+                    >
+                      {tag.name}
+                    </span>
+                  ))
+                : "No tags"}
+            </div>
+
+            <div className="mb-4 text-muted small d-flex align-items-center justify-content-between">
+              <p className="mb-1">
+                Start Date:{" "}
+                {start_date ? new Date(start_date).toLocaleDateString() : "N/A"}
+              </p>
+              <p className="mb-1">
+                End Date:{" "}
+                {end_date ? new Date(end_date).toLocaleDateString() : "N/A"}
+              </p>
+            </div>
+
+            <div className="donate-rate">
+              {/* Rating */}
+              <div className="rate">
+                {localStorage.getItem("access_token") &&
+                  (!userRatingLoaded ? (
+                    <p>Loading rating...</p>
+                  ) : userRating !== null ? (
+                    <p>
+                      You rated this project: <strong>{userRating} ⭐</strong>
+                    </p>
+                  ) : (
+                    <div className="form-floating">
+                      <select
+                        value={rating}
+                        name="rating"
+                        id="rating"
+                        onChange={(e) => setRating(parseInt(e.target.value))}
+                        className="form-select"
+                      >
+                        <option value={0}>Select rating</option>
+                        {[1, 2, 3, 4, 5].map((num) => (
+                          <option key={num} value={num}>
+                            {"⭐".repeat(num)}
+                          </option>
+                        ))}
+                      </select>
+                      <label htmlFor="rating">Rating</label>
+                      <button onClick={handleRate}>Submit</button>
+                    </div>
+                  ))}
+              </div>
+
+              {/* Donation */}
+              {localStorage.getItem("access_token") &&
+                !project.is_cancelled &&
+                !(new Date(end_date) < Date.now()) && (
+                  <div className="donate">
+                    <div className="form-floating">
+                      <input
+                        type="number"
+                        name="Amount"
+                        id="Amount"
+                        min="1"
+                        step="1"
+                        value={donationAmount}
+                        onChange={(e) => setDonationAmount(e.target.value)}
+                        placeholder="Amount"
+                        className="form-control"
+                      />
+                      <label htmlFor="Amount">Amount</label>
+                      <button onClick={handleDonate}>Donate</button>
+                    </div>
+                  </div>
+                )}
+
+              {new Date(end_date) < Date.now() && (
+                <div className="alert alert-info text-center rounded-3">
+                  📌 Project has ended
+                </div>
+              )}
+            </div>
+
+            <div className="danger-btns">
+              <div className="report-btn">
+                {localStorage.getItem("access_token") && (
+                  <button
+                    onClick={() => setShowProjectReportForm((prev) => !prev)}
+                    className={`btn ${
+                      showProjectReportForm ? "btn-outline-secondary" : "report"
+                    } rounded-pill px-4`}
+                  >
+                    {showProjectReportForm ? "Cancel Report" : "Report Project"}
+                  </button>
+                )}
+              </div>
+
+              <div className="cancel-btn">
+                {is_cancelled && (
+                  <div className="alert alert-danger text-center rounded-3">
+                    🚫 This project is cancelled
+                  </div>
+                )}
+
+                {currentUserId === project_creator?.id && !is_cancelled && (
+                  <>
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      disabled={canceling}
+                    >
+                      {canceling ? "Canceling..." : "Cancel Project"}
+                    </button>
+                    <CancelProjectModal
+                      show={showCancelModal}
+                      onClose={() => setShowCancelModal(false)}
+                      onConfirm={confirmCancel}
+                      loading={canceling}
+                      donationRatio={donationRatio}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+
+            {showProjectReportForm && (
+              <form onSubmit={handleProjectReportSubmit} className="mb-4">
+                <h5 className="fw-semibold">Report This Project</h5>
+                <textarea
+                  className="form-control mb-3 rounded-3"
+                  rows={3}
+                  value={projectReportReason}
+                  onChange={(e) => setProjectReportReason(e.target.value)}
+                  placeholder="Why are you reporting this project?"
+                  required
+                />
+                <div className="d-flex gap-2">
+                  <button
+                    type="submit"
+                    className="btn btn-danger rounded-pill px-4"
+                  >
+                    Submit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowProjectReportForm(false)}
+                    className="btn btn-outline-secondary rounded-pill px-4"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             )}
           </div>
         </div>
-      </div>
-    )}
-  </div>
-</div>
-
+      </section>
+    </section>
   );
 };
 
