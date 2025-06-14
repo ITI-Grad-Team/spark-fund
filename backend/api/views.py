@@ -357,6 +357,8 @@ class ProjectCreateView(generics.CreateAPIView):
 
 
 class ProjectAPIView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request, id=None):
         if id:
             project = get_object_or_404(

@@ -1,3 +1,142 @@
+.details-background {
+  padding-block: 8rem;
+  background-color: #fffcf7;
+
+  .project-details {
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    gap: 2rem;
+    color: #2b2b39;
+
+    .column-1 {
+      flex: 2;
+
+      .campaign-header {
+        font-size: 48px;
+        font-weight: 700;
+      }
+
+      .campaign-images {
+        width: 100%;
+        margin-block: 2rem;
+
+        img {
+          width: 100%;
+          height: 30rem;
+          background-size: cover;
+        }
+      }
+
+      .campaign-details {
+        font-size: 18px;
+        line-height: 2rem;
+      }
+
+      .campaign-comments {
+        margin-top: 3rem;
+        .campaign-comments-form {
+          margin-top: 3rem;
+          .post-comment-btn {
+            padding-inline: 1.5rem;
+            padding-block: 0.5rem;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background-color: #6059c9;
+            color: #fffcf7;
+            margin-top: 0.5rem;
+          }
+        }
+      }
+    }
+
+    .column-2 {
+      flex: 1;
+      position: relative;
+
+      .column-2-content {
+        background-color: #f5efe0 !important;
+        position: sticky;
+        padding: 1.5rem;
+        border-radius: 20px;
+        color: #2b2b39;
+      }
+
+      .danger-btns {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        gap: 1rem;
+
+        .report-btn {
+          flex: 1;
+
+          button {
+            width: 100%;
+          }
+
+          .report {
+            width: 100%;
+            padding-block: 0.5rem;
+            border: none;
+            outline: none;
+            border-radius: 10px !important;
+            background-color: #dc3545;
+            color: #fffcf7;
+          }
+        }
+
+        .cancel-btn {
+          flex: 1;
+
+          button {
+            width: 100%;
+            padding-block: 0.5rem;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            background-color: #6059c9;
+            color: #fffcf7;
+          }
+        }
+      }
+    }
+  }
+
+  .donate-rate {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+
+    button {
+      width: 100%;
+      padding-block: 0.5rem;
+      margin-top: 0.5rem;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      background-color: #6059c9;
+      color: #fffcf7;
+    }
+
+    .rate {
+      flex: 1;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .donate {
+      flex: 1;
+      width: 100%;
+    }
+  }
+}
+
 .tag {
   display: inline-block;
   background: #f0f0f0;
@@ -5,4 +144,84 @@
   margin: 2px;
   border-radius: 12px;
   font-size: 0.85rem;
+}
+
+.comment {
+  .comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    p {
+      font-size: 18px;
+      color: #2b2b39;
+
+      a {
+        font-size: 18px;
+        text-decoration: none;
+        color: #2b2b39;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+    }
+
+    .comment-btns {
+      display: flex;
+      gap: 0.5rem;
+
+      .report-btn {
+        background-color: #dc3545;
+      }
+
+      button {
+        width: 6rem;
+        height: 2rem;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        color: #fffcf7;
+        background-color: #6059c9;
+      }
+    }
+  }
+}
+
+.reply {
+  padding-left: 2rem;
+
+  p {
+    font-size: 18px;
+    color: #2b2b39;
+
+    a {
+      font-size: 18px;
+      text-decoration: none;
+      color: #2b2b39;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+  }
+}
+
+.campaign-creator {
+  a {
+    color: #2b2b39;
+    text-transform: capitalize;
+    margin-bottom: 1rem;
+
+    img {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+
+.campaign-post {
+  background-color: #fff;
+  border-left: 5px solid #0d6efd;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.campaign-post:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
