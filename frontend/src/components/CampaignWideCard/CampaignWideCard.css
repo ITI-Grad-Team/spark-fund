@@ -40,11 +40,12 @@
     p {
       font-size: 16px;
       color: #5f5f75;
+      height: 6rem;
     }
 
     progress {
       width: 100%;
-      height: 8px;
+      height: 4px;
       border-radius: 50px;
       border: none;
       background-color: #f2eae1;
@@ -122,4 +123,31 @@
       }
     }
   }
+}
+
+.owner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.project-image {
+  width: 300px;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 20px 0px 0px 20px;
+}
+
+.rating-image {
+  width: 17px;
+  filter: brightness(0.93) contrast(1.1);
+  margin-bottom: 2px;
+}
+
+.rating-button {
+  background-color: #ffc20b !important;
+  color: whitesmoke !important;
 }

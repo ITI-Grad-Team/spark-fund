@@ -15,6 +15,8 @@ from api.models import (
 )
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework.fields import ListField
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -87,7 +89,7 @@ class TagSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ["id", "username"]
+        fields = ["id", "username", "profile_picture"]
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -197,7 +199,23 @@ class ProjectRatingSerializer(serializers.ModelSerializer):
 
 
 class DonationSerializer(serializers.ModelSerializer):
+    project_title = serializers.CharField(source="project.title", read_only=True)
+
     class Meta:
         model = Donation
-        fields = ["id", "user", "project", "amount", "created_at"]
+        fields = ["id", "user", "project", "amount", "created_at", "project_title"]
         read_only_fields = ["user", "created_at"]
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        user = self.user
+
+        if self.user.is_deleted:
+            raise serializers.ValidationError(
+                {"detail": "This account has been deleted."}, code="account_deleted"
+            )
+
+        return data

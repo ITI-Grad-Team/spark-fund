@@ -264,7 +264,18 @@ const Register = () => {
                   className="btn btn-primary w-100 py-2"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Registering..." : "Register"}
+                  {isSubmitting ? (
+                    <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Registering...
+                    </>
+                  ): (
+                    "Register"
+                  )}
                 </button>
               </div>
 

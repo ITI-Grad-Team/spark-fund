@@ -22,6 +22,8 @@ from api.serializers import (
     RegisterSerializer,
     CommentReportSerializer,
     ProjectReportSerializer,
+    DonationSerializer,
+    CustomTokenObtainPairSerializer,
 )
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -35,13 +37,24 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from decimal import Decimal
 
+from django.db.models import Sum
+from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.db.models import Q
+
 
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        users = CustomUser.objects.all()
-        serializer = CustomUserSerializer(users, many=True)
+    def get(self, request, id=None):
+        if id:
+            user = get_object_or_404(CustomUser, id=id)
+            serializer = CustomUserSerializer(user, context={"request": request})
+        else:
+            users = CustomUser.objects.all()
+            serializer = CustomUserSerializer(
+                users, many=True, context={"request": request}
+            )
         return Response(serializer.data)
 
     def post(self, request):
@@ -68,6 +81,18 @@ class CustomUserAPIView(APIView):
 
     def patch(self, request, id):
         user = get_object_or_404(CustomUser, id=id)
+        if request.user != user:
+            return Response({"detail": "Not authorized."}, status=403)
+
+        if request.data.get("is_deleted") == True:
+            password = request.data.get("password")
+            if not password or not user.check_password(password):
+                return Response({"detail": "Incorrect password."}, status=400)
+
+            user.is_deleted = True
+            user.save()
+            return Response({"detail": "User is deleted."})
+
         serializer = CustomUserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -76,8 +101,29 @@ class CustomUserAPIView(APIView):
 
     def delete(self, request, id):
         user = get_object_or_404(CustomUser, id=id)
+
+        if request.user != user:
+            return Response(
+                {"detail": "You are not authorized to delete this account."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        password = request.data.get("password")
+
+        if not password:
+            return Response(
+                {"detail": "Password is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not check_password(password, user.password):
+            return Response(
+                {"detail": "Incorrect password."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
         user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(
+            {"detail": "User deleted successfully."}, status=status.HTTP_204_NO_CONTENT
+        )
 
 
 class RegisterView(generics.CreateAPIView):
@@ -325,6 +371,36 @@ class ProjectAPIView(APIView):
         projects = Project.objects.select_related(
             "project_creator", "category"
         ).prefetch_related("tags", "images", "comments__replies")
+
+        project_creator_id = request.query_params.get("project_creator")
+        if project_creator_id and project_creator_id.isdigit():
+            projects = projects.filter(project_creator_id=int(project_creator_id))
+
+        tag_name = request.query_params.get("tag")
+        if tag_name:
+            projects = projects.filter(tags__name__iexact=tag_name)
+
+        category_name = request.query_params.get("category")
+        if category_name:
+            projects = projects.filter(category__name__iexact=category_name)
+
+        search_query = request.query_params.get("search")
+        search_in_title = request.query_params.get("title") == "true"
+        search_in_tags = request.query_params.get("tags") == "true"
+
+        if search_query:
+            q = Q()
+            if search_in_title:
+                q |= Q(title__icontains=search_query)
+            if search_in_tags:
+                q |= Q(tags__name__icontains=search_query)
+            if q:
+                projects = projects.filter(q).distinct()
+
+        limit = request.query_params.get("limit")
+        if limit and limit.isdigit():
+            projects = projects[: int(limit)]
+
         serializer = ProjectSerializer(projects, many=True)
         return Response(serializer.data)
 
@@ -432,14 +508,6 @@ class ProjectReportView(APIView):
         serializer = ProjectReportSerializer(data=data)
 
         if serializer.is_valid():
-            if ProjectReport.objects.filter(
-                project=project, reporter=request.user
-            ).exists():
-                return Response(
-                    {"detail": "You have already reported this project."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -469,14 +537,6 @@ class CommentReportView(APIView):
         serializer = CommentReportSerializer(data=data)
 
         if serializer.is_valid():
-            if CommentReport.objects.filter(
-                comment=comment, reporter=request.user
-            ).exists():
-                return Response(
-                    {"detail": "You have already reported this comment."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             serializer.save(reporter=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -635,9 +695,59 @@ class UserDonationAmount(APIView):
 
     def get(self, request, project_id):
         user = request.user
-        donation = Donation.objects.filter(user=user, project_id=project_id).first()
+        total = Donation.objects.filter(user=user, project_id=project_id).aggregate(
+            total_donation=Sum("amount")
+        )["total_donation"] or Decimal("0")
 
-        if donation is None:
-            return Response({"donation_amount": Decimal("0")}, status=200)
+        return Response({"donation_amount": total}, status=200)
 
-        return Response({"donation_amount": donation.amount}, status=200)
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        serializer = CustomUserSerializer(request.user)
+        return Response(serializer.data)
+
+
+class MyDonationsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        donations = Donation.objects.filter(user=request.user).select_related("project")
+        serializer = DonationSerializer(donations, many=True)
+        return Response(serializer.data)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        current_password = request.data.get("current_password")
+        new_password = request.data.get("new_password")
+
+        if not user.check_password(current_password):
+            return Response(
+                {"detail": "Current password is incorrect."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response(
+            {"detail": "Password changed successfully."}, status=status.HTTP_200_OK
+        )
+
+
+class CategoryNamesAPIView(APIView):
+    def get(self, request):
+        categories = (
+            Category.objects.all().order_by("name").values_list("name", flat=True)
+        )
+        return Response(list(categories))

@@ -8,53 +8,51 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
-import Footer from "../../components/Footer/Footer";
 import { useEffect, useState } from "react";
 import axiosInstance from "../../api/config";
-import { ClipLoader, RingLoader } from "react-spinners";
+import { BarLoader } from "react-spinners";
 
 const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   const lastFive = [...projects]
     .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
     .slice(0, 5);
 
-  const topFiveByDonation = [...projects]
-    .sort(
-      (a, b) => parseFloat(b.donation_amount) - parseFloat(a.donation_amount)
+  const currentDate = new Date();
+
+  const topRated = [...projects]
+    .filter(
+      (project) =>
+        !project.is_cancelled && new Date(project.end_date) > currentDate
     )
+    .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 5);
 
-  
-
-    
   useEffect(() => {
-  const cachedProjects = localStorage.getItem('projects');
-  if (cachedProjects) {
-    setProjects(JSON.parse(cachedProjects));
-    setLoading(false);
-  } else {
+    axiosInstance.get("/category-names/").then((res) => {
+      setCategories(res.data);
+    });
+  }, []);
+
+  useEffect(() => {
     setLoading(true);
-    axiosInstance.get("/projects")
+    axiosInstance
+      .get("/projects")
       .then((res) => {
         setProjects(res.data);
-        localStorage.setItem('projects', JSON.stringify(res.data));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }
-}, []);
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem("access_token");
     setIsAuthenticated(!!token);
   }, []);
-
-
-
 
   return (
     <section className="container-fluid home">
@@ -68,23 +66,23 @@ useEffect(() => {
             <Link to="/login/" className="started-btn">
               Get Started
             </Link>
-          ) :(
+          ) : (
             <Link to="/create/" className="started-btn">
-            Get Started
-          </Link>
-          )
-          
-          }
+              Get Started
+            </Link>
+          )}
 
-          <button className="learn-btn">Learn More</button>
+          <Link className="learn-btn" to="/about">
+            Learn More
+          </Link>
         </div>
 
         <img className="hero-image" src="/Frame.svg" alt="Hero image" />
         <img className="hero-shape" src="/hero-shape.svg" alt="Hero image" />
 
         {loading ? (
-          <RingLoader
-            color="#3b82f6"
+          <BarLoader
+            color="#6059c9"
             size={80}
             speedMultiplier={1.2}
             aria-label="Loading Spinner"
@@ -98,7 +96,7 @@ useEffect(() => {
               spaceBetween={20}
               slidesPerView={1}
             >
-              {topFiveByDonation.map((project) => (
+              {topRated.map((project) => (
                 <SwiperSlide key={project.id}>
                   <CampaignWideCard project={project} />
                 </SwiperSlide>
@@ -110,6 +108,21 @@ useEffect(() => {
 
       <CampaignDesc />
 
+      <section className="container categories">
+        <SectionHeader
+          header="Browse Campaigns"
+          paragraph="See Your Desired Campaigns Based on There categories."
+        />
+
+        <div className="categories-card">
+          {categories.map((category, index) => (
+            <button key={index}>
+              <Link to={`/projects/?category=${category}`}>{category}</Link>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <div className="campaigns container">
         <SectionHeader
           header="Your voice matters"
@@ -118,8 +131,8 @@ useEffect(() => {
 
         {loading ? (
           <div className="loader-wrapper">
-            <RingLoader
-              color="#3b82f6"
+            <BarLoader
+              color="#6059c9"
               size={80}
               speedMultiplier={1.2}
               aria-label="Loading Spinner"
@@ -178,7 +191,6 @@ useEffect(() => {
           </Link>
         </section>
       </section>
-
       <section className="getting-started container">
         <div>
           <SectionHeader
@@ -219,7 +231,6 @@ useEffect(() => {
           </div>
         </div>
       </section>
-
       <section className="cta container">
         <section className="cta-content">
           <h2>Start one today!</h2>
@@ -238,8 +249,6 @@ useEffect(() => {
           <img src="/Frame1.png" alt="call to action image" />
         </div>
       </section>
-
-      <Footer />
     </section>
   );
 };

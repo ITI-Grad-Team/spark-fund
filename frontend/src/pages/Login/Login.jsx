@@ -43,7 +43,7 @@ const Login = () => {
       localStorage.setItem("access_token", res.data.access);
       localStorage.setItem("refresh_token", res.data.refresh);
       setAlert({ message: "Logged in successfully", type: "success" });
-
+      
       window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error.response?.data);
@@ -150,7 +150,20 @@ const Login = () => {
                   className="btn btn-primary w-100 mb-3"
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Logging in..." : "Login"}
+                  {isSubmitting ? (
+                    
+                    <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Logging in...
+                    </>
+                    
+                  ): (
+                    "Login"
+                  )}
                 </button>
 
                 {showResend && (

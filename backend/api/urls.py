@@ -1,4 +1,5 @@
 from django.urls import path
+from . import views
 from .views import (
     CustomUserAPIView,
     RegisterView,
@@ -26,6 +27,7 @@ from .views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
 )
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
     path("users/", CustomUserAPIView.as_view(), name="users"),
@@ -58,6 +60,10 @@ urlpatterns = [
         ProjectDonateAPIView.as_view(),
         name="project_donate",
     ),
+    path("register/", views.RegisterView.as_view(), name="register"),
+    path("login/", views.CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("google-login/", views.GoogleAuthView.as_view(), name="google_register"),
     path(
         "projects/<int:project_id>/report/",
         ProjectReportView.as_view(),
@@ -70,7 +76,11 @@ urlpatterns = [
         CommentReportView.as_view(),
         name="comment_report",
     ),
-    path("logout/", LogoutView.as_view(), name="logout"),
+    path("customuser/", views.UserListView.as_view(), name="user-list"),
+    path("customuser/<int:id>/", views.UserDetailView.as_view(), name="user-detail"),
+    path(
+        "update-user/<int:id>/", views.CustomUserAPIView.as_view(), name="update-user"
+    ),
     path(
         "projects/<int:pk>/rating/", ProjectRatingView.as_view(), name="project_rating"
     ),
@@ -103,5 +113,14 @@ urlpatterns = [
         "auth/password/reset/confirm/<uidb64>/<token>/",
         PasswordResetConfirmView.as_view(),
         name="password_reset_confirm",
+    ),
+    path("customuser/me/", views.CurrentUserView.as_view(), name="current_user"),
+    path("my-donations/", views.MyDonationsAPIView.as_view(), name="my-donations"),
+    path(
+        "change-password/", views.ChangePasswordView.as_view(), name="change-password"
+    ),
+    path("logout/", views.LogoutView.as_view(), name="logout"),
+    path(
+        "category-names/", views.CategoryNamesAPIView.as_view(), name="category-names"
     ),
 ]
