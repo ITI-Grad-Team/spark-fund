@@ -438,7 +438,7 @@ class ProjectRateAPIView(APIView):
         project.save()
 
         return Response(
-            {"message": "Rating added.", "new_average": project.average_rating()},
+            {"message": "Rating added.", "new_average": project.average_rating},
             status=status.HTTP_200_OK,
         )
 
@@ -470,7 +470,7 @@ class CommentAddReplyAPIView(APIView):
 class ProjectDonateAPIView(APIView):
     def post(self, request, id):
         project = get_object_or_404(Project, id=id)
-        amount = request.data.get("amount")
+        amount = Decimal(str(request.data.get("amount", 0)))
 
         if not amount:
             return Response(
@@ -488,7 +488,7 @@ class ProjectDonateAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        project.donation_amount += amount
+        project.donation_amount += Decimal(str(amount))
         project.save()
 
         return Response(
@@ -526,7 +526,7 @@ class UserDetailView(generics.RetrieveAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     lookup_field = "id"
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [AllowAny]
 
 
 class CommentReportView(APIView):

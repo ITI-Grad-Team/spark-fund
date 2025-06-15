@@ -77,7 +77,7 @@ const ProjectDetails = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [canceling, setCanceling] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
-  // const [userDonation, setUserDonation] = useState(0);
+  const [userDonation, setUserDonation] = useState(0);
   const [showProjectReportForm, setShowProjectReportForm] = useState(false);
   const [projectReportReason, setProjectReportReason] = useState("");
   const [similarProjectsByTag, setSimilarProjectsByTag] = useState({});
@@ -145,16 +145,16 @@ const ProjectDetails = () => {
     }
   }, [projectId]);
 
-  // const fetchUserDonation = useCallback(async () => {
-  //   try {
-  //     const response = await axiosInstance.get(
-  //       `/projects/${projectId}/donation-amount/`
-  //     );
-  //     setUserDonation(response.data.donation_amount);
-  //   } catch (error) {
-  //     console.error("Error fetching user donation:", error);
-  //   }
-  // }, [projectId]);
+  const fetchUserDonation = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/projects/${projectId}/donation-amount/`
+      );
+      setUserDonation(response.data.donation_amount);
+    } catch (error) {
+      console.error("Error fetching user donation:", error);
+    }
+  }, [projectId]);
 
   useEffect(() => {
     setCurrentUserId(getLoggedInUserId());
@@ -164,14 +164,9 @@ const ProjectDetails = () => {
     if (projectId) {
       fetchProject();
       fetchUserRating();
-      // fetchUserDonation();
+      fetchUserDonation();
     }
-  }, [
-    projectId,
-    fetchProject,
-    fetchUserRating,
-    // fetchUserDonation
-  ]);
+  }, [projectId, fetchProject, fetchUserRating, fetchUserDonation]);
 
   // New function to update replies for a specific comment
   const updateCommentReplies = useCallback((commentId, newReply) => {
@@ -253,7 +248,7 @@ const ProjectDetails = () => {
       });
       setDonationAmount("");
       fetchProject();
-      // fetchUserDonation();
+      fetchUserDonation();
     } catch (err) {
       console.error("Donation error:", err.response?.data || err.message);
     }
@@ -423,14 +418,14 @@ const ProjectDetails = () => {
                 <div className="text-muted small">Average Rating</div>
               </div>
 
-              {/* {localStorage.getItem("access_token") && (
+              {localStorage.getItem("access_token") && (
                 <div className="col">
                   <div className="fw-bold fs-5 text-primary">
                     {userDonation?.toLocaleString() || "0"}
                   </div>
                   <div className="text-muted small">Your Donation</div>
                 </div>
-              )} */}
+              )}
             </div>
 
             <div className="campaign-creator d-flex align-items-center justify-content-between">
