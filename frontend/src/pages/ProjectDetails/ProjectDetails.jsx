@@ -290,13 +290,13 @@ const ProjectDetails = () => {
   };
 
   const sliderSettings = {
-    dots: true,          // Show dot indicators
-    infinite: true,      // Loop the slider
-    speed: 500,          // Transition speed in ms
-    slidesToShow: 1,     // Show one slide at a time
-    slidesToScroll: 1,   // Scroll one slide at a time
-    adaptiveHeight: true,// Adjust height based on the image
-    autoplay: true,      // Automatically change slides
+    dots: true, // Show dot indicators
+    infinite: true, // Loop the slider
+    speed: 500, // Transition speed in ms
+    slidesToShow: 1, // Show one slide at a time
+    slidesToScroll: 1, // Scroll one slide at a time
+    adaptiveHeight: true, // Adjust height based on the image
+    autoplay: true, // Automatically change slides
     autoplaySpeed: 3000, // Change slide every 3 seconds
   };
 
@@ -343,7 +343,7 @@ const ProjectDetails = () => {
 
           {/* Images */}
           {images.length > 0 && (
-              <div className="campaign-images mb-4 shadow-sm rounded-4">
+            <div className="campaign-images mb-4 shadow-sm rounded-4">
               <Slider {...sliderSettings}>
                 {images.map((img) => (
                   <div key={img.id}>
@@ -354,7 +354,7 @@ const ProjectDetails = () => {
                           : `http://localhost:8000${img.image}`
                       }
                       alt={title}
-                      className="img-fluid rounded-4" 
+                      className="img-fluid rounded-4"
                       style={{ width: "100%", objectFit: "cover" }}
                     />
                   </div>
@@ -595,17 +595,18 @@ const ProjectDetails = () => {
                     >
                       {canceling ? "Canceling..." : "Cancel Project"}
                     </button>
-                    <CancelProjectModal
-                      show={showCancelModal}
-                      onClose={() => setShowCancelModal(false)}
-                      onConfirm={confirmCancel}
-                      loading={canceling}
-                      donationRatio={donationRatio}
-                    />
                   </>
                 )}
               </div>
             </div>
+
+            <CancelProjectModal
+              show={showCancelModal}
+              onClose={() => setShowCancelModal(false)}
+              onConfirm={confirmCancel}
+              loading={canceling}
+              donationRatio={donationRatio}
+            />
 
             {showProjectReportForm && (
               <form onSubmit={handleProjectReportSubmit} className="mb-4">
@@ -669,4 +670,3 @@ const ProjectDetails = () => {
 };
 
 export default ProjectDetails;
-
