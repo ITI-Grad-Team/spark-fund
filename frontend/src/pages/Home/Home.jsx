@@ -1,8 +1,9 @@
+import "./Home.css";
 import CampaignDesc from "../../components/CampaignDesc/CampaignDesc";
 import CampaignWideCard from "../../components/CampaignWideCard/CampaignWideCard";
-import "./Home.css";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import SectionHeader from "../../components/SectionHeader/SectionHeader";
+import Footer from "../../components/Footer/Footer";
 import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -82,13 +83,13 @@ const Home = () => {
 
         {loading ? (
           <center>
-          <BarLoader
-            color="#6059c9"
-            size={80}
-            speedMultiplier={1.2}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
+            <BarLoader
+              color="#6059c9"
+              size={80}
+              speedMultiplier={1.2}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
           </center>
         ) : (
           <div className="home-carousel">
@@ -125,7 +126,7 @@ const Home = () => {
         </div>
       </section>
 
-      <div className="campaigns container">
+      <section className="campaigns container">
         <SectionHeader
           header="Your voice matters"
           paragraph="These petitions need your help to achieve victory."
@@ -134,16 +135,15 @@ const Home = () => {
         {loading ? (
           <div className="loader-wrapper">
             <center>
-            <BarLoader
-              color="#6059c9"
-              size={80}
-              speedMultiplier={1.2}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
+              <BarLoader
+                color="#6059c9"
+                size={80}
+                speedMultiplier={1.2}
+                aria-label="Loading Spinner"
+                data-testid="loader"
+              />
             </center>
           </div>
-          
         ) : (
           <div className="campaigns-grid">
             {lastFive.map((project) => (
@@ -155,7 +155,7 @@ const Home = () => {
         <Link to="/projects" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
-      </div>
+      </section>
 
       <section className="role container">
         <section className="col-1">
@@ -196,6 +196,7 @@ const Home = () => {
           </Link>
         </section>
       </section>
+
       <section className="getting-started container">
         <div>
           <SectionHeader
@@ -236,6 +237,7 @@ const Home = () => {
           </div>
         </div>
       </section>
+
       <section className="cta container">
         <section className="cta-content">
           <h2>Start one today!</h2>
@@ -254,6 +256,8 @@ const Home = () => {
           <img src="/Frame1.png" alt="call to action image" />
         </div>
       </section>
+
+      <Footer />
     </section>
   );
 };

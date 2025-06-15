@@ -1,4 +1,5 @@
 import re
+from django.conf import settings
 from rest_framework import serializers
 from api.models import (
     CustomUser,
@@ -17,6 +18,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from rest_framework.fields import ListField
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
@@ -211,11 +216,20 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
         data = super().validate(attrs)
 
-        user = self.user
-
         if self.user.is_deleted:
             raise serializers.ValidationError(
                 {"detail": "This account has been deleted."}, code="account_deleted"
             )
 
         return data
+
+
+class CustomRegisterSerializer(RegisterSerializer):
+    def get_email_context(self, user):
+        context = super().get_email_context(user)
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        context["activation_url"] = (
+            f"{settings.FRONTEND_BASE_URL}/activate/{uid}/{token}"
+        )
+        return context

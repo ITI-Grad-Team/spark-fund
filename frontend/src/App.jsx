@@ -1,8 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
-import React, { Suspense, lazy } from "react";
-import Footer from "./components/Footer/Footer";
+import { Suspense, lazy } from "react";
 
 const Home = lazy(() => import("./pages/Home/Home"));
 const ProjectDetails = lazy(() =>
@@ -13,8 +12,13 @@ const Login = lazy(() => import("./pages/Login/Login"));
 const Register = lazy(() => import("./pages/Register/Register"));
 const UserProfile = lazy(() => import("./pages/UserProfile/UserProfile"));
 const Projects = lazy(() => import("./pages/Projects/Projects"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword/ForgotPassword"));
+const ForgotPassword = lazy(() =>
+  import("./pages/ForgotPassword/ForgotPassword")
+);
 const ResetPassword = lazy(() => import("./pages/ResetPassword/ResetPassword"));
+const ActivateAccount = lazy(() =>
+  import("./pages/ActivateAccount/ActivateAccount")
+);
 const About = lazy(() => import("./pages/About/About"));
 
 function App() {
@@ -27,7 +31,14 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
-          <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
+          <Route
+            path="/reset-password/:uidb64/:token"
+            element={<ResetPassword />}
+          />
+          <Route
+            path="/activate/:uidb64/:token"
+            element={<ActivateAccount />}
+          />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/create" element={<CreateProject />} />
           <Route path="/user/:id" element={<UserProfile />} />
@@ -35,10 +46,8 @@ function App() {
           <Route path="/about" element={<About />} />
         </Routes>
       </Suspense>
-      <Footer />
     </Router>
   );
 }
 
 export default App;
-

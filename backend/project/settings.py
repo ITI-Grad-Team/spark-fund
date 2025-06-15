@@ -13,14 +13,22 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-vwvibz9)ipwt0+#4fp7$3(24rd&cfhvmmvh9zi^j$4!fbp8031"
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+if not SECRET_KEY:
+    raise Exception("SECRET_KEY not found in environment variables!")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -177,7 +185,10 @@ REST_AUTH = {
     "JWT_AUTH_COOKIE": None,
     "JWT_AUTH_REFRESH_COOKIE": None,
     "JWT_AUTH_HTTPONLY": False,
+    "REGISTER_SERIALIZER": "api.serializers.CustomRegisterSerializer",
 }
+
+
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
@@ -207,7 +218,10 @@ SOCIALACCOUNT_PROVIDERS["google"]["APP"] = {
 }
 
 # Email Configuration
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # for development only not production, we can get the activation email in console for testing so all next lines are ignored in dev stage
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # for development only not production, we can get the activation email in console for testing so all next lines are ignored in dev stage
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
 
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -219,7 +233,9 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 PASSWORD_RESET_TIMEOUT = 3600
 
+
 FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL", "http://localhost:5173")
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

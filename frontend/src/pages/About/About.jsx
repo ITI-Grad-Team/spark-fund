@@ -1,4 +1,5 @@
 import "./About.css";
+import Footer from "../../components/Footer/Footer";
 
 const About = () => {
   return (
@@ -271,6 +272,8 @@ const About = () => {
           </div>
         </div>
       </section>
+
+      <Footer />
     </section>
   );
 };

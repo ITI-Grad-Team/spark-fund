@@ -43,27 +43,27 @@ urlpatterns = [
         ResendActivationEmailView.as_view(),
         name="resend_activation",
     ),
-    path("google-login/", GoogleAuthView.as_view(), name="google_login"),
+    # path("auth/social/google/", GoogleAuthView.as_view(), name="google_login"),
+    path("google-login/", views.GoogleAuthView.as_view(), name="google_register"),
     path("profile/", UserProfileView.as_view(), name="user_profile"),
     path("projects/create/", ProjectCreateView.as_view(), name="project_create"),
     path("projects/", ProjectAPIView.as_view(), name="projects"),
     path("projects/<int:id>/", ProjectAPIView.as_view(), name="project_detail"),
     path("categories/", CategoryListView.as_view(), name="categories"),
-    path("projects/<int:id>/rate/", ProjectRateAPIView.as_view(), name="project_rate"),
     path(
         "projects/<int:project_id>/comment/",
         ProjectAddCommentAPIView.as_view(),
         name="project_comment",
     ),
     path(
+        "projects/<int:pk>/rate/",
+        views.ProjectRatingView.as_view(),
+        name="rate_project",
+    ),
+    path(
         "comments/<int:comment_id>/reply/",
         CommentAddReplyAPIView.as_view(),
         name="comment_reply",
-    ),
-    path(
-        "projects/<int:id>/donate/",
-        ProjectDonateAPIView.as_view(),
-        name="project_donate",
     ),
     path(
         "projects/<int:project_id>/report/",
@@ -124,5 +124,10 @@ urlpatterns = [
         "token/custom/",
         CustomTokenObtainPairView.as_view(),
         name="custom_token_obtain_pair",
+    ),
+    path(
+        "projects/<int:project_id>/my-rating/",
+        views.UserProjectRatingView.as_view(),
+        name="user_project_rating",
     ),
 ]
