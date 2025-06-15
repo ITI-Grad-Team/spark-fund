@@ -54,7 +54,7 @@ urlpatterns = [
         ProjectAddCommentAPIView.as_view(),
         name="project_comment",
     ),
-        path(
+    path(
         "projects/<int:pk>/rate/",
         views.ProjectRatingView.as_view(),
         name="rate_project",
@@ -124,7 +124,7 @@ urlpatterns = [
         CustomTokenObtainPairView.as_view(),
         name="custom_token_obtain_pair",
     ),
-        path(
+    path(
         "projects/<int:project_id>/my-rating/",
         views.UserProjectRatingView.as_view(),
         name="user_project_rating",

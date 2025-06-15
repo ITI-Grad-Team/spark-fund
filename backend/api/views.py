@@ -565,6 +565,7 @@ class LogoutView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
 class ProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -609,7 +610,6 @@ class ProjectRatingView(APIView):
             status=status.HTTP_200_OK,
         )
 
-
 class UserProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -626,7 +626,6 @@ class UserProjectRatingView(APIView):
             return Response({"rating": rating.rating}, status=status.HTTP_200_OK)
         except ProjectRating.DoesNotExist:
             return Response({"rating": None}, status=status.HTTP_200_OK)
-
 
 class CancelProjectAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
