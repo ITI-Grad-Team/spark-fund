@@ -764,6 +764,7 @@ class ChangePasswordView(APIView):
 
 
 class CategoryNamesAPIView(APIView):
+    permission_classes = [AllowAny]
     def get(self, request):
         categories = (
             Category.objects.all().order_by("name").values_list("name", flat=True)
