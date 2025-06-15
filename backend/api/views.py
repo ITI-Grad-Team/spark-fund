@@ -223,9 +223,33 @@ class ResendActivationEmailView(APIView):
         )
 
 
-class GoogleAuthView(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
+# class GoogleAuthView(SocialLoginView):
+#     adapter_class = GoogleOAuth2Adapter
+#     permission_classes = [AllowAny]
+
+class GoogleAuthView(APIView):
     permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get("email")
+        name = request.data.get("name")
+
+        user, created = CustomUser.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email.split("@")[0],
+                "first_name": name.split()[0],
+            },
+        )
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "msg": "User created" if created else "User verified",
+            }
+        )
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
