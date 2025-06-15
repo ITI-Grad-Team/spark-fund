@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BarLoader } from "react-spinners";
 import axiosInstance from "../../api/config";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
+import Footer from "../../components/Footer/Footer";
 import { useSearchParams } from "react-router-dom";
 
 const Projects = () => {
@@ -78,13 +79,17 @@ const Projects = () => {
           </div>
           <div className="d-flex justify-content-center mt-3 gap-3">
             <button
-              className={`btn btn-sm ${toggleTitle ? "btn-success" : "btn-outline-secondary"}`}
+              className={`btn btn-sm ${
+                toggleTitle ? "btn-success" : "btn-outline-secondary"
+              }`}
               onClick={() => setToggleTitle((prev) => !prev)}
             >
               Title
             </button>
             <button
-              className={`btn btn-sm ${toggleTags ? "btn-success" : "btn-outline-secondary"}`}
+              className={`btn btn-sm ${
+                toggleTags ? "btn-success" : "btn-outline-secondary"
+              }`}
               onClick={() => setToggleTags((prev) => !prev)}
             >
               Tags
@@ -116,6 +121,8 @@ const Projects = () => {
           )}
         </div>
       )}
+
+      <Footer />
     </section>
   );
 };

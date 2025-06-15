@@ -5,6 +5,7 @@ import "./ProjectDetails.css";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
 import "../../components/ProjectComment/ProjectComment";
 import ProjectComment from "../../components/ProjectComment/ProjectComment";
+import Footer from "../../components/Footer/Footer";
 
 // Utility function to get logged in user ID
 function getLoggedInUserId() {
@@ -644,6 +645,8 @@ const ProjectDetails = () => {
           )}
         </div>
       </section>
+
+      <Footer />
     </section>
   );
 };

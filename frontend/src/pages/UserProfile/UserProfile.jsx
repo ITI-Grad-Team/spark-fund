@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axiosInstance from "../../api/config";
 import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallCard";
+import Footer from "../../components/Footer/Footer";
 
 function UserProfile() {
   const { id } = useParams();
@@ -64,15 +65,15 @@ function UserProfile() {
   }, [id]);
 
   useEffect(() => {
-  if (passwordSuccess || passwordError) {
-    const timer = setTimeout(() => {
-      setPasswordSuccess("");
-      setPasswordError("");
-    }, 3000);
+    if (passwordSuccess || passwordError) {
+      const timer = setTimeout(() => {
+        setPasswordSuccess("");
+        setPasswordError("");
+      }, 3000);
 
-    return () => clearTimeout(timer); 
-  }
-}, [passwordSuccess, passwordError]);
+      return () => clearTimeout(timer);
+    }
+  }, [passwordSuccess, passwordError]);
 
   const handleEdit = () => {
     const updatedForm = new FormData();
@@ -147,7 +148,7 @@ function UserProfile() {
       })
       .finally(() => {
         setIsChangingPassword(false);
-      })
+      });
   };
 
   if (!user) return <div className="text-center my-5">Loading...</div>;
@@ -285,12 +286,12 @@ function UserProfile() {
                 <button className="btn btn-primary" onClick={handleEdit}>
                   {isSaving ? (
                     <>
-                    <span
-                      className="spinner-border spinner-border-sm me-2"
-                      role="status"
-                      aria-hidden="true"
-                    ></span>
-                    Saving...
+                      <span
+                        className="spinner-border spinner-border-sm me-2"
+                        role="status"
+                        aria-hidden="true"
+                      ></span>
+                      Saving...
                     </>
                   ) : (
                     "Save"
@@ -527,6 +528,8 @@ function UserProfile() {
           )}
         </div>
       )}
+
+      <Footer />
     </div>
   );
 }
