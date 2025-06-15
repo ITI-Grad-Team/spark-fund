@@ -220,7 +220,7 @@ const ProjectDetails = () => {
     }
 
     try {
-      await axiosInstance.post(`/projects/${projectId}/rate/`, { rating });
+      await axiosInstance.patch(`/projects/${projectId}/rate/`, { rating });
       setRating(0);
       // Refresh data after short delay
       setTimeout(() => {
