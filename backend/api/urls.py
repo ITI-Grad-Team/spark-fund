@@ -43,7 +43,7 @@ urlpatterns = [
         ResendActivationEmailView.as_view(),
         name="resend_activation",
     ),
-    path("google-login/", GoogleAuthView.as_view(), name="google_login"),
+    path("auth/social/google/", GoogleAuthView.as_view(), name="google_login"),
     path("profile/", UserProfileView.as_view(), name="user_profile"),
     path("projects/create/", ProjectCreateView.as_view(), name="project_create"),
     path("projects/", ProjectAPIView.as_view(), name="projects"),

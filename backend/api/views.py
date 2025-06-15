@@ -43,6 +43,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.db.models import Q
 
 
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from dj_rest_auth.registration.views import SocialLoginView
+
+
 class CustomUserAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -134,11 +138,15 @@ class RegisterView(generics.CreateAPIView):
         user = serializer.save()
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_link = self.request.build_absolute_uri(
-            reverse("activate", kwargs={"uidb64": uid, "token": token})
-        )
+        activation_link = f"{settings.FRONTEND_BASE_URL}/activate/{uid}/{token}"
+
         subject = "Activate Your Spark-Fund Account"
-        message = f"Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nThank you!"
+        message = (
+            f"Hi {user.username},\n\n"
+            f"Please click the link below to activate your account:\n"
+            f"{activation_link}\n\n"
+            f"Thank you!"
+        )
         send_mail(
             subject,
             message,
@@ -156,23 +164,24 @@ class ActivateAccountView(APIView):
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = CustomUser.objects.get(pk=uid)
         except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
-            user = None
+            return Response(
+                {"error": "Invalid activation link"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
-        if user is not None and default_token_generator.check_token(user, token):
+        if user.is_active:
+            return Response(
+                {"message": "Account already activated"}, status=status.HTTP_200_OK
+            )
+
+        if default_token_generator.check_token(user, token):
             user.is_active = True
             user.save()
-            refresh = RefreshToken.for_user(user)
             return Response(
-                {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "message": "Account activated successfully.",
-                },
-                status=status.HTTP_200_OK,
+                {"message": "Account activated successfully"}, status=status.HTTP_200_OK
             )
         else:
             return Response(
-                {"error": "Activation link is invalid or has expired."},
+                {"error": "Activation link is invalid or has expired"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -186,17 +195,21 @@ class ResendActivationEmailView(APIView):
             user = CustomUser.objects.get(email=email, is_active=False)
         except CustomUser.DoesNotExist:
             return Response(
-                {"error": "No inactive user found with this email."},
+                {"error": "No inactive user found with this email"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_link = request.build_absolute_uri(
-            reverse("activate", kwargs={"uidb64": uid, "token": token})
-        )
+        activation_link = f"{settings.FRONTEND_BASE_URL}/activate/{uid}/{token}"
+        print("ACTIVATION LINK:", activation_link)
         subject = "Resend: Activate Your Spark-Fund Account"
-        message = f"Hi {user.username},\n\nPlease click the link below to activate your account:\n{activation_link}\n\nThank you!"
+        message = (
+            f"Hi {user.username},\n\n"
+            f"Please click the link below to activate your account:\n"
+            f"{activation_link}\n\n"
+            f"Thank you,\nThe Spark-Fund Team"
+        )
         send_mail(
             subject,
             message,
@@ -205,34 +218,14 @@ class ResendActivationEmailView(APIView):
             fail_silently=False,
         )
         return Response(
-            {"message": "Activation email resent successfully."},
+            {"message": "Activation email resent successfully"},
             status=status.HTTP_200_OK,
         )
 
 
-class GoogleAuthView(APIView):
-    def post(self, request):
-        email = request.data.get("email")
-        name = request.data.get("name")
-
-        user, created = CustomUser.objects.get_or_create(
-            email=email,
-            defaults={
-                "username": email.split("@")[0],
-                "first_name": name.split()[0],
-                "is_active": True,
-            },
-        )
-
-        refresh = RefreshToken.for_user(user)
-
-        return Response(
-            {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-                "msg": "User created" if created else "User verified",
-            }
-        )
+class GoogleAuthView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    permission_classes = [AllowAny]
 
 
 class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
@@ -279,8 +272,7 @@ class PasswordResetRequestView(APIView):
 
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        frontend_base_url = "http://localhost:5173"
-        reset_link = f"{frontend_base_url}/reset-password/{uid}/{token}"
+        reset_link = f"{settings.FRONTEND_BASE_URL}/reset-password/{uid}/{token}"
 
         subject = "Reset Your Spark-Fund Password"
         message = f"Hi {user.username},\n\nPlease click the link below to reset your password:\n{reset_link}\n\nThis link will expire in 1 hour.\n\nThank you!"
@@ -358,6 +350,7 @@ class ProjectCreateView(generics.CreateAPIView):
 
 class ProjectAPIView(APIView):
     permission_classes = [AllowAny]
+
     def get(self, request, id=None):
         if id:
             project = get_object_or_404(
@@ -565,7 +558,6 @@ class LogoutView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class ProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -610,6 +602,7 @@ class ProjectRatingView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class UserProjectRatingView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -626,6 +619,7 @@ class UserProjectRatingView(APIView):
             return Response({"rating": rating.rating}, status=status.HTTP_200_OK)
         except ProjectRating.DoesNotExist:
             return Response({"rating": None}, status=status.HTTP_200_OK)
+
 
 class CancelProjectAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
