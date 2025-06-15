@@ -15,6 +15,7 @@ const UserProfile = lazy(() => import("./pages/UserProfile/UserProfile"));
 const Projects = lazy(() => import("./pages/Projects/Projects"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword/ResetPassword"));
+const ActivateAccount = lazy(() => import("./pages/ActivateAccount/ActivateAccount"));
 const About = lazy(() => import("./pages/About/About"));
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:uidb64/:token" element={<ResetPassword />} />
+          <Route path="/activate/:uidb64/:token" element={<ActivateAccount />} />
           <Route path="/project/:id" element={<ProjectDetails />} />
           <Route path="/create" element={<CreateProject />} />
           <Route path="/user/:id" element={<UserProfile />} />
