@@ -6,6 +6,10 @@ import CampaignSmallCard from "../../components/CampaignSmallCard/CampaignSmallC
 import "../../components/ProjectComment/ProjectComment";
 import ProjectComment from "../../components/ProjectComment/ProjectComment";
 import Footer from "../../components/Footer/Footer";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Footer from "../../components/Footer/Footer";
 
 // Utility function to get logged in user ID
 function getLoggedInUserId() {
@@ -79,11 +83,12 @@ const ProjectDetails = () => {
   const [canceling, setCanceling] = useState(false);
   const [donationAmount, setDonationAmount] = useState("");
   const [userDonation, setUserDonation] = useState(0);
+  const [userDonation, setUserDonation] = useState(0);
   const [showProjectReportForm, setShowProjectReportForm] = useState(false);
   const [projectReportReason, setProjectReportReason] = useState("");
   const [similarProjectsByTag, setSimilarProjectsByTag] = useState({});
   const [loadingSimilar, setLoadingSimilar] = useState(false);
-
+  
   useEffect(() => {
     if (project && project.tags_detail?.length > 0) {
       fetchSimilarProjectsByTag();
@@ -156,6 +161,16 @@ const ProjectDetails = () => {
       console.error("Error fetching user donation:", error);
     }
   }, [projectId]);
+  const fetchUserDonation = useCallback(async () => {
+    try {
+      const response = await axiosInstance.get(
+        `/projects/${projectId}/donation-amount/`
+      );
+      setUserDonation(response.data.donation_amount);
+    } catch (error) {
+      console.error("Error fetching user donation:", error);
+    }
+  }, [projectId]);
 
   useEffect(() => {
     setCurrentUserId(getLoggedInUserId());
@@ -166,7 +181,9 @@ const ProjectDetails = () => {
       fetchProject();
       fetchUserRating();
       fetchUserDonation();
+      fetchUserDonation();
     }
+  }, [projectId, fetchProject, fetchUserRating, fetchUserDonation]);
   }, [projectId, fetchProject, fetchUserRating, fetchUserDonation]);
 
   // New function to update replies for a specific comment
@@ -250,6 +267,7 @@ const ProjectDetails = () => {
       setDonationAmount("");
       fetchProject();
       fetchUserDonation();
+      fetchUserDonation();
     } catch (err) {
       console.error("Donation error:", err.response?.data || err.message);
     }
@@ -286,6 +304,18 @@ const ProjectDetails = () => {
     }
   };
 
+  // Slider settings
+  const sliderSettings = {
+    dots: true,          // Show dot indicators
+    infinite: true,      // Loop the slider
+    speed: 500,          // Transition speed in ms
+    slidesToShow: 1,     // Show one slide at a time
+    slidesToScroll: 1,   // Scroll one slide at a time
+    adaptiveHeight: true,// Adjust height based on the image
+    autoplay: true,      // Automatically change slides
+    autoplaySpeed: 3000, // Change slide every 3 seconds
+  };
+
   if (loading) return <div className="loading">Loading project...</div>;
   if (error) return <div className="error">Error: {error}</div>;
   if (!project) return <div>No project found</div>;
@@ -305,7 +335,7 @@ const ProjectDetails = () => {
     project_creator,
     is_cancelled,
   } = project;
-
+  
   const donationRatio = donation_amount / total_target;
 
   console.log(tags_detail);
@@ -326,23 +356,25 @@ const ProjectDetails = () => {
               {details || "No details available."}
             </p>
           </div>
-
-          {/* Images */}
-          {images.length > 0 && (
-            <div className="campaign-images">
-              {images.map((img) => (
-                <div key={img.id}>
-                  <img
-                    src={
-                      img.image.startsWith("http")
-                        ? img.image
-                        : `http://localhost:8000${img.image}`
-                    }
-                    alt={title}
-                    className="img-fluid rounded-3"
-                  />
-                </div>
-              ))}
+            {/* Image Slider */}
+            {images.length > 0 && (
+              <div className="campaign-images mb-4 shadow-sm rounded-4">
+              <Slider {...sliderSettings}>
+                {images.map((img) => (
+                  <div key={img.id}>
+                    <img
+                      src={
+                        img.image.startsWith("http")
+                          ? img.image
+                          : `http://localhost:8000${img.image}`
+                      }
+                      alt={title}
+                      className="img-fluid rounded-4" 
+                      style={{ width: "100%", objectFit: "cover" }}
+                    />
+                  </div>
+                ))}
+              </Slider>
             </div>
           )}
 
@@ -420,12 +452,14 @@ const ProjectDetails = () => {
               </div>
 
               {localStorage.getItem("access_token") && (
+              {localStorage.getItem("access_token") && (
                 <div className="col">
                   <div className="fw-bold fs-5 text-primary">
                     {userDonation?.toLocaleString() || "0"}
                   </div>
                   <div className="text-muted small">Your Donation</div>
                 </div>
+              )}
               )}
             </div>
 
@@ -645,6 +679,8 @@ const ProjectDetails = () => {
           )}
         </div>
       </section>
+
+      <Footer />
 
       <Footer />
     </section>
