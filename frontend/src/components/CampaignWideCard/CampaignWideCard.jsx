@@ -14,9 +14,7 @@ const CampaignWideCard = ({ project }) => {
       : 0;
 
   const projectImage =
-    project.images?.length > 0
-      ? `https://OthmanAhmedDora.pythonanywhere.com/media/${project.images[0].image}`
-      : "/Rectangle.png";
+  project.images?.length > 0 ? project.images[0] : "/Rectangle.png";
 
   const userProfilePic = project.project_creator?.profile_picture
     ? `https://OthmanAhmedDora.pythonanywhere.com/media/${project.project_creator.profile_picture}`
