@@ -136,6 +136,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     category_detail = CategorySerializer(source="category", read_only=True)
     tags = serializers.CharField(write_only=True)
     category = serializers.CharField(write_only=True)
+    images_urls = serializers.ListField(child=serializers.URLField(), required=False)
     average_rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -155,6 +156,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "project_creator",
             "created_at",
             "images",
+            "images_urls",
             "comments",
             "average_rating",
             "is_cancelled",
@@ -166,6 +168,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         tags_str = validated_data.pop("tags", "")
         category_name = validated_data.pop("category")
+        images_urls = validated_data.pop("images_urls", [])
         user = self.context["request"].user
         project = Project.objects.create(**validated_data, project_creator=user)
         category, created = Category.objects.get_or_create(name=category_name)
@@ -175,6 +178,9 @@ class ProjectSerializer(serializers.ModelSerializer):
         for tag_name in tags_list:
             tag, created = Tag.objects.get_or_create(name=tag_name)
             project.tags.add(tag)
+        for image_url in images_urls:
+            project.images_urls.append(image_url)
+        project.save()
         request = self.context.get("request")
         if request and request.FILES:
             images_files = request.FILES.getlist("images")
