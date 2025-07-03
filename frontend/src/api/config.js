@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: "https://OthmanAhmedDora.pythonanywhere.com/api",
   timeout: 80000,
   headers: {
     "Content-Type": "application/json",
@@ -33,17 +33,22 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh_token");
         console.log("Attempting to refresh token with:", refreshToken); // Debug
         const response = await axios.post(
-          "http://127.0.0.1:8000/api/token/refresh/",
+          "https://OthmanAhmedDora.pythonanywhere.com/api/token/refresh/",
           { refresh: refreshToken }
         );
         const newAccessToken = response.data.access;
         console.log("New access token:", newAccessToken); // Debug
         localStorage.setItem("access_token", newAccessToken);
-        axiosInstance.defaults.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        axiosInstance.defaults.headers[
+          "Authorization"
+        ] = `Bearer ${newAccessToken}`;
         originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
         return axiosInstance(originalRequest);
       } catch (err) {
-        console.error("Token refresh error:", err.response?.data || err.message);
+        console.error(
+          "Token refresh error:",
+          err.response?.data || err.message
+        );
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user_id");
