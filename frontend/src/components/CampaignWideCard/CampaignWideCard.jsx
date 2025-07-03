@@ -15,11 +15,11 @@ const CampaignWideCard = ({ project }) => {
 
   const projectImage =
     project.images?.length > 0
-      ? `http://localhost:8000${project.images[0].image}`
+      ? `https://OthmanAhmedDora.pythonanywhere.com/media/${project.images[0].image}`
       : "/Rectangle.png";
 
   const userProfilePic = project.project_creator?.profile_picture
-    ? `http://127.0.0.1:8000${project.project_creator.profile_picture}`
+    ? `https://OthmanAhmedDora.pythonanywhere.com/media/${project.project_creator.profile_picture}`
     : "/profile-blank.png";
 
   return (
