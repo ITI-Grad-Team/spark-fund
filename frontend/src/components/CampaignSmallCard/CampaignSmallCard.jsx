@@ -16,11 +16,11 @@ const CampaignSmallCard = ({ project }) => {
   const projectImage =
     project.images?.length > 0
       ? `https://campoal-fund-raising.netlify.app/${project.images[0].image}`
-      : "../../../public/Rectangle.png";
+      : "/Rectangle.png";
 
   const userProfilePic = project.project_creator?.profile_picture
     ? `https://campoal-fund-raising.netlify.app/${project.project_creator.profile_picture}`
-    : "../../../public/profile-blank.png";
+    : "/profile-blank.png";
 
   const isProjectClosedOrEnded =
     project.is_cancelled || new Date(project.end_date) < new Date();
