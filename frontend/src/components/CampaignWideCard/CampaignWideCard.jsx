@@ -20,6 +20,9 @@ const userProfilePic = project.project_creator?.profile_picture
   ? project.project_creator.profile_picture
   : "/profile-blank.png";
 
+  console.log('Project Image URL:', projectImage);
+console.log('User Profile Pic URL:', userProfilePic);
+
   return (
     <section
       className="wide-card container"
