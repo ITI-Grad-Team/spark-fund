@@ -11,7 +11,7 @@ const Reply = ({ reply }) => {
     <div className="reply mb-2 p-2 bg-body-secondary rounded-3">
       <div className="d-flex align-items-center gap-2 mb-1">
         <img
-          src={`http://localhost:8000${reply.user.profile_picture}`}
+          src={`https://ahmedelsabbagh.pythonanywhere.com${reply.user.profile_picture}`}
           onError={(e) => {
               e.target.onerror = null;
               e.target.src = "/profile-blank.png";
@@ -85,7 +85,7 @@ const ProjectComment = ({ comment, updateCommentReplies }) => {
       <div className="d-flex justify-content-between align-items-center mb-2">
         <div className="d-flex align-items-center gap-2">
           <img
-            src={`http://localhost:8000${comment.user.profile_picture}`}
+            src={`https://ahmedelsabbagh.pythonanywhere.com${comment.user.profile_picture}`}
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = "/profile-blank.png";

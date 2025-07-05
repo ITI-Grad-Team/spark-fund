@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://OthmanAhmedDora.pythonanywhere.com/api",
+  baseURL: "https://ahmedelsabbagh.pythonanywhere.com/api",
   timeout: 8000,
   headers: {
     "Content-Type": "application/json",
@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem("refresh_token");
         console.log("Attempting to refresh token with:", refreshToken); // Debug
         const response = await axios.post(
-          "https://OthmanAhmedDora.pythonanywhere.com/api/token/refresh/",
+          "https://ahmedelsabbagh.pythonanywhere.com/api/token/refresh/",
           { refresh: refreshToken }
         );
         const newAccessToken = response.data.access;

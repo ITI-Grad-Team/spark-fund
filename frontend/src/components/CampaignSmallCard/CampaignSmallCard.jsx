@@ -13,12 +13,17 @@ const CampaignSmallCard = ({ project }) => {
       ? Math.min(100, (project.donation_amount / project.total_target) * 100)
       : 0;
 
-  const projectImage =
-  project.images?.length > 0 ? project.images[0] : "/Rectangle.png";
+const API_BASE_URL = "https://ahmedelsabbagh.pythonanywhere.com";
 
-const userProfilePic = project.project_creator?.profile_picture
-  ? project.project_creator.profile_picture
-  : "/profile-blank.png";
+const projectImage =
+  project.images?.length > 0
+    ? `${API_BASE_URL}${project.images[0].image}`
+    : "/Rectangle.png";
+
+const userProfilePic =
+  project.project_creator?.profile_picture
+    ? `${API_BASE_URL}${project.project_creator.profile_picture}`
+    : "/profile-blank.png";
 
   const isProjectClosedOrEnded =
     project.is_cancelled || new Date(project.end_date) < new Date();

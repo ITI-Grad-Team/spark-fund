@@ -26,7 +26,7 @@ const CreateProject = () => {
       setToken(storedToken);
     }
 
-    fetch("https://OthmanAhmedDora.pythonanywhere.com/api/categories/")
+    fetch("https://ahmedelsabbagh.pythonanywhere.com/api/categories/")
       .then((res) => res.json())
       .then((data) => {
         setCategories(data.results);
@@ -82,7 +82,7 @@ const CreateProject = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:8000/api/projects/create/", {
+      const res = await fetch("https://ahmedelsabbagh.pythonanywhere.com//api/projects/create/", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -351,7 +351,7 @@ const ProjectDetails = () => {
                       src={
                         img.image.startsWith("http")
                           ? img.image
-                          : `http://localhost:8000${img.image}`
+                          : `https://ahmedelsabbagh.pythonanywhere.com${img.image}`
                       }
                       alt={title}
                       className="img-fluid rounded-4"
@@ -454,7 +454,7 @@ const ProjectDetails = () => {
                     className="text-decoration-none"
                   >
                     <img
-                      src={`http://localhost:8000${project_creator.profile_picture}`}
+                      src={`https://ahmedelsabbagh.pythonanywhere.com${project_creator.profile_picture}`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/profile-blank.png";
