@@ -98,7 +98,7 @@ const Navbar = () => {
                 <img
                   src={
                     user?.profile_picture
-                      ? `http://127.0.0.1:8000${user.profile_picture}`
+                      ? `https://OthmanAhmedDora.pythonanywhere.com${user.profile_picture}`
                       : "/profile-blank.png"
                   }
                   alt="Profile"

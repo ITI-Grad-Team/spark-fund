@@ -2,7 +2,7 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: "https://OthmanAhmedDora.pythonanywhere.com/api",
-  timeout: 80000,
+  timeout: 8000,
   headers: {
     "Content-Type": "application/json",
   },

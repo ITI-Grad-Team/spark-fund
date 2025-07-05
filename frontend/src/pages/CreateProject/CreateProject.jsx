@@ -26,7 +26,7 @@ const CreateProject = () => {
       setToken(storedToken);
     }
 
-    fetch("http://localhost:8000/api/categories/")
+    fetch("https://OthmanAhmedDora.pythonanywhere.com/api/categories/")
       .then((res) => res.json())
       .then((data) => {
         setCategories(data.results);
