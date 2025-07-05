@@ -136,7 +136,6 @@ class ProjectSerializer(serializers.ModelSerializer):
     category_detail = CategorySerializer(source="category", read_only=True)
     tags = serializers.CharField(write_only=True)
     category = serializers.CharField(write_only=True)
-    images_urls = serializers.ListField(child=serializers.URLField(), required=False)
     average_rating = serializers.SerializerMethodField()
 
     class Meta:
@@ -156,7 +155,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             "project_creator",
             "created_at",
             "images",
-            "images_urls",
             "comments",
             "average_rating",
             "is_cancelled",
