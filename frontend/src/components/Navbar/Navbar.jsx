@@ -81,7 +81,6 @@ const Navbar = () => {
           <Link to="/">Home</Link>
           <Link to="/projects">Campaigns</Link>
           <Link to="/about">About</Link>
-          <Link to="/">Contact</Link>
           <div>
             <Link to="/create/">
               <button className="create-btn">
