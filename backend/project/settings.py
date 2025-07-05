@@ -13,7 +13,7 @@ if not SECRET_KEY:
     raise Exception("SECRET_KEY not found in environment variables!")
 
 DEBUG = False
-ALLOWED_HOSTS = ['OthmanAhmedDora.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['ahmedelsabbagh.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     "django.contrib.admin",
