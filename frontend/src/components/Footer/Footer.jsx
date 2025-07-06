@@ -22,8 +22,8 @@ const Footer = () => {
                 src="/norton-by-symantec-vector-logo 1.svg"
                 alt="norton logo"
               />
-              <img src="stripe-seeklogo.com 1.svg" alt="stripe logo" />
-              <img src="Group 8.svg" alt="paypal logo" />
+              <img src="/stripe-seeklogo.com 1.svg" alt="stripe logo" />
+              <img src="/Group 8.svg" alt="paypal logo" />
             </div>
           </div>
 
@@ -90,13 +90,13 @@ const Footer = () => {
               <img src="/Facebook_black 1.svg" alt="Facebook icon" />
             </a>
             <a href="">
-              <img src="Twitter_black 1.svg" alt="Twitter icon" />
+              <img src="/Twitter_black 1.svg" alt="Twitter icon" />
             </a>
             <a href="">
               <img src="/Youtube_black 1.svg" alt="Youtube icon" />
             </a>
             <a href="">
-              <img src="Medium_black 1.svg" alt="Medium icon" />
+              <img src="/Medium_black 1.svg" alt="Medium icon" />
             </a>
           </div>
         </section>

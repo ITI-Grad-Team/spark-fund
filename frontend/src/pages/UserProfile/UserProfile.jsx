@@ -154,7 +154,8 @@ function UserProfile() {
   if (!user) return <div className="text-center my-5">Loading...</div>;
 
   return (
-    <div className="container-fluid">
+    <>
+    <div className="container-fluid profile-wrapper">
       <div className="container my-5">
         <h2 className="mb-4">User Profile</h2>
 
@@ -530,9 +531,9 @@ function UserProfile() {
           </div>
         )}
       </div>
-
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }
 

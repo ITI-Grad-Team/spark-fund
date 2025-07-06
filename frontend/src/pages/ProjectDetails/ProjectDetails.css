@@ -1,6 +1,7 @@
 .details-background {
-  padding-block: 8rem;
+  padding-top: 8rem;
   background-color: #fffcf7;
+  padding-left: 0 !important;
 
   .project-details {
     display: flex;

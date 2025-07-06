@@ -1,7 +1,11 @@
 
+.container-fluid{
+  padding-left: 0 !important;
+}
+
 .profile-container {
   background-color: #fff;
-  padding: 30px;
+  /* padding: 30px; */
   border-radius: 15px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
 }

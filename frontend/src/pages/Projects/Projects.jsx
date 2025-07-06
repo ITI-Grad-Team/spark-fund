@@ -60,7 +60,7 @@ const Projects = () => {
   }, [category, search, searchInTitle, searchInTags]);
 
   return (
-    <section className="container-fluid">
+    <section className="container-fluid project-container">
       {/* Search */}
       <div className="row my-4">
         <div className="col-md-8 offset-md-2">
