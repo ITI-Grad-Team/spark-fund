@@ -9,6 +9,7 @@
   align-items: center;
   height: 100vh;
   position: relative;
+  max-width: 1440px;
 
   h1 {
     font-size: 4rem;
@@ -388,6 +389,30 @@
 
     img {
       background-color: transparent;
+    }
+  }
+}
+
+@media (max-width: 375px) {
+  .hero {
+    text-align: center;
+    padding-inline: 1rem;
+
+    h1 {
+      margin-top: 3rem;
+    }
+
+    .btns {
+      display: flex;
+      flex-direction: column;
+      z-index: 2;
+    }
+
+    .hero-image {
+      position: absolute;
+      bottom: -30rem;
+      background-color: transparent;
+      z-index: 1;
     }
   }
 }
