@@ -5,6 +5,7 @@
   justify-content: center;
   text-align: center;
   padding-top: 10rem;
+  padding-inline: 1rem;
 
   h2 {
     font-size: 48px;

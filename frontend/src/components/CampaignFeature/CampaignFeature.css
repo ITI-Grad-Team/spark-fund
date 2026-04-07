@@ -3,6 +3,7 @@
   align-items: start;
   justify-content: left;
   gap: 2rem;
+  padding-inline: 1rem;
 
   .feature-icon {
     background-color: #6059c9;
@@ -33,7 +34,7 @@
       font-size: 18px;
       color: #5f5f75;
       line-height: 1.3rem;
-      width: 24rem;
+      max-width: 24rem;
     }
   }
 }
