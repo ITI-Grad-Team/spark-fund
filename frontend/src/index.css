@@ -12,6 +12,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Sen", sans-serif;
+  --bs-gutter-x: 0 !important;
 }
 
 body {

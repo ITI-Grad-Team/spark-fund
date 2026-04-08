@@ -17,27 +17,27 @@ const Home = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [categories, setCategories] = useState([]);
+  // const [categories, setCategories] = useState([]);
 
-  const lastFive = [...projects]
-    .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
-    .slice(0, 5);
+  // const lastFive = [...projects]
+  // .sort((a, b) => new Date(b.start_date) - new Date(a.start_date))
+  // .slice(0, 5);
 
   const currentDate = new Date();
 
   const topRated = [...projects]
     .filter(
       (project) =>
-        !project.is_cancelled && new Date(project.end_date) > currentDate
+        !project.is_cancelled && new Date(project.end_date) > currentDate,
     )
     .sort((a, b) => b.average_rating - a.average_rating)
     .slice(0, 5);
 
-  useEffect(() => {
-    axiosInstance.get("/category-names/").then((res) => {
-      setCategories(res.data);
-    });
-  }, []);
+  // useEffect(() => {
+  //   axiosInstance.get("/category-names/").then((res) => {
+  //     setCategories(res.data);
+  //   });
+  // }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -111,7 +111,7 @@ const Home = () => {
 
       <CampaignDesc />
 
-      <section className="container categories">
+      {/* <section className="container categories">
         <SectionHeader
           header="Browse Campaigns"
           paragraph="See Your Desired Campaigns Based on There categories."
@@ -124,9 +124,9 @@ const Home = () => {
             </button>
           ))}
         </div>
-      </section>
+      </section> */}
 
-      <section className="campaigns container">
+      {/* <section className="campaigns container">
         <SectionHeader
           header="Your voice matters"
           paragraph="These petitions need your help to achieve victory."
@@ -155,7 +155,7 @@ const Home = () => {
         <Link to="/projects" className="all-campaigns-btn">
           All campaigns <img src="/angle-right 5.svg" alt="right arrow icon" />
         </Link>
-      </section>
+      </section> */}
 
       <section className="role container">
         <section className="col-1">

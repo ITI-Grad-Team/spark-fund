@@ -77,6 +77,7 @@ const Navbar = () => {
                 </button>
               </div>
             </div>
+
             <div className="navbar-col-2">
               <Link className="search-btn" to="/projects">
                 <img src="/search.svg" alt="search icon" /> Search
@@ -133,7 +134,13 @@ const Navbar = () => {
             </div>
           </>
         ) : (
-          <IoMenuOutline />
+          <div className="mobile-menu">
+            <Link className="navbar-brand" to="/">
+              <img src="/navbar-logo.png" alt="Logo" />
+            </Link>
+
+            <IoMenuOutline className="burger-menu" />
+          </div>
         )}
       </div>
     </nav>
